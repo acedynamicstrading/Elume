@@ -702,7 +702,7 @@
 // ══════════════════════════════════════════════════════════════════
 // CONFIG — update WORKER_URL to your Cloudflare Worker endpoint
 // ══════════════════════════════════════════════════════════════════
-const WORKER_URL = "https://elmo-hairstyler-worker.acedynamicstrading.workers.dev";
+const WORKER_URL = "https://YOUR-WORKER.workers.dev";
 
 // ══════════════════════════════════════════════════════════════════
 // STATE
@@ -768,7 +768,9 @@ function setGender(g) {
 // ══════════════════════════════════════════════════════════════════
 async function startWebcam() {
   if (cameraInstance) return;
-  document.getElementById('scanner-placeholder').style.display = 'none';
+
+  const placeholder = document.getElementById('scanner-placeholder');
+  placeholder.style.display = 'none';
   document.getElementById('face-status-bar').style.display = 'flex';
 
   const video = document.getElementById('webcam-video');
@@ -787,13 +789,35 @@ async function startWebcam() {
     faceMeshInstance.onResults(onFaceMeshResults);
   }
 
-  cameraInstance = new Camera(video, {
-    onFrame: async () => {
-      await faceMeshInstance.send({ image: video });
-    },
-    width: 640, height: 720,
-  });
-  cameraInstance.start();
+  try {
+    cameraInstance = new Camera(video, {
+      onFrame: async () => {
+        if (faceMeshInstance) await faceMeshInstance.send({ image: video });
+      },
+      width: 640, height: 720,
+    });
+    await cameraInstance.start();
+  } catch (err) {
+    cameraInstance = null;
+    video.classList.add('hidden');
+    document.getElementById('face-status-bar').style.display = 'none';
+    showCameraError(err);
+  }
+}
+
+function showCameraError(err) {
+  const placeholder = document.getElementById('scanner-placeholder');
+  placeholder.style.display = 'flex';
+  const isDenied = err && (err.name === 'NotAllowedError' || err.name === 'PermissionDeniedError');
+  const isNotFound = err && (err.name === 'NotFoundError' || err.name === 'DevicesNotFoundError');
+  let msg = 'Camera unavailable';
+  if (isDenied) msg = 'Camera permission denied';
+  else if (isNotFound) msg = 'No camera found on this device';
+  placeholder.innerHTML = `
+    <svg viewBox="0 0 48 48" fill="none" stroke="currentColor" stroke-width="1"><circle cx="24" cy="20" r="8"/><path d="M12 40c0-6.627 5.373-12 12-12s12 5.373 12 12"/></svg>
+    <p style="color:rgba(255,255,255,0.5);font-size:0.7rem;letter-spacing:0.1em;text-transform:uppercase;text-align:center;padding:0 16px">${msg}</p>
+    ${isDenied ? `<button onclick="startWebcam()" style="margin-top:8px;padding:8px 20px;background:var(--gold);color:var(--ink);border:none;cursor:pointer;font-size:0.65rem;letter-spacing:0.15em;text-transform:uppercase">Try Again</button>` : `<button onclick="setMode('upload')" style="margin-top:8px;padding:8px 20px;background:var(--gold);color:var(--ink);border:none;cursor:pointer;font-size:0.65rem;letter-spacing:0.15em;text-transform:uppercase">Use Upload Instead</button>`}
+  `;
 }
 
 function stopWebcam() {
@@ -1204,37 +1228,68 @@ function showResults() {
   const grid = document.getElementById('style-cards-grid');
   grid.innerHTML = '';
 
-  recommendations.slice(0, 3).forEach((style, i) => {
-    const card = document.createElement('div');
-    card.className = `style-card${i === 0 ? ' rank-1' : ''}`;
-    card.dataset.id = i;
+  if (recommendations.length === 0) {
+    grid.innerHTML = `<div style="grid-column:1/-1;text-align:center;padding:60px 24px">
+      <p style="font-family:'Cormorant Garamond',serif;font-size:1.4rem;font-weight:300;color:var(--ink);margin-bottom:12px">No styles found for <em>${detectedFaceShape}</em> face</p>
+      <p style="font-size:0.75rem;color:var(--ink-light);letter-spacing:0.08em">Our database is still growing — showing our top picks for you instead.</p>
+    </div>`;
+    recommendations = generateFallbackRecs(detectedFaceShape, selectedGender);
+    recommendations.slice(0, 3).forEach((style, i) => {
+      const card = document.createElement('div');
+      card.className = `style-card${i === 0 ? ' rank-1' : ''}`;
+      card.dataset.id = i;
+      const imgSrc = `https://via.placeholder.com/400x533/1a1410/c9a96e?text=${encodeURIComponent(style.styleName || 'Style')}`;
+      card.innerHTML = `
+        <img class="style-card-img" src="${imgSrc}" alt="${style.styleName}" loading="lazy">
+        <div class="style-card-info">
+          <div class="style-card-name">${style.styleName || 'Style ' + (i + 1)}</div>
+          <div class="style-card-tags"></div>
+        </div>
+        <div class="style-select-indicator">
+          <svg viewBox="0 0 10 8" fill="none" stroke="currentColor" stroke-width="2"><polyline points="1,4 3.5,7 9,1"/></svg>
+        </div>
+      `;
+      card.addEventListener('click', () => toggleStyleSelect(i, card));
+      grid.appendChild(card);
+    });
+  } else {
+    recommendations.slice(0, 3).forEach((style, i) => {
+      const card = document.createElement('div');
+      card.className = `style-card${i === 0 ? ' rank-1' : ''}`;
+      card.dataset.id = i;
 
-    const imgSrc = style.imageUrl
-      ? style.imageUrl
-      : `https://via.placeholder.com/400x533/1a1410/c9a96e?text=${encodeURIComponent(style.styleName || 'Style')}`;
+      const imgSrc = style.imageUrl || style.imageURL
+        ? (style.imageUrl || style.imageURL)
+        : `https://via.placeholder.com/400x533/1a1410/c9a96e?text=${encodeURIComponent(style.styleName || 'Style')}`;
 
-    const tags = (style.tags || []).slice(0, 3).map(t =>
-      `<span class="style-tag">${t}</span>`
-    ).join('');
+      const tags = (style.tags || []).slice(0, 3).map(t =>
+        `<span class="style-tag">${t}</span>`
+      ).join('');
 
-    card.innerHTML = `
-      <img class="style-card-img" src="${imgSrc}" alt="${style.styleName}" loading="lazy">
-      <div class="style-card-info">
-        <div class="style-card-name">${style.styleName || 'Style ' + (i + 1)}</div>
-        <div class="style-card-tags">${tags}</div>
-      </div>
-      <div class="style-select-indicator">
-        <svg viewBox="0 0 10 8" fill="none" stroke="currentColor" stroke-width="2"><polyline points="1,4 3.5,7 9,1"/></svg>
-      </div>
-    `;
+      card.innerHTML = `
+        <img class="style-card-img" src="${imgSrc}" alt="${style.styleName}" loading="lazy">
+        <div class="style-card-info">
+          <div class="style-card-name">${style.styleName || 'Style ' + (i + 1)}</div>
+          <div class="style-card-tags">${tags}</div>
+        </div>
+        <div class="style-select-indicator">
+          <svg viewBox="0 0 10 8" fill="none" stroke="currentColor" stroke-width="2"><polyline points="1,4 3.5,7 9,1"/></svg>
+        </div>
+      `;
 
-    card.addEventListener('click', () => toggleStyleSelect(i, card));
-    grid.appendChild(card);
-  });
+      card.addEventListener('click', () => toggleStyleSelect(i, card));
+      grid.appendChild(card);
+    });
+  }
 
   // Automatically select best match
-  selectedStyles = [0];
-  grid.querySelector('.style-card').classList.add('selected');
+  if (recommendations.length > 0) {
+    selectedStyles = [0];
+    const firstCard = grid.querySelector('.style-card');
+    if (firstCard) firstCard.classList.add('selected');
+  } else {
+    selectedStyles = [];
+  }
 
   document.getElementById('results-section').style.display = 'block';
   document.getElementById('results-section').classList.add('fade-in');
