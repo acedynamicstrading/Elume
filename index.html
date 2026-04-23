@@ -722,6 +722,7 @@ let recommendations = [];
 let selectedStyles = [];
 let analysisRunning = false;
 let uploadedImageReady = false;
+let cameraFailed = false;
 
 // MediaPipe landmark indices
 const MP = {
@@ -741,6 +742,7 @@ const MP = {
 // ══════════════════════════════════════════════════════════════════
 function setMode(mode) {
   currentMode = mode;
+  if (mode === 'webcam') cameraFailed = false;
   document.getElementById('btn-webcam').classList.toggle('active', mode === 'webcam');
   document.getElementById('btn-upload').classList.toggle('active', mode === 'upload');
   document.getElementById('upload-zone').classList.toggle('hidden', mode === 'webcam');
@@ -768,8 +770,10 @@ function setGender(g) {
 // ══════════════════════════════════════════════════════════════════
 // WEBCAM & MEDIAPIPE
 // ══════════════════════════════════════════════════════════════════
-async function startWebcam() {
+async function startWebcam(forceRetry) {
   if (cameraInstance) return;
+  if (cameraFailed && !forceRetry) return;
+  cameraFailed = false;
 
   const placeholder = document.getElementById('scanner-placeholder');
   placeholder.style.display = 'none';
@@ -803,6 +807,8 @@ async function startWebcam() {
     cameraInstance = null;
     video.classList.add('hidden');
     document.getElementById('face-status-bar').style.display = 'none';
+    const isNotFound = err && (err.name === 'NotFoundError' || err.name === 'DevicesNotFoundError');
+    if (isNotFound) cameraFailed = true;
     showCameraError(err);
   }
 }
@@ -818,7 +824,7 @@ function showCameraError(err) {
   placeholder.innerHTML = `
     <svg viewBox="0 0 48 48" fill="none" stroke="currentColor" stroke-width="1"><circle cx="24" cy="20" r="8"/><path d="M12 40c0-6.627 5.373-12 12-12s12 5.373 12 12"/></svg>
     <p style="color:rgba(255,255,255,0.5);font-size:0.7rem;letter-spacing:0.1em;text-transform:uppercase;text-align:center;padding:0 16px">${msg}</p>
-    ${isDenied ? `<button onclick="startWebcam()" style="margin-top:8px;padding:8px 20px;background:var(--gold);color:var(--ink);border:none;cursor:pointer;font-size:0.65rem;letter-spacing:0.15em;text-transform:uppercase">Try Again</button>` : `<button onclick="setMode('upload')" style="margin-top:8px;padding:8px 20px;background:var(--gold);color:var(--ink);border:none;cursor:pointer;font-size:0.65rem;letter-spacing:0.15em;text-transform:uppercase">Use Upload Instead</button>`}
+    ${isDenied ? `<button onclick="cameraFailed=false;startWebcam(true)" style="margin-top:8px;padding:8px 20px;background:var(--gold);color:var(--ink);border:none;cursor:pointer;font-size:0.65rem;letter-spacing:0.15em;text-transform:uppercase">Try Again</button>` : `<button onclick="setMode('upload')" style="margin-top:8px;padding:8px 20px;background:var(--gold);color:var(--ink);border:none;cursor:pointer;font-size:0.65rem;letter-spacing:0.15em;text-transform:uppercase">Use Upload Instead</button>`}
   `;
 }
 
@@ -1174,7 +1180,8 @@ async function runAnalysis() {
 
   // Fetch recommendations from GAS via Worker
   try {
-    const resp = await fetch(`${WORKER_URL}?action=getRecommendations&faceShape=${detectedFaceShape}&gender=${selectedGender}`);
+    const genderParam = selectedGender === "M" ? "male" : "female";
+    const resp = await fetch(`${WORKER_URL}?action=getRecommendations&faceShape=${detectedFaceShape.toLowerCase()}&gender=${genderParam}`);
     const data = await resp.json();
 
     if (data.success && (data.primary || data.recommendations)) {
@@ -1269,16 +1276,15 @@ function showResults() {
       card.className = `style-card${i === 0 ? ' rank-1' : ''}`;
       card.dataset.id = i;
 
-      const imgSrc = style.imageUrl || style.imageURL
-        ? (style.imageUrl || style.imageURL)
-        : makePlaceholder(style.styleName || 'Style');
+      const imgSrc = (style.imageUrl || style.imageURL) || makePlaceholder(style.styleName || 'Style');
+      const placeholderSrc = makePlaceholder(style.styleName || 'Style');
 
       const tags = (style.tags || []).slice(0, 3).map(t =>
         `<span class="style-tag">${t}</span>`
       ).join('');
 
       card.innerHTML = `
-        <img class="style-card-img" src="${imgSrc}" alt="${style.styleName}" loading="lazy">
+        <img class="style-card-img" src="${imgSrc}" alt="${style.styleName}" loading="lazy" onerror="this.onerror=null;this.src='${placeholderSrc}'">
         <div class="style-card-info">
           <div class="style-card-name">${style.styleName || 'Style ' + (i + 1)}</div>
           <div class="style-card-tags">${tags}</div>
@@ -1510,7 +1516,7 @@ window.addEventListener('load', () => {
 // Auto-start webcam when entering app section
 const observer = new IntersectionObserver((entries) => {
   entries.forEach(e => {
-    if (e.isIntersecting && currentMode === 'webcam' && !cameraInstance) {
+    if (e.isIntersecting && currentMode === 'webcam' && !cameraInstance && !cameraFailed) {
       startWebcam();
       document.getElementById('webcam-tips').style.display = 'flex';
     }
