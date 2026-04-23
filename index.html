@@ -2,6 +2,8 @@
 <html lang="en">
 <head>
 <meta charset="UTF-8">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' fill='%231a1410'/%3E%3Ctext x='50%25' y='55%25' dominant-baseline='middle' text-anchor='middle' font-family='serif' font-size='18' fill='%23c9a96e'%3EE%3C/text%3E%3C/svg%3E">
+<link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'><rect width='32' height='32' fill='%231a1410'/><text x='50%25' y='55%25' dominant-baseline='middle' text-anchor='middle' font-family='serif' font-size='18' fill='%23c9a96e'>E</text></svg>">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>ÉLUME — AI Salon Style Consultant</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -702,7 +704,7 @@
 // ══════════════════════════════════════════════════════════════════
 // CONFIG — update WORKER_URL to your Cloudflare Worker endpoint
 // ══════════════════════════════════════════════════════════════════
-const WORKER_URL = "https://YOUR-WORKER.workers.dev";
+const WORKER_URL = "https://elmo-hairstyler-worker.acedynamicstrading.workers.dev";
 
 // ══════════════════════════════════════════════════════════════════
 // STATE
@@ -1192,6 +1194,15 @@ async function runAnalysis() {
   analysisRunning = false;
 }
 
+function makePlaceholder(label) {
+  const lines = label.length > 18 ? [label.slice(0, 18), label.slice(18)] : [label];
+  const textRows = lines.map((t, i) =>
+    `<text x="200" y="${250 + i * 28}" font-family="Georgia,serif" font-size="18" fill="#c9a96e" text-anchor="middle" letter-spacing="1">${t}</text>`
+  ).join('');
+  const svg = `<svg xmlns="http://www.w3.org/2000/svg" width="400" height="533" viewBox="0 0 400 533"><rect width="400" height="533" fill="#1a1410"/><rect x="60" y="60" width="280" height="413" fill="none" stroke="rgba(201,169,110,0.2)" stroke-width="1"/>${textRows}</svg>`;
+  return 'data:image/svg+xml;charset=utf-8,' + encodeURIComponent(svg);
+}
+
 function generateFallbackRecs(faceShape, gender) {
   const styleMap = {
     Oval: ['Classic Taper', 'Textured Crop', 'Side-Swept Layers'],
@@ -1238,7 +1249,7 @@ function showResults() {
       const card = document.createElement('div');
       card.className = `style-card${i === 0 ? ' rank-1' : ''}`;
       card.dataset.id = i;
-      const imgSrc = `https://via.placeholder.com/400x533/1a1410/c9a96e?text=${encodeURIComponent(style.styleName || 'Style')}`;
+      const imgSrc = makePlaceholder(style.styleName || 'Style');
       card.innerHTML = `
         <img class="style-card-img" src="${imgSrc}" alt="${style.styleName}" loading="lazy">
         <div class="style-card-info">
@@ -1260,7 +1271,7 @@ function showResults() {
 
       const imgSrc = style.imageUrl || style.imageURL
         ? (style.imageUrl || style.imageURL)
-        : `https://via.placeholder.com/400x533/1a1410/c9a96e?text=${encodeURIComponent(style.styleName || 'Style')}`;
+        : makePlaceholder(style.styleName || 'Style');
 
       const tags = (style.tags || []).slice(0, 3).map(t =>
         `<span class="style-tag">${t}</span>`
