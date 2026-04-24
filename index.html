@@ -859,14 +859,13 @@ function onFaceMeshResults(results) {
   const ctx = canvas.getContext('2d');
   ctx.clearRect(0, 0, canvas.width, canvas.height);
 
-  drawAlignmentGuide(ctx, canvas.width, canvas.height);
-
   if (results.multiFaceLandmarks && results.multiFaceLandmarks.length > 0) {
     lastLandmarks = results.multiFaceLandmarks[0];
     const quality = evaluateFaceQuality(lastLandmarks, canvas.width, canvas.height);
     faceQuality = quality.score;
     faceDetected = quality.score > 50;
 
+    drawAlignmentGuide(ctx, canvas.width, canvas.height, lastLandmarks);
     drawFaceLandmarkGuide(ctx, lastLandmarks, canvas.width, canvas.height, quality);
 
     document.getElementById('face-dot').classList.toggle('detected', faceDetected);
@@ -877,6 +876,7 @@ function onFaceMeshResults(results) {
   } else {
     faceDetected = false;
     lastLandmarks = null;
+    drawAlignmentGuide(ctx, canvas.width, canvas.height, null);
     document.getElementById('face-dot').classList.remove('detected');
     document.getElementById('face-status-text').textContent = 'No face detected';
     document.getElementById('face-quality').textContent = '';
@@ -905,22 +905,70 @@ function evaluateFaceQuality(landmarks, w, h) {
 // ══════════════════════════════════════════════════════════════════
 // CANVAS DRAWING
 // ══════════════════════════════════════════════════════════════════
-function drawAlignmentGuide(ctx, w, h) {
-  const cx = w / 2;
-  const cy = h / 2;
-  const ow = w * 0.38;
-  const oh = h * 0.56;
+function drawAlignmentGuide(ctx, w, h, landmarks) {
+  // ── Derive oval from real face landmarks when available ────────
+  // Smoothly interpolate toward detected face so the oval tracks live
+  let cx, cy, ow, oh;
 
-  // Outer oval
+  if (landmarks) {
+    const lm = (idx) => ({ x: landmarks[idx].x * w, y: landmarks[idx].y * h });
+
+    const forehead   = lm(MP.FOREHEAD);
+    const chin       = lm(MP.CHIN);
+    const leftEar    = lm(MP.LEFT_EAR);
+    const rightEar   = lm(MP.RIGHT_EAR);
+    const leftTemple = lm(MP.LEFT_TEMPLE);
+    const rightTemple= lm(MP.RIGHT_TEMPLE);
+
+    // Centre: midpoint of forehead–chin axis
+    cx = (forehead.x + chin.x) / 2;
+    cy = (forehead.y + chin.y) / 2;
+
+    // Height: forehead to chin + a small padding so the oval frames hair too
+    const faceH = Math.hypot(chin.x - forehead.x, chin.y - forehead.y);
+    oh = faceH * 0.58;  // slight padding beyond the detected span
+
+    // Width: widest of ear-to-ear or temple-to-temple, with padding
+    const earSpan    = Math.hypot(rightEar.x - leftEar.x, rightEar.y - leftEar.y);
+    const templeSpan = Math.hypot(rightTemple.x - leftTemple.x, rightTemple.y - leftTemple.y);
+    ow = Math.max(earSpan, templeSpan) * 0.58;
+
+    // Smoothly lerp stored guide state toward new values for live cam
+    if (!drawAlignmentGuide._state) {
+      drawAlignmentGuide._state = { cx, cy, ow, oh };
+    } else {
+      const ease = 0.18;
+      drawAlignmentGuide._state.cx += (cx - drawAlignmentGuide._state.cx) * ease;
+      drawAlignmentGuide._state.cy += (cy - drawAlignmentGuide._state.cy) * ease;
+      drawAlignmentGuide._state.ow += (ow - drawAlignmentGuide._state.ow) * ease;
+      drawAlignmentGuide._state.oh += (oh - drawAlignmentGuide._state.oh) * ease;
+      ({ cx, cy, ow, oh } = drawAlignmentGuide._state);
+    }
+  } else {
+    // No face yet — reset lerp state and show static hint guide
+    drawAlignmentGuide._state = null;
+    cx = w / 2;
+    cy = h / 2;
+    ow = w * 0.38;
+    oh = h * 0.56;
+  }
+
+  // ── Dynamic oval opacity: brighter when tracking a face ────────
+  const tracked = !!landmarks;
+  const ovalAlpha   = tracked ? 0.75 : 0.4;
+  const bracketAlpha= tracked ? 0.9  : 0.6;
+  const labelAlpha  = tracked ? 0.65 : 0.55;
+
+  // ── Outer oval ─────────────────────────────────────────────────
   ctx.beginPath();
   ctx.ellipse(cx, cy, ow, oh, 0, 0, Math.PI * 2);
-  ctx.strokeStyle = 'rgba(201,169,110,0.4)';
-  ctx.lineWidth = 1;
-  ctx.setLineDash([6, 4]);
+  ctx.strokeStyle = `rgba(201,169,110,${ovalAlpha})`;
+  ctx.lineWidth = tracked ? 1.5 : 1;
+  ctx.setLineDash(tracked ? [8, 3] : [6, 4]);
   ctx.stroke();
   ctx.setLineDash([]);
 
-  // Corner brackets
+  // ── Corner brackets (anchored to oval extents) ─────────────────
   const bSize = 18;
   const pts = [
     [cx - ow * 0.7, cy - oh * 0.7],
@@ -928,7 +976,7 @@ function drawAlignmentGuide(ctx, w, h) {
     [cx - ow * 0.7, cy + oh * 0.7],
     [cx + ow * 0.7, cy + oh * 0.7],
   ];
-  ctx.strokeStyle = 'rgba(201,169,110,0.6)';
+  ctx.strokeStyle = `rgba(201,169,110,${bracketAlpha})`;
   ctx.lineWidth = 1.5;
   pts.forEach(([x, y], i) => {
     const sx = i % 2 === 0 ? 1 : -1;
@@ -937,43 +985,40 @@ function drawAlignmentGuide(ctx, w, h) {
     ctx.beginPath(); ctx.moveTo(x, y); ctx.lineTo(x, y + sy * bSize); ctx.stroke();
   });
 
-  // Guide labels
+  // ── Guide labels ───────────────────────────────────────────────
   ctx.font = '500 9px Jost, sans-serif';
-  ctx.fillStyle = 'rgba(201,169,110,0.55)';
+  ctx.fillStyle = `rgba(201,169,110,${labelAlpha})`;
   ctx.letterSpacing = '0.15em';
   ctx.textAlign = 'center';
   ctx.fillText('HAIRLINE', cx, cy - oh - 10);
   ctx.fillText('CHIN', cx, cy + oh + 18);
 
-  // Eye line
-  const eyeY = cy - oh * 0.12;
+  // ── Eye line (derived from actual eye landmark when tracking) ──
+  const eyeY = landmarks
+    ? ((landmarks[MP.LEFT_EYE_OUTER].y + landmarks[MP.RIGHT_EYE_OUTER].y) / 2) * h
+    : cy - oh * 0.12;
   ctx.beginPath();
   ctx.moveTo(cx - ow * 0.5, eyeY);
   ctx.lineTo(cx + ow * 0.5, eyeY);
-  ctx.strokeStyle = 'rgba(201,169,110,0.3)';
+  ctx.strokeStyle = `rgba(201,169,110,${tracked ? 0.45 : 0.3})`;
   ctx.lineWidth = 0.8;
   ctx.setLineDash([4, 6]);
   ctx.stroke();
   ctx.setLineDash([]);
-  ctx.fillStyle = 'rgba(201,169,110,0.45)';
+  ctx.fillStyle = `rgba(201,169,110,${tracked ? 0.6 : 0.45})`;
   ctx.font = '9px Jost, sans-serif';
   ctx.textAlign = 'left';
   ctx.fillText('EYE LINE', cx + ow * 0.55, eyeY + 3);
 
-  // Ear guides
+  // ── Ear tick marks ─────────────────────────────────────────────
   const earY1 = cy - oh * 0.15;
   const earY2 = cy + oh * 0.15;
-  [[cx - ow - 8, earY1], [cx - ow - 8, earY2]].forEach(([x, y]) => {
+  [cx - ow - 8, cx + ow + 8].forEach(x => {
     ctx.beginPath(); ctx.moveTo(x, earY1); ctx.lineTo(x, earY2);
-    ctx.strokeStyle = 'rgba(201,169,110,0.35)';
+    ctx.strokeStyle = `rgba(201,169,110,${tracked ? 0.5 : 0.35})`;
     ctx.lineWidth = 1; ctx.stroke();
   });
-  [[cx + ow + 8, earY1], [cx + ow + 8, earY2]].forEach(([x, y]) => {
-    ctx.beginPath(); ctx.moveTo(x, earY1); ctx.lineTo(x, earY2);
-    ctx.strokeStyle = 'rgba(201,169,110,0.35)';
-    ctx.lineWidth = 1; ctx.stroke();
-  });
-  ctx.fillStyle = 'rgba(201,169,110,0.4)';
+  ctx.fillStyle = `rgba(201,169,110,${tracked ? 0.55 : 0.4})`;
   ctx.font = '9px Jost, sans-serif';
   ctx.textAlign = 'center';
   ctx.fillText('EAR', cx - ow - 18, cy);
@@ -1091,7 +1136,6 @@ async function analyseUploadedImage(imgEl) {
     canvas.height = stage.offsetHeight;
     const ctx = canvas.getContext('2d');
     ctx.clearRect(0, 0, canvas.width, canvas.height);
-    drawAlignmentGuide(ctx, canvas.width, canvas.height);
 
     if (results.multiFaceLandmarks && results.multiFaceLandmarks.length > 0) {
       lastLandmarks = results.multiFaceLandmarks[0];
@@ -1099,6 +1143,7 @@ async function analyseUploadedImage(imgEl) {
       faceQuality = quality.score;
       faceDetected = true;
       uploadedImageReady = true;
+      drawAlignmentGuide(ctx, canvas.width, canvas.height, lastLandmarks);
       drawFaceLandmarkGuide(ctx, lastLandmarks, canvas.width, canvas.height, { score: 85 });
 
       document.getElementById('face-dot').classList.add('detected');
