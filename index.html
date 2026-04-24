@@ -724,24 +724,18 @@ let analysisRunning = false;
 let uploadedImageReady = false;
 let cameraFailed = false;
 
-// MediaPipe Face Mesh landmark indices (verified against 468-point map)
+// MediaPipe Face Mesh 468-point landmark indices
 const MP = {
-  LEFT_EYE_OUTER:  33,   RIGHT_EYE_OUTER: 263,
-  LEFT_EYE_INNER:  133,  RIGHT_EYE_INNER: 362,
-  LEFT_EAR:        234,  RIGHT_EAR:       454,   // cheekbone / ear attachment
-  CHIN:            152,  FOREHEAD:        10,    // bottom of chin, top of forehead
-  // Cheekbones — widest point of the face at the malar region
-  LEFT_CHEEK:      234,  RIGHT_CHEEK:     454,
-  NOSE_TIP:        1,    NOSE_BASE:       2,
-  MOUTH_LEFT:      61,   MOUTH_RIGHT:     291,
-  // Jaw corners — gonial angle, visible at lower jaw
-  LEFT_JAW:        172,  RIGHT_JAW:       397,
-  // Temples / forehead width — hairline-level lateral points
-  LEFT_TEMPLE:     162,  RIGHT_TEMPLE:    389,
-  // Forehead width at brow level
-  LEFT_BROW_OUTER: 70,   RIGHT_BROW_OUTER: 300,
-  // Jaw tip helper for chin narrowing detection
-  JAW_LEFT_MID:    136,  JAW_RIGHT_MID:   365,
+  LEFT_EYE_OUTER:   33,  RIGHT_EYE_OUTER:  263,
+  LEFT_EYE_INNER:  133,  RIGHT_EYE_INNER:  362,
+  LEFT_EAR:        234,  RIGHT_EAR:        454,
+  FOREHEAD:         10,  CHIN:             152,
+  LEFT_CHEEK:      234,  RIGHT_CHEEK:      454,
+  LEFT_JAW:        172,  RIGHT_JAW:        397,
+  LEFT_JAW_MID:    136,  RIGHT_JAW_MID:    365,
+  LEFT_BROW_OUTER:  70,  RIGHT_BROW_OUTER: 300,
+  LEFT_TEMPLE:     162,  RIGHT_TEMPLE:     389,
+  NOSE_TIP:          1,  MOUTH_LEFT:        61,  MOUTH_RIGHT: 291,
 };
 
 // ══════════════════════════════════════════════════════════════════
@@ -1128,100 +1122,120 @@ async function analyseUploadedImage(imgEl) {
 // ══════════════════════════════════════════════════════════════════
 function classifyFaceShape(landmarks, w, h) {
   const lm   = (idx) => ({ x: landmarks[idx].x * w, y: landmarks[idx].y * h });
-  const dist = (a, b) => Math.sqrt((a.x - b.x) ** 2 + (a.y - b.y) ** 2);
+  const dist = (a, b) => Math.hypot(a.x - b.x, a.y - b.y);
 
-  // ── Key measurements ──────────────────────────────────────────
-  const forehead   = lm(MP.FOREHEAD);
-  const chin       = lm(MP.CHIN);
-  const leftEar    = lm(MP.LEFT_EAR);   // cheekbone width proxy
-  const rightEar   = lm(MP.RIGHT_EAR);
-  const leftJaw    = lm(MP.LEFT_JAW);
-  const rightJaw   = lm(MP.RIGHT_JAW);
-  const leftBrow   = lm(MP.LEFT_BROW_OUTER);
-  const rightBrow  = lm(MP.RIGHT_BROW_OUTER);
-  const jawMidL    = lm(MP.JAW_LEFT_MID);
-  const jawMidR    = lm(MP.JAW_RIGHT_MID);
+  // ── Key facial measurements ───────────────────────────────────
+  const foreheadPt  = lm(MP.FOREHEAD);
+  const chinPt      = lm(MP.CHIN);
+  const leftEar     = lm(MP.LEFT_EAR);        // malar/cheekbone
+  const rightEar    = lm(MP.RIGHT_EAR);
+  const leftJaw     = lm(MP.LEFT_JAW);        // gonial angle
+  const rightJaw    = lm(MP.RIGHT_JAW);
+  const leftJawMid  = lm(MP.LEFT_JAW_MID);   // mid jaw edge
+  const rightJawMid = lm(MP.RIGHT_JAW_MID);
+  const leftBrow    = lm(MP.LEFT_BROW_OUTER); // brow-level forehead
+  const rightBrow   = lm(MP.RIGHT_BROW_OUTER);
+  const leftTemple  = lm(MP.LEFT_TEMPLE);     // hairline-level temple
+  const rightTemple = lm(MP.RIGHT_TEMPLE);
 
-  const faceHeight     = dist(forehead, chin);       // vertical length
-  const cheekWidth     = dist(leftEar, rightEar);    // widest = cheekbones
-  const jawWidth       = dist(leftJaw, rightJaw);    // jaw corner to jaw corner
-  const foreheadWidth  = dist(leftBrow, rightBrow);  // brow-level forehead width
-  const midJawWidth    = dist(jawMidL, jawMidR);     // mid-jaw, used for taper
+  // Raw widths
+  const faceHeight      = dist(foreheadPt, chinPt);
+  const cheekWidth      = dist(leftEar, rightEar);       // widest
+  const jawWidth        = dist(leftJaw, rightJaw);       // jaw corners
+  const midJawWidth     = dist(leftJawMid, rightJawMid); // mid-jaw taper
+  const browWidth       = dist(leftBrow, rightBrow);     // brow-level
+  const templeWidth     = dist(leftTemple, rightTemple); // hairline
 
-  // Guard against zero-width (bad detection)
-  if (cheekWidth < 1) return 'Oval';
+  // Guard — bad detection
+  if (cheekWidth < 1 || faceHeight < 1) return 'Oval';
 
-  // ── Ratios ────────────────────────────────────────────────────
-  const heightRatio    = faceHeight / cheekWidth;       // >1.5 = long, <1.1 = wide
-  const jawRatio       = jawWidth / cheekWidth;         // low = tapered chin
-  const foreheadRatio  = foreheadWidth / cheekWidth;    // high = wide forehead
-  const taperRatio     = jawWidth / foreheadWidth;      // <0.75 = heart/pear
+  // ── Derived ratios ────────────────────────────────────────────
+  // height:cheek  — elongation. ~1.3–1.4 = average face
+  const hRatio      = faceHeight / cheekWidth;
+  // jaw:cheek     — how wide the jaw is relative to the widest point
+  const jawRatio    = jawWidth / cheekWidth;
+  // brow:cheek    — forehead breadth relative to cheekbones
+  const browRatio   = browWidth / cheekWidth;
+  // temple:cheek  — hairline breadth relative to cheekbones
+  const templeRatio = templeWidth / cheekWidth;
+  // jaw:brow      — taper. >1 = pear, <0.8 = heart
+  const taperRatio  = jawWidth / browWidth;
+  // mid-jaw:jaw   — chin taper within the jaw itself
+  const chinTaper   = midJawWidth / jawWidth;
 
-  // ── Score-based classification ────────────────────────────────
-  // Each shape gets a score; highest wins. Thresholds tuned to real MediaPipe output.
-  const scores = {
-    Oblong:  0,
-    Round:   0,
-    Square:  0,
-    Heart:   0,
-    Pear:    0,
-    Diamond: 0,
-    Oval:    10,  // baseline — default if nothing else wins
-  };
+  // Use max of brow and temple as "forehead width" — more robust
+  const foreheadRatio = Math.max(browRatio, templeRatio);
 
-  // OBLONG — tall and narrow
-  if (heightRatio > 1.55) scores.Oblong  += 40;
-  if (heightRatio > 1.65) scores.Oblong  += 20;
-  if (jawRatio < 0.80)    scores.Oblong  += 10;
+  // ── Scoring system ────────────────────────────────────────────
+  // Each shape accumulates points; highest score wins.
+  // Scores are additive so borderline faces blend gracefully.
+  const s = { Oval: 5, Round: 0, Square: 0, Heart: 0, Diamond: 0, Oblong: 0, Pear: 0 };
 
-  // ROUND — short and wide, jaw close to cheek width
-  if (heightRatio < 1.20) scores.Round   += 35;
-  if (heightRatio < 1.10) scores.Round   += 20;
-  if (jawRatio > 0.80)    scores.Round   += 15;
-  if (foreheadRatio > 0.80 && jawRatio > 0.80) scores.Round += 10;
+  // ── OBLONG — long and narrow ──────────────────────────────────
+  if (hRatio > 1.55)  s.Oblong += 40;
+  if (hRatio > 1.65)  s.Oblong += 20;
+  if (hRatio > 1.75)  s.Oblong += 15;
+  if (jawRatio < 0.75) s.Oblong += 10;  // narrow jaw adds to elongation
 
-  // SQUARE — moderate height, wide jaw relative to cheeks
-  if (heightRatio >= 1.15 && heightRatio <= 1.50) scores.Square += 10;
-  if (jawRatio > 0.85)                             scores.Square += 25;
-  if (jawRatio > 0.90)                             scores.Square += 15;
-  if (Math.abs(foreheadRatio - jawRatio) < 0.10)  scores.Square += 15;  // all widths similar
+  // ── ROUND — short, wide, soft jaw ────────────────────────────
+  if (hRatio < 1.25)  s.Round += 30;
+  if (hRatio < 1.15)  s.Round += 25;
+  if (jawRatio > 0.80) s.Round += 20;
+  if (foreheadRatio > 0.82 && jawRatio > 0.78) s.Round += 15;
+  if (chinTaper > 0.88) s.Round += 10;  // relatively flat chin = round
 
-  // HEART — wide forehead, narrow jaw, tapered chin
-  if (foreheadRatio > jawRatio + 0.10) scores.Heart += 30;
-  if (foreheadRatio > jawRatio + 0.15) scores.Heart += 20;
-  if (taperRatio < 0.82)              scores.Heart  += 20;
-  if (heightRatio > 1.25)             scores.Heart  += 10;
+  // ── SQUARE — moderate length, wide jaw matching forehead ─────
+  if (hRatio >= 1.15 && hRatio <= 1.50) s.Square += 10;
+  if (jawRatio > 0.82)  s.Square += 25;
+  if (jawRatio > 0.90)  s.Square += 20;
+  if (Math.abs(foreheadRatio - jawRatio) < 0.08) s.Square += 20;  // parallel widths
+  if (chinTaper > 0.85 && jawRatio > 0.82) s.Square += 10;        // squared chin
 
-  // PEAR — narrow forehead, wide jaw
-  if (jawRatio > foreheadRatio + 0.08) scores.Pear  += 30;
-  if (jawRatio > foreheadRatio + 0.14) scores.Pear  += 20;
-  if (taperRatio > 1.12)               scores.Pear  += 20;
+  // ── HEART — wide forehead/brow, narrow pointed chin ──────────
+  if (foreheadRatio > jawRatio + 0.10) s.Heart += 25;
+  if (foreheadRatio > jawRatio + 0.18) s.Heart += 20;
+  if (taperRatio < 0.85)  s.Heart += 20;
+  if (taperRatio < 0.78)  s.Heart += 15;
+  if (chinTaper < 0.80)   s.Heart += 15;  // pointed chin
+  if (hRatio > 1.20)      s.Heart += 10;
 
-  // DIAMOND — prominent cheekbones vs narrower forehead AND jaw
-  if (cheekWidth > foreheadWidth * 1.08 && cheekWidth > jawWidth * 1.08) {
-    scores.Diamond += 35;
-    if (cheekWidth > foreheadWidth * 1.15) scores.Diamond += 15;
-  }
+  // ── PEAR — narrow forehead, wide jaw ─────────────────────────
+  if (jawRatio > foreheadRatio + 0.08) s.Pear += 25;
+  if (jawRatio > foreheadRatio + 0.15) s.Pear += 20;
+  if (taperRatio > 1.10)  s.Pear += 25;
+  if (taperRatio > 1.18)  s.Pear += 15;
+  if (browRatio < 0.80)   s.Pear += 10;  // narrow brow confirms pear
 
-  // OVAL — balanced, moderate ratios (the "none of the above" winner)
-  if (heightRatio >= 1.30 && heightRatio <= 1.55) scores.Oval += 20;
-  if (jawRatio >= 0.70 && jawRatio <= 0.85)       scores.Oval += 20;
-  if (Math.abs(foreheadRatio - 0.85) < 0.10)      scores.Oval += 10;
+  // ── DIAMOND — prominent cheekbones, narrow forehead AND jaw ──
+  const cheekVsForehead = cheekWidth / (browWidth > 0 ? browWidth : cheekWidth);
+  const cheekVsJaw      = cheekWidth / (jawWidth > 0  ? jawWidth  : cheekWidth);
+  if (cheekVsForehead > 1.08 && cheekVsJaw > 1.08) s.Diamond += 35;
+  if (cheekVsForehead > 1.15) s.Diamond += 15;
+  if (cheekVsJaw > 1.15)      s.Diamond += 15;
+  if (Math.abs(browRatio - jawRatio) < 0.06) s.Diamond += 10;  // forehead ≈ jaw width
 
-  // ── Pick winner ───────────────────────────────────────────────
-  const winner = Object.entries(scores).sort((a, b) => b[1] - a[1])[0][0];
+  // ── OVAL — the balanced default ──────────────────────────────
+  if (hRatio >= 1.30 && hRatio <= 1.55)       s.Oval += 20;
+  if (jawRatio >= 0.68 && jawRatio <= 0.85)   s.Oval += 15;
+  if (foreheadRatio >= 0.80 && foreheadRatio <= 0.92) s.Oval += 15;
+  if (taperRatio >= 0.82 && taperRatio <= 0.96)       s.Oval += 10;
 
-  // Debug: log ratios and scores to console for tuning
-  console.log('[ÉLUME] Face ratios:', {
-    heightRatio:   heightRatio.toFixed(3),
-    jawRatio:      jawRatio.toFixed(3),
-    foreheadRatio: foreheadRatio.toFixed(3),
-    taperRatio:    taperRatio.toFixed(3),
+  // ── Determine winner ─────────────────────────────────────────
+  const ranked = Object.entries(s).sort((a, b) => b[1] - a[1]);
+  const winner = ranked[0][0];
+
+  // Debug — visible in DevTools console
+  console.log('[ELUME] Ratios:', {
+    hRatio:       hRatio.toFixed(3),
+    jawRatio:     jawRatio.toFixed(3),
+    browRatio:    browRatio.toFixed(3),
+    templeRatio:  templeRatio.toFixed(3),
+    foreheadRatio:foreheadRatio.toFixed(3),
+    taperRatio:   taperRatio.toFixed(3),
+    chinTaper:    chinTaper.toFixed(3),
   });
-  console.log('[ÉLUME] Shape scores:', Object.fromEntries(
-    Object.entries(scores).sort((a, b) => b[1] - a[1])
-  ));
-  console.log('[ÉLUME] → Classified as:', winner);
+  console.log('[ELUME] Scores:', Object.fromEntries(ranked));
+  console.log('[ELUME] Result:', winner);
 
   return winner;
 }
