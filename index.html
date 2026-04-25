@@ -3,7 +3,6 @@
 <head>
 <meta charset="UTF-8">
 <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' fill='%231a1410'/%3E%3Ctext x='50%25' y='55%25' dominant-baseline='middle' text-anchor='middle' font-family='serif' font-size='18' fill='%23c9a96e'%3EE%3C/text%3E%3C/svg%3E">
-<link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'><rect width='32' height='32' fill='%231a1410'/><text x='50%25' y='55%25' dominant-baseline='middle' text-anchor='middle' font-family='serif' font-size='18' fill='%23c9a96e'>E</text></svg>">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>ÉLUME — AI Salon Style Consultant</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -23,514 +22,153 @@
     --border: rgba(201,169,110,0.25);
     --shadow: 0 8px 40px rgba(26,20,16,0.12);
     --shadow-lg: 0 20px 80px rgba(26,20,16,0.18);
-    --radius: 4px;
     --transition: all 0.35s cubic-bezier(0.4,0,0.2,1);
   }
-
   *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
-
   html { font-size: 16px; scroll-behavior: smooth; }
-
-  body {
-    font-family: 'Jost', sans-serif;
-    background: var(--cream);
-    color: var(--ink);
-    min-height: 100vh;
-    overflow-x: hidden;
-  }
-
-  /* ── NOISE TEXTURE OVERLAY ── */
+  body { font-family: 'Jost', sans-serif; background: var(--cream); color: var(--ink); min-height: 100vh; overflow-x: hidden; }
   body::before {
-    content: '';
-    position: fixed; inset: 0;
+    content: ''; position: fixed; inset: 0;
     background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)' opacity='0.025'/%3E%3C/svg%3E");
     pointer-events: none; z-index: 0; opacity: 0.4;
   }
-
-  /* ── HEADER ── */
   .site-header {
     position: fixed; top: 0; left: 0; right: 0; z-index: 100;
     display: flex; align-items: center; justify-content: space-between;
     padding: 20px 48px;
-    background: rgba(250,246,240,0.85);
-    backdrop-filter: blur(20px);
+    background: rgba(250,246,240,0.85); backdrop-filter: blur(20px);
     border-bottom: 1px solid var(--border);
   }
-
-  .logo {
-    font-family: 'Cormorant Garamond', serif;
-    font-size: 1.8rem; font-weight: 300;
-    letter-spacing: 0.25em; color: var(--ink);
-    text-decoration: none;
-  }
+  .logo { font-family: 'Cormorant Garamond', serif; font-size: 1.8rem; font-weight: 300; letter-spacing: 0.25em; color: var(--ink); text-decoration: none; }
   .logo span { color: var(--gold); }
-
-  .header-tag {
-    font-size: 0.65rem; font-weight: 300; letter-spacing: 0.2em;
-    text-transform: uppercase; color: var(--ink-light);
-  }
-
-  /* ── HERO ── */
-  .hero {
-    min-height: 100vh;
-    display: flex; flex-direction: column;
-    align-items: center; justify-content: center;
-    padding: 120px 24px 60px;
-    text-align: center;
-    position: relative;
-  }
-
-  .hero-eyebrow {
-    font-size: 0.65rem; font-weight: 400; letter-spacing: 0.3em;
-    text-transform: uppercase; color: var(--gold);
-    margin-bottom: 24px;
-  }
-
-  .hero-title {
-    font-family: 'Cormorant Garamond', serif;
-    font-size: clamp(2.8rem, 7vw, 6rem);
-    font-weight: 300; line-height: 1.05;
-    color: var(--ink); margin-bottom: 20px;
-  }
+  .header-tag { font-size: 0.65rem; font-weight: 300; letter-spacing: 0.2em; text-transform: uppercase; color: var(--ink-light); }
+  .hero { min-height: 100vh; display: flex; flex-direction: column; align-items: center; justify-content: center; padding: 120px 24px 60px; text-align: center; position: relative; }
+  .hero-eyebrow { font-size: 0.65rem; font-weight: 400; letter-spacing: 0.3em; text-transform: uppercase; color: var(--gold); margin-bottom: 24px; }
+  .hero-title { font-family: 'Cormorant Garamond', serif; font-size: clamp(2.8rem, 7vw, 6rem); font-weight: 300; line-height: 1.05; color: var(--ink); margin-bottom: 20px; }
   .hero-title em { font-style: italic; color: var(--gold); }
-
-  .hero-sub {
-    font-size: 0.9rem; font-weight: 300; letter-spacing: 0.08em;
-    color: var(--ink-light); max-width: 480px; line-height: 1.7;
-    margin-bottom: 48px;
-  }
-
-  .hero-cta {
-    display: inline-flex; align-items: center; gap: 12px;
-    padding: 14px 36px;
-    background: var(--ink); color: var(--cream);
-    font-family: 'Jost', sans-serif; font-size: 0.75rem;
-    font-weight: 400; letter-spacing: 0.2em; text-transform: uppercase;
-    text-decoration: none; border: none; cursor: pointer;
-    transition: var(--transition);
-  }
+  .hero-sub { font-size: 0.9rem; font-weight: 300; letter-spacing: 0.08em; color: var(--ink-light); max-width: 480px; line-height: 1.7; margin-bottom: 48px; }
+  .hero-cta { display: inline-flex; align-items: center; gap: 12px; padding: 14px 36px; background: var(--ink); color: var(--cream); font-family: 'Jost', sans-serif; font-size: 0.75rem; font-weight: 400; letter-spacing: 0.2em; text-transform: uppercase; text-decoration: none; border: none; cursor: pointer; transition: var(--transition); }
   .hero-cta:hover { background: var(--gold); }
   .hero-cta svg { width: 14px; height: 14px; }
-
-  .hero-decor {
-    position: absolute; bottom: 40px; left: 50%;
-    transform: translateX(-50%);
-    display: flex; flex-direction: column; align-items: center; gap: 8px;
-    animation: float 3s ease-in-out infinite;
-  }
+  .hero-decor { position: absolute; bottom: 40px; left: 50%; transform: translateX(-50%); display: flex; flex-direction: column; align-items: center; gap: 8px; animation: float 3s ease-in-out infinite; }
   .hero-decor span { font-size: 0.6rem; letter-spacing: 0.2em; color: var(--ink-light); text-transform: uppercase; }
   .hero-decor-line { width: 1px; height: 40px; background: var(--gold); }
-
   @keyframes float { 0%,100% { transform: translateX(-50%) translateY(0); } 50% { transform: translateX(-50%) translateY(6px); } }
-
-  /* ── MAIN APP SECTION ── */
-  #app-section {
-    padding: 100px 24px 80px;
-    max-width: 1100px; margin: 0 auto;
-  }
-
-  .section-header {
-    text-align: center; margin-bottom: 60px;
-  }
-  .section-label {
-    font-size: 0.65rem; letter-spacing: 0.3em; text-transform: uppercase;
-    color: var(--gold); margin-bottom: 16px;
-  }
-  .section-title {
-    font-family: 'Cormorant Garamond', serif;
-    font-size: clamp(2rem, 4vw, 3.2rem); font-weight: 300;
-    color: var(--ink); line-height: 1.1;
-  }
-
-  /* ── STEP INDICATOR ── */
-  .steps-nav {
-    display: flex; align-items: center; justify-content: center;
-    gap: 0; margin-bottom: 56px;
-  }
-  .step-item {
-    display: flex; align-items: center; gap: 12px;
-  }
-  .step-num {
-    width: 32px; height: 32px; border-radius: 50%;
-    display: flex; align-items: center; justify-content: center;
-    font-size: 0.7rem; font-weight: 500; letter-spacing: 0.05em;
-    border: 1px solid var(--border);
-    background: var(--cream); color: var(--ink-light);
-    transition: var(--transition);
-  }
+  #app-section { padding: 100px 24px 80px; max-width: 1100px; margin: 0 auto; }
+  .section-header { text-align: center; margin-bottom: 60px; }
+  .section-label { font-size: 0.65rem; letter-spacing: 0.3em; text-transform: uppercase; color: var(--gold); margin-bottom: 16px; }
+  .section-title { font-family: 'Cormorant Garamond', serif; font-size: clamp(2rem, 4vw, 3.2rem); font-weight: 300; color: var(--ink); line-height: 1.1; }
+  .steps-nav { display: flex; align-items: center; justify-content: center; gap: 0; margin-bottom: 56px; }
+  .step-item { display: flex; align-items: center; gap: 12px; }
+  .step-num { width: 32px; height: 32px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 0.7rem; font-weight: 500; letter-spacing: 0.05em; border: 1px solid var(--border); background: var(--cream); color: var(--ink-light); transition: var(--transition); }
   .step-item.active .step-num { background: var(--gold); color: white; border-color: var(--gold); }
   .step-item.done .step-num { background: var(--ink); color: white; border-color: var(--ink); }
   .step-label { font-size: 0.7rem; letter-spacing: 0.12em; text-transform: uppercase; color: var(--ink-light); }
   .step-item.active .step-label { color: var(--ink); }
   .step-connector { width: 60px; height: 1px; background: var(--border); margin: 0 8px; }
-
-  /* ── MODE TOGGLE ── */
-  .mode-toggle {
-    display: flex; gap: 0; margin-bottom: 40px;
-    border: 1px solid var(--border); overflow: hidden;
-    align-self: center; width: fit-content; margin-left: auto; margin-right: auto;
-  }
-  .mode-btn {
-    padding: 12px 32px; font-family: 'Jost', sans-serif;
-    font-size: 0.7rem; font-weight: 400; letter-spacing: 0.15em; text-transform: uppercase;
-    border: none; cursor: pointer; transition: var(--transition);
-    background: transparent; color: var(--ink-light);
-    display: flex; align-items: center; gap: 8px;
-  }
+  .mode-toggle { display: flex; gap: 0; margin-bottom: 40px; border: 1px solid var(--border); overflow: hidden; align-self: center; width: fit-content; margin-left: auto; margin-right: auto; }
+  .mode-btn { padding: 12px 32px; font-family: 'Jost', sans-serif; font-size: 0.7rem; font-weight: 400; letter-spacing: 0.15em; text-transform: uppercase; border: none; cursor: pointer; transition: var(--transition); background: transparent; color: var(--ink-light); display: flex; align-items: center; gap: 8px; }
   .mode-btn.active { background: var(--ink); color: var(--cream); }
   .mode-btn svg { width: 14px; height: 14px; }
-
-  /* ── FACE SCANNER CONTAINER ── */
-  .scanner-wrap {
-    position: relative; display: flex; flex-direction: column;
-    align-items: center; gap: 24px;
-  }
-
-  .scanner-stage {
-    position: relative; width: 480px; height: 540px; max-width: 100%;
-    background: var(--ink); overflow: hidden;
-    box-shadow: var(--shadow-lg);
-  }
-
-  #webcam-video, #preview-img {
-    position: absolute; inset: 0;
-    width: 100%; height: 100%;
-    object-fit: cover;
-  }
-
+  .scanner-wrap { position: relative; display: flex; flex-direction: column; align-items: center; gap: 24px; }
+  .scanner-stage { position: relative; width: 480px; height: 540px; max-width: 100%; background: var(--ink); overflow: hidden; box-shadow: var(--shadow-lg); }
+  #webcam-video, #preview-img { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; }
   #webcam-video { transform: scaleX(-1); }
-
-  #face-canvas {
-    position: absolute; inset: 0;
-    width: 100%; height: 100%;
-    pointer-events: none;
-  }
-
-  .scanner-placeholder {
-    position: absolute; inset: 0;
-    display: flex; flex-direction: column;
-    align-items: center; justify-content: center;
-    gap: 16px; color: rgba(255,255,255,0.3);
-  }
+  #face-canvas { position: absolute; inset: 0; width: 100%; height: 100%; pointer-events: none; }
+  .scanner-placeholder { position: absolute; inset: 0; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 16px; color: rgba(255,255,255,0.3); }
   .scanner-placeholder svg { width: 48px; height: 48px; opacity: 0.4; }
   .scanner-placeholder p { font-size: 0.75rem; letter-spacing: 0.12em; text-transform: uppercase; }
-
-  /* GUIDE OVERLAY STYLE for canvas */
-  .face-status-bar {
-    position: absolute; bottom: 0; left: 0; right: 0;
-    padding: 12px 20px;
-    background: linear-gradient(transparent, rgba(26,20,16,0.8));
-    display: flex; align-items: center; justify-content: space-between;
-  }
-  .face-status-dot {
-    width: 8px; height: 8px; border-radius: 50%;
-    background: #ff4444; transition: background 0.3s;
-  }
+  .face-status-bar { position: absolute; bottom: 0; left: 0; right: 0; padding: 12px 20px; background: linear-gradient(transparent, rgba(26,20,16,0.8)); display: flex; align-items: center; justify-content: space-between; }
+  .face-status-dot { width: 8px; height: 8px; border-radius: 50%; background: #ff4444; transition: background 0.3s; }
   .face-status-dot.detected { background: #44cc88; }
-  .face-status-text {
-    font-size: 0.65rem; letter-spacing: 0.15em; text-transform: uppercase;
-    color: rgba(255,255,255,0.7);
-  }
-  .face-quality-score {
-    font-size: 0.65rem; letter-spacing: 0.1em; color: rgba(255,255,255,0.5);
-  }
-
-  /* ── SCANNER CONTROLS ── */
-  .scanner-controls {
-    display: flex; flex-direction: column; align-items: center; gap: 16px;
-    width: 100%;
-  }
-
-  .upload-zone {
-    width: 480px; max-width: 100%;
-    border: 1px dashed var(--border);
-    padding: 36px; text-align: center; cursor: pointer;
-    transition: var(--transition); background: rgba(255,255,255,0.5);
-  }
+  .face-status-text { font-size: 0.65rem; letter-spacing: 0.15em; text-transform: uppercase; color: rgba(255,255,255,0.7); }
+  .face-quality-score { font-size: 0.65rem; letter-spacing: 0.1em; color: rgba(255,255,255,0.5); }
+  .upload-zone { width: 480px; max-width: 100%; border: 1px dashed var(--border); padding: 36px; text-align: center; cursor: pointer; transition: var(--transition); background: rgba(255,255,255,0.5); }
   .upload-zone:hover { border-color: var(--gold); background: rgba(201,169,110,0.05); }
   .upload-zone p { font-size: 0.75rem; letter-spacing: 0.1em; color: var(--ink-light); margin-top: 10px; }
   .upload-zone .upload-icon { font-size: 2rem; color: var(--gold); }
   #file-input { display: none; }
-
-  .upload-guide {
-    width: 480px; max-width: 100%;
-    background: rgba(201,169,110,0.08);
-    border: 1px solid var(--border);
-    padding: 20px 24px;
-  }
-  .guide-title {
-    font-size: 0.65rem; letter-spacing: 0.2em; text-transform: uppercase;
-    color: var(--gold); margin-bottom: 14px;
-  }
+  .upload-guide { width: 480px; max-width: 100%; background: rgba(201,169,110,0.08); border: 1px solid var(--border); padding: 20px 24px; }
+  .guide-title { font-size: 0.65rem; letter-spacing: 0.2em; text-transform: uppercase; color: var(--gold); margin-bottom: 14px; }
   .guide-items { display: flex; flex-direction: column; gap: 8px; }
-  .guide-item {
-    display: flex; align-items: flex-start; gap: 10px;
-    font-size: 0.75rem; color: var(--ink-light); line-height: 1.5;
-  }
+  .guide-item { display: flex; align-items: flex-start; gap: 10px; font-size: 0.75rem; color: var(--ink-light); line-height: 1.5; }
   .guide-dot { width: 4px; height: 4px; border-radius: 50%; background: var(--gold); margin-top: 7px; flex-shrink: 0; }
-
-  /* ── GENDER SELECT ── */
-  .gender-select-wrap {
-    width: 480px; max-width: 100%;
-    display: flex; gap: 0;
-  }
-  .gender-opt {
-    flex: 1; padding: 12px;
-    text-align: center; cursor: pointer;
-    border: 1px solid var(--border);
-    font-size: 0.7rem; letter-spacing: 0.12em; text-transform: uppercase;
-    color: var(--ink-light); transition: var(--transition);
-    background: transparent;
-  }
+  .gender-select-wrap { width: 480px; max-width: 100%; display: flex; gap: 0; }
+  .gender-opt { flex: 1; padding: 12px; text-align: center; cursor: pointer; border: 1px solid var(--border); font-size: 0.7rem; letter-spacing: 0.12em; text-transform: uppercase; color: var(--ink-light); transition: var(--transition); background: transparent; }
   .gender-opt:first-child { border-right: none; }
   .gender-opt.selected { background: var(--ink); color: var(--cream); border-color: var(--ink); }
-
-  /* ── ANALYZE BTN ── */
-  .analyze-btn {
-    padding: 16px 48px;
-    background: var(--gold); color: var(--ink);
-    font-family: 'Jost', sans-serif;
-    font-size: 0.75rem; font-weight: 500; letter-spacing: 0.2em; text-transform: uppercase;
-    border: none; cursor: pointer; transition: var(--transition);
-    display: flex; align-items: center; gap: 12px;
-    opacity: 0.4; pointer-events: none;
-  }
+  .analyze-btn { padding: 16px 48px; background: var(--gold); color: var(--ink); font-family: 'Jost', sans-serif; font-size: 0.75rem; font-weight: 500; letter-spacing: 0.2em; text-transform: uppercase; border: none; cursor: pointer; transition: var(--transition); display: flex; align-items: center; gap: 12px; opacity: 0.4; pointer-events: none; }
   .analyze-btn.ready { opacity: 1; pointer-events: auto; }
   .analyze-btn:hover { background: var(--ink); color: var(--cream); }
   .analyze-btn.loading { pointer-events: none; }
-  .spinner {
-    width: 14px; height: 14px; border: 2px solid transparent;
-    border-top-color: currentColor; border-radius: 50%;
-    animation: spin 0.7s linear infinite; display: none;
-  }
+  .spinner { width: 14px; height: 14px; border: 2px solid transparent; border-top-color: currentColor; border-radius: 50%; animation: spin 0.7s linear infinite; display: none; }
   .analyze-btn.loading .spinner { display: block; }
   @keyframes spin { to { transform: rotate(360deg); } }
-
-  /* ── RESULTS SECTION ── */
+  /* ── RESULTS ── */
   #results-section { display: none; padding: 0 0 80px; }
-
-  .results-header {
-    text-align: center; padding: 60px 24px 48px;
-    border-top: 1px solid var(--border);
-  }
-  .results-face-badge {
-    display: inline-flex; align-items: center; gap: 10px;
-    padding: 8px 20px; background: var(--ink);
-    font-size: 0.65rem; letter-spacing: 0.2em; text-transform: uppercase; color: var(--cream);
-    margin-bottom: 24px;
-  }
-  .results-title {
-    font-family: 'Cormorant Garamond', serif;
-    font-size: clamp(1.8rem, 4vw, 2.8rem); font-weight: 300;
-    color: var(--ink);
-  }
+  .results-header { text-align: center; padding: 60px 24px 48px; border-top: 1px solid var(--border); }
+  .results-face-badge { display: inline-flex; align-items: center; gap: 10px; padding: 8px 20px; background: var(--ink); font-size: 0.65rem; letter-spacing: 0.2em; text-transform: uppercase; color: var(--cream); margin-bottom: 24px; }
+  .results-title { font-family: 'Cormorant Garamond', serif; font-size: clamp(1.8rem, 4vw, 2.8rem); font-weight: 300; color: var(--ink); }
   .results-title em { color: var(--gold); font-style: italic; }
-
+  /* ── TRACK SECTIONS ── */
+  .track-section { max-width: 1100px; margin: 0 auto 48px; padding: 0 24px; }
+  .track-header { display: flex; align-items: center; gap: 16px; margin-bottom: 16px; }
+  .track-label { font-size: 0.6rem; letter-spacing: 0.25em; text-transform: uppercase; color: var(--gold); white-space: nowrap; }
+  .track-desc { font-size: 0.7rem; color: var(--ink-light); letter-spacing: 0.05em; }
+  .track-line { flex: 1; height: 1px; background: var(--border); }
   /* ── STYLE CARDS ── */
-  .style-cards-grid {
-    display: grid; grid-template-columns: repeat(3, 1fr);
-    gap: 2px; max-width: 1100px; margin: 0 auto 60px;
-    padding: 0 24px;
-  }
-
-  @media (max-width: 768px) {
-    .style-cards-grid { grid-template-columns: 1fr; gap: 16px; }
-  }
-
-  .style-card {
-    position: relative; overflow: hidden;
-    cursor: pointer; transition: var(--transition);
-    background: var(--ink);
-    border: 2px solid transparent;
-  }
+  .style-cards-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 2px; }
+  @media (max-width: 768px) { .style-cards-grid { grid-template-columns: 1fr; gap: 16px; } }
+  .style-card { position: relative; overflow: hidden; cursor: pointer; transition: var(--transition); background: var(--ink); border: 2px solid transparent; }
   .style-card:hover { transform: translateY(-4px); box-shadow: var(--shadow-lg); }
   .style-card.selected { border-color: var(--gold); }
-  .style-card.rank-1::before {
-    content: 'Best Match';
-    position: absolute; top: 12px; left: 12px; z-index: 2;
-    padding: 4px 10px;
-    background: var(--gold); color: var(--ink);
-    font-size: 0.55rem; letter-spacing: 0.15em; text-transform: uppercase; font-weight: 500;
-  }
-
-  .style-card-img {
-    width: 100%; aspect-ratio: 3/4; object-fit: cover;
-    display: block; transition: transform 0.5s ease;
-    background: #2a2015;
-  }
+  .style-card.rank-1::before { content: 'Best Match'; position: absolute; top: 12px; left: 12px; z-index: 2; padding: 4px 10px; background: var(--gold); color: var(--ink); font-size: 0.55rem; letter-spacing: 0.15em; text-transform: uppercase; font-weight: 500; }
+  .style-card.attr-match::before { content: 'Geometric Match'; position: absolute; top: 12px; left: 12px; z-index: 2; padding: 4px 10px; background: var(--ink-mid); color: var(--gold-light); font-size: 0.55rem; letter-spacing: 0.15em; text-transform: uppercase; font-weight: 500; }
+  .style-card-img { width: 100%; aspect-ratio: 3/4; object-fit: cover; display: block; transition: transform 0.5s ease; background: #2a2015; }
   .style-card:hover .style-card-img { transform: scale(1.04); }
-
-  .style-card-info {
-    padding: 20px; position: absolute; bottom: 0; left: 0; right: 0;
-    background: linear-gradient(transparent, rgba(26,20,16,0.95));
-  }
-  .style-card-name {
-    font-family: 'Cormorant Garamond', serif;
-    font-size: 1.2rem; font-weight: 400; color: var(--cream);
-    margin-bottom: 4px;
-  }
-  .style-card-tags {
-    display: flex; gap: 6px; flex-wrap: wrap;
-  }
-  .style-tag {
-    font-size: 0.55rem; letter-spacing: 0.1em; text-transform: uppercase;
-    color: var(--gold-light); padding: 2px 6px;
-    border: 1px solid rgba(201,169,110,0.3);
-  }
-  .style-select-indicator {
-    position: absolute; top: 12px; right: 12px; z-index: 2;
-    width: 24px; height: 24px; border-radius: 50%;
-    border: 2px solid rgba(255,255,255,0.4);
-    background: transparent; transition: var(--transition);
-    display: flex; align-items: center; justify-content: center;
-  }
-  .style-card.selected .style-select-indicator {
-    background: var(--gold); border-color: var(--gold);
-  }
+  .style-card-info { padding: 20px; position: absolute; bottom: 0; left: 0; right: 0; background: linear-gradient(transparent, rgba(26,20,16,0.95)); }
+  .style-card-name { font-family: 'Cormorant Garamond', serif; font-size: 1.2rem; font-weight: 400; color: var(--cream); margin-bottom: 4px; }
+  .style-card-tags { display: flex; gap: 6px; flex-wrap: wrap; }
+  .style-tag { font-size: 0.55rem; letter-spacing: 0.1em; text-transform: uppercase; color: var(--gold-light); padding: 2px 6px; border: 1px solid rgba(201,169,110,0.3); }
+  .style-select-indicator { position: absolute; top: 12px; right: 12px; z-index: 2; width: 24px; height: 24px; border-radius: 50%; border: 2px solid rgba(255,255,255,0.4); background: transparent; transition: var(--transition); display: flex; align-items: center; justify-content: center; }
+  .style-card.selected .style-select-indicator { background: var(--gold); border-color: var(--gold); }
   .style-select-indicator svg { width: 10px; height: 10px; color: white; opacity: 0; transition: opacity 0.2s; }
   .style-card.selected .style-select-indicator svg { opacity: 1; }
-
-  /* ── CONSULTATION CARDS ── */
-  #consultation-section {
-    display: none; max-width: 1100px; margin: 0 auto;
-    padding: 0 24px 80px;
-  }
-
-  .consult-header {
-    text-align: center; margin-bottom: 48px;
-  }
-  .consult-title {
-    font-family: 'Cormorant Garamond', serif;
-    font-size: clamp(1.6rem, 3vw, 2.4rem); font-weight: 300;
-    margin-bottom: 8px;
-  }
+  /* ── CONSULTATION ── */
+  #consultation-section { display: none; max-width: 1100px; margin: 0 auto; padding: 0 24px 80px; }
+  .consult-header { text-align: center; margin-bottom: 48px; }
+  .consult-title { font-family: 'Cormorant Garamond', serif; font-size: clamp(1.6rem, 3vw, 2.4rem); font-weight: 300; margin-bottom: 8px; }
   .consult-subtitle { font-size: 0.8rem; color: var(--ink-light); letter-spacing: 0.05em; }
-
-  .consult-card {
-    background: var(--surface); border: 1px solid var(--border);
-    padding: 48px; margin-bottom: 32px;
-    box-shadow: var(--shadow); position: relative;
-    overflow: hidden;
-  }
-  .consult-card::before {
-    content: '';
-    position: absolute; top: 0; left: 0; width: 3px; height: 100%;
-    background: var(--gold);
-  }
-
-  .consult-card-header {
-    display: flex; align-items: flex-start; justify-content: space-between;
-    margin-bottom: 36px; padding-bottom: 24px;
-    border-bottom: 1px solid var(--border);
-  }
-  .consult-style-name {
-    font-family: 'Cormorant Garamond', serif;
-    font-size: 2rem; font-weight: 300; color: var(--ink);
-  }
+  .consult-card { background: var(--surface); border: 1px solid var(--border); padding: 48px; margin-bottom: 32px; box-shadow: var(--shadow); position: relative; overflow: hidden; }
+  .consult-card::before { content: ''; position: absolute; top: 0; left: 0; width: 3px; height: 100%; background: var(--gold); }
+  .consult-card-header { display: flex; align-items: flex-start; justify-content: space-between; margin-bottom: 36px; padding-bottom: 24px; border-bottom: 1px solid var(--border); }
+  .consult-style-name { font-family: 'Cormorant Garamond', serif; font-size: 2rem; font-weight: 300; color: var(--ink); }
   .consult-style-meta { font-size: 0.7rem; letter-spacing: 0.12em; color: var(--ink-light); margin-top: 4px; }
-  .consult-ai-badge {
-    font-size: 0.55rem; letter-spacing: 0.15em; text-transform: uppercase;
-    padding: 4px 10px; border: 1px solid var(--border); color: var(--ink-light);
-  }
-
-  .consult-grid {
-    display: grid; grid-template-columns: 1fr 1fr;
-    gap: 36px; margin-bottom: 36px;
-  }
-
-  @media (max-width: 640px) {
-    .consult-grid { grid-template-columns: 1fr; }
-    .consult-card { padding: 28px; }
-  }
-
-  .consult-section-label {
-    font-size: 0.6rem; letter-spacing: 0.25em; text-transform: uppercase;
-    color: var(--gold); margin-bottom: 12px; display: flex; align-items: center; gap: 8px;
-  }
-  .consult-section-label::after {
-    content: ''; flex: 1; height: 1px; background: var(--border);
-  }
-
-  .consult-body {
-    font-size: 0.85rem; line-height: 1.8; color: var(--ink-mid);
-    font-weight: 300;
-  }
-
+  .consult-ai-badge { font-size: 0.55rem; letter-spacing: 0.15em; text-transform: uppercase; padding: 4px 10px; border: 1px solid var(--border); color: var(--ink-light); }
+  .consult-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 36px; margin-bottom: 36px; }
+  @media (max-width: 640px) { .consult-grid { grid-template-columns: 1fr; } .consult-card { padding: 28px; } }
+  .consult-section-label { font-size: 0.6rem; letter-spacing: 0.25em; text-transform: uppercase; color: var(--gold); margin-bottom: 12px; display: flex; align-items: center; gap: 8px; }
+  .consult-section-label::after { content: ''; flex: 1; height: 1px; background: var(--border); }
+  .consult-body { font-size: 0.85rem; line-height: 1.8; color: var(--ink-mid); font-weight: 300; }
   .treatment-list { list-style: none; display: flex; flex-direction: column; gap: 8px; }
-  .treatment-item {
-    display: flex; align-items: flex-start; gap: 10px;
-    font-size: 0.82rem; color: var(--ink-mid); line-height: 1.5;
-  }
+  .treatment-item { display: flex; align-items: flex-start; gap: 10px; font-size: 0.82rem; color: var(--ink-mid); line-height: 1.5; }
   .treatment-dot { color: var(--gold); margin-top: 2px; flex-shrink: 0; font-size: 0.7rem; }
-
-  .upsell-strip {
-    background: var(--cream-dark); padding: 24px;
-    border: 1px solid var(--border);
-    margin-top: 24px;
-  }
-  .upsell-items {
-    display: flex; flex-wrap: wrap; gap: 10px; margin-top: 12px;
-  }
-  .upsell-chip {
-    padding: 6px 14px;
-    background: var(--ink); color: var(--cream);
-    font-size: 0.65rem; letter-spacing: 0.1em; text-transform: uppercase;
-  }
-
-  .consult-loading {
-    display: flex; flex-direction: column;
-    align-items: center; justify-content: center;
-    padding: 80px; gap: 20px;
-  }
-  .consult-loading .spinner-lg {
-    width: 40px; height: 40px;
-    border: 2px solid var(--border); border-top-color: var(--gold);
-    border-radius: 50%; animation: spin 1s linear infinite;
-  }
-  .consult-loading p {
-    font-size: 0.75rem; letter-spacing: 0.15em; text-transform: uppercase;
-    color: var(--ink-light);
-  }
-
-  /* ── RESTART BTN ── */
-  .restart-bar {
-    text-align: center; padding: 40px 24px;
-    border-top: 1px solid var(--border);
-  }
-  .restart-btn {
-    padding: 12px 32px;
-    border: 1px solid var(--border); background: transparent;
-    font-family: 'Jost', sans-serif; font-size: 0.7rem;
-    letter-spacing: 0.15em; text-transform: uppercase;
-    color: var(--ink-light); cursor: pointer; transition: var(--transition);
-  }
+  .upsell-strip { background: var(--cream-dark); padding: 24px; border: 1px solid var(--border); margin-top: 24px; }
+  .upsell-items { display: flex; flex-wrap: wrap; gap: 10px; margin-top: 12px; }
+  .upsell-chip { padding: 6px 14px; background: var(--ink); color: var(--cream); font-size: 0.65rem; letter-spacing: 0.1em; text-transform: uppercase; }
+  .consult-loading { display: flex; flex-direction: column; align-items: center; justify-content: center; padding: 80px; gap: 20px; }
+  .consult-loading .spinner-lg { width: 40px; height: 40px; border: 2px solid var(--border); border-top-color: var(--gold); border-radius: 50%; animation: spin 1s linear infinite; }
+  .consult-loading p { font-size: 0.75rem; letter-spacing: 0.15em; text-transform: uppercase; color: var(--ink-light); }
+  .restart-bar { text-align: center; padding: 40px 24px; border-top: 1px solid var(--border); }
+  .restart-btn { padding: 12px 32px; border: 1px solid var(--border); background: transparent; font-family: 'Jost', sans-serif; font-size: 0.7rem; letter-spacing: 0.15em; text-transform: uppercase; color: var(--ink-light); cursor: pointer; transition: var(--transition); }
   .restart-btn:hover { border-color: var(--ink); color: var(--ink); }
-
-  /* ── FOOTER ── */
-  footer {
-    text-align: center; padding: 40px 24px;
-    border-top: 1px solid var(--border);
-    font-size: 0.65rem; letter-spacing: 0.15em; text-transform: uppercase;
-    color: var(--ink-light);
-  }
-
-  /* ── UTILITIES ── */
+  footer { text-align: center; padding: 40px 24px; border-top: 1px solid var(--border); font-size: 0.65rem; letter-spacing: 0.15em; text-transform: uppercase; color: var(--ink-light); }
   .hidden { display: none !important; }
   .fade-in { animation: fadeIn 0.6s ease forwards; }
   @keyframes fadeIn { from { opacity: 0; transform: translateY(16px); } to { opacity: 1; transform: translateY(0); } }
-
-  /* ── WEBCAM GUIDE TEXT ── */
-  .live-tips {
-    width: 480px; max-width: 100%;
-    display: flex; gap: 12px; flex-wrap: wrap; justify-content: center;
-  }
-  .live-tip {
-    font-size: 0.65rem; letter-spacing: 0.1em; text-transform: uppercase;
-    color: var(--ink-light); display: flex; align-items: center; gap: 6px;
-  }
+  .live-tips { width: 480px; max-width: 100%; display: flex; gap: 12px; flex-wrap: wrap; justify-content: center; }
+  .live-tip { font-size: 0.65rem; letter-spacing: 0.1em; text-transform: uppercase; color: var(--ink-light); display: flex; align-items: center; gap: 6px; }
   .live-tip-dot { width: 4px; height: 4px; border-radius: 50%; background: var(--gold); }
-
-  /* Mobile adjustments */
   @media (max-width: 540px) {
     .site-header { padding: 16px 20px; }
     .scanner-stage { width: 100%; height: 420px; }
@@ -542,14 +180,10 @@
 </style>
 </head>
 <body>
-
-<!-- HEADER -->
 <header class="site-header">
   <a href="#" class="logo">ÉL<span>U</span>ME</a>
   <span class="header-tag">AI Salon Consultation</span>
 </header>
-
-<!-- HERO -->
 <section class="hero">
   <p class="hero-eyebrow">Personalised to your face shape</p>
   <h1 class="hero-title">Discover Your<br><em>Perfect</em> Style</h1>
@@ -563,33 +197,18 @@
     <div class="hero-decor-line"></div>
   </div>
 </section>
-
-<!-- APP SECTION -->
 <section id="app-section">
   <div class="section-header">
     <p class="section-label">Step 1 of 3</p>
     <h2 class="section-title">Face Analysis</h2>
   </div>
-
-  <!-- STEPS -->
   <div class="steps-nav">
-    <div class="step-item active" id="step1">
-      <div class="step-num">1</div>
-      <span class="step-label">Analyse</span>
-    </div>
+    <div class="step-item active" id="step1"><div class="step-num">1</div><span class="step-label">Analyse</span></div>
     <div class="step-connector"></div>
-    <div class="step-item" id="step2">
-      <div class="step-num">2</div>
-      <span class="step-label">Choose Style</span>
-    </div>
+    <div class="step-item" id="step2"><div class="step-num">2</div><span class="step-label">Choose Style</span></div>
     <div class="step-connector"></div>
-    <div class="step-item" id="step3">
-      <div class="step-num">3</div>
-      <span class="step-label">Consultation</span>
-    </div>
+    <div class="step-item" id="step3"><div class="step-num">3</div><span class="step-label">Consultation</span></div>
   </div>
-
-  <!-- MODE TOGGLE -->
   <div class="mode-toggle">
     <button class="mode-btn active" id="btn-webcam" onclick="setMode('webcam')">
       <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5"><rect x="1" y="3" width="14" height="10" rx="1"/><circle cx="8" cy="8" r="2.5"/></svg>
@@ -600,10 +219,7 @@
       Upload Photo
     </button>
   </div>
-
-  <!-- SCANNER -->
   <div class="scanner-wrap">
-    <!-- Stage -->
     <div class="scanner-stage" id="scanner-stage">
       <div class="scanner-placeholder" id="scanner-placeholder">
         <svg viewBox="0 0 48 48" fill="none" stroke="currentColor" stroke-width="1"><circle cx="24" cy="20" r="8"/><path d="M12 40c0-6.627 5.373-12 12-12s12 5.373 12 12"/></svg>
@@ -620,41 +236,32 @@
         <span class="face-quality-score" id="face-quality"></span>
       </div>
     </div>
-
-    <!-- Webcam tips -->
     <div class="live-tips" id="webcam-tips" style="display:none">
       <span class="live-tip"><span class="live-tip-dot"></span> Face the camera directly</span>
       <span class="live-tip"><span class="live-tip-dot"></span> Align eyes to the guide</span>
       <span class="live-tip"><span class="live-tip-dot"></span> Keep chin in the oval</span>
       <span class="live-tip"><span class="live-tip-dot"></span> Ensure good lighting</span>
     </div>
-
-    <!-- Upload zone -->
     <div class="upload-zone hidden" id="upload-zone" onclick="document.getElementById('file-input').click()">
       <div class="upload-icon">↑</div>
       <p>Click to upload or drag &amp; drop your photo</p>
       <p style="font-size:0.65rem;margin-top:4px">JPG, PNG — face clearly visible</p>
       <input type="file" id="file-input" accept="image/*">
     </div>
-
     <div class="upload-guide hidden" id="upload-guide">
       <p class="guide-title">Photo Requirements for Best Results</p>
       <div class="guide-items">
         <div class="guide-item"><div class="guide-dot"></div><span>Face the camera directly — no profile or angled shots</span></div>
-        <div class="guide-item"><div class="guide-dot"></div><span>Eyes level and clearly visible — the guide will show the eye-line alignment</span></div>
+        <div class="guide-item"><div class="guide-dot"></div><span>Eyes level and clearly visible</span></div>
         <div class="guide-item"><div class="guide-dot"></div><span>Full face visible from hairline to chin — no crops</span></div>
         <div class="guide-item"><div class="guide-dot"></div><span>Even, natural lighting — avoid harsh shadows or backlight</span></div>
         <div class="guide-item"><div class="guide-dot"></div><span>Hair pulled back if possible to expose face shape</span></div>
       </div>
     </div>
-
-    <!-- Gender -->
     <div class="gender-select-wrap">
       <button class="gender-opt selected" id="gender-M" onclick="setGender('M')">Men's Styles</button>
       <button class="gender-opt" id="gender-F" onclick="setGender('F')">Women's Styles</button>
     </div>
-
-    <!-- Analyze -->
     <button class="analyze-btn" id="analyze-btn" onclick="runAnalysis()">
       Analyse My Face
       <div class="spinner"></div>
@@ -669,9 +276,35 @@
       <svg width="12" height="12" viewBox="0 0 12 12" fill="currentColor"><circle cx="6" cy="6" r="6"/></svg>
       <span id="face-shape-label">Oval Face</span>
     </div>
-    <h2 class="results-title">Your Top <em>3 Styles</em></h2>
+    <h2 class="results-title" id="results-title">Your Top <em>9 Styles</em></h2>
   </div>
-  <div class="style-cards-grid" id="style-cards-grid"></div>
+  <!-- Track A Primary -->
+  <div class="track-section" id="track-a-primary-section">
+    <div class="track-header">
+      <span class="track-label" id="track-a-primary-label">Shape Match</span>
+      <span class="track-desc" id="track-a-primary-desc">Top styles for your face shape</span>
+      <div class="track-line"></div>
+    </div>
+    <div class="style-cards-grid" id="track-a-primary-grid"></div>
+  </div>
+  <!-- Track A Secondary (ambiguous only) -->
+  <div class="track-section" id="track-a-secondary-section" style="display:none">
+    <div class="track-header">
+      <span class="track-label" id="track-a-secondary-label">Secondary Shape Match</span>
+      <span class="track-desc" id="track-a-secondary-desc"></span>
+      <div class="track-line"></div>
+    </div>
+    <div class="style-cards-grid" id="track-a-secondary-grid"></div>
+  </div>
+  <!-- Track B Attribute -->
+  <div class="track-section" id="track-b-section" style="display:none">
+    <div class="track-header">
+      <span class="track-label">Closest Geometric Match</span>
+      <span class="track-desc">Styles whose models share your exact face proportions</span>
+      <div class="track-line"></div>
+    </div>
+    <div class="style-cards-grid" id="track-b-grid"></div>
+  </div>
   <div style="text-align:center;padding:0 24px 40px">
     <button class="analyze-btn ready" id="consult-btn" onclick="getConsultation()" style="margin:0 auto">
       Get My Consultation Cards
@@ -691,56 +324,48 @@
     <button class="restart-btn" onclick="restartApp()">Start New Consultation</button>
   </div>
 </section>
-
 <footer>
   <span>© ÉLUME Salon Technology — Powered by MediaPipe &amp; AI</span>
 </footer>
 
-<!-- MEDIAPIPE -->
 <script src="https://cdn.jsdelivr.net/npm/@mediapipe/camera_utils/camera_utils.js" crossorigin="anonymous"></script>
 <script src="https://cdn.jsdelivr.net/npm/@mediapipe/face_mesh/face_mesh.js" crossorigin="anonymous"></script>
 
 <script>
-// ══════════════════════════════════════════════════════════════════
-// CONFIG — update WORKER_URL to your Cloudflare Worker endpoint
-// ══════════════════════════════════════════════════════════════════
 const WORKER_URL = "https://elmo-hairstyler-worker.acedynamicstrading.workers.dev";
 
-// ══════════════════════════════════════════════════════════════════
-// STATE
-// ══════════════════════════════════════════════════════════════════
-let currentMode = 'webcam';
-let selectedGender = 'M';
-let faceMeshInstance = null;
-let cameraInstance = null;
-let lastLandmarks = null;
-let faceDetected = false;
-let faceQuality = 0;
-let capturedFaceData = null;
-let detectedFaceShape = null;
-let recommendations = [];
-let selectedStyles = [];
-let analysisRunning = false;
+// ── STATE ──────────────────────────────────────────────────────────
+let currentMode        = 'webcam';
+let selectedGender     = 'M';
+let faceMeshInstance   = null;
+let cameraInstance     = null;
+let lastLandmarks      = null;
+let faceDetected       = false;
+let faceQuality        = 0;
+let detectedFaceShape  = null;
+let faceClassification = null;   // FIX 2: full object, not plain string
+let allCards           = [];     // FIX 4: flat array for getConsultation indexing
+let selectedStyles     = [];
+let analysisRunning    = false;
 let uploadedImageReady = false;
-let cameraFailed = false;
+let cameraFailed       = false;
 
-// MediaPipe Face Mesh 468-point landmark indices
+// ── MEDIAPIPE LANDMARK INDICES ─────────────────────────────────────
+// FIX 1: Ears (234/454) are the correct cheekbone-width points.
+// LEFT_CHEEK(116)/RIGHT_CHEEK(345) have been removed — they float with expression.
 const MP = {
   LEFT_EYE_OUTER:   33,  RIGHT_EYE_OUTER:  263,
   LEFT_EYE_INNER:  133,  RIGHT_EYE_INNER:  362,
-  LEFT_EAR:        234,  RIGHT_EAR:        454,
+  LEFT_EAR:        234,  RIGHT_EAR:        454,  // ← cheekbone width
   FOREHEAD:         10,  CHIN:             152,
-  LEFT_CHEEK:      234,  RIGHT_CHEEK:      454,
-  LEFT_JAW:        172,  RIGHT_JAW:        397,
-  LEFT_JAW_MID:    136,  RIGHT_JAW_MID:    365,
-  LEFT_BROW_OUTER:  70,  RIGHT_BROW_OUTER: 300,
-  LEFT_TEMPLE:     162,  RIGHT_TEMPLE:     389,
+  LEFT_JAW:        172,  RIGHT_JAW:        397,  // gonial angle
+  LEFT_JAW_MID:    136,  RIGHT_JAW_MID:    365,  // mid-jaw taper
+  LEFT_BROW_OUTER:  70,  RIGHT_BROW_OUTER: 300,  // brow-level width
+  LEFT_TEMPLE:     162,  RIGHT_TEMPLE:     389,  // hairline-level
   NOSE_TIP:          1,  MOUTH_LEFT:        61,  MOUTH_RIGHT: 291,
 };
 
-// ══════════════════════════════════════════════════════════════════
-// MODE SWITCHING
-// ══════════════════════════════════════════════════════════════════
+// ── MODE SWITCHING ─────────────────────────────────────────────────
 function setMode(mode) {
   currentMode = mode;
   if (mode === 'webcam') cameraFailed = false;
@@ -749,7 +374,6 @@ function setMode(mode) {
   document.getElementById('upload-zone').classList.toggle('hidden', mode === 'webcam');
   document.getElementById('upload-guide').classList.toggle('hidden', mode === 'webcam');
   document.getElementById('webcam-tips').style.display = mode === 'webcam' ? 'flex' : 'none';
-
   if (mode === 'webcam') {
     startWebcam();
     document.getElementById('preview-img').classList.add('hidden');
@@ -768,39 +392,23 @@ function setGender(g) {
   document.getElementById('gender-F').classList.toggle('selected', g === 'F');
 }
 
-// ══════════════════════════════════════════════════════════════════
-// WEBCAM & MEDIAPIPE
-// ══════════════════════════════════════════════════════════════════
+// ── WEBCAM ─────────────────────────────────────────────────────────
 async function startWebcam(forceRetry) {
   if (cameraInstance) return;
   if (cameraFailed && !forceRetry) return;
   cameraFailed = false;
-
-  const placeholder = document.getElementById('scanner-placeholder');
-  placeholder.style.display = 'none';
+  document.getElementById('scanner-placeholder').style.display = 'none';
   document.getElementById('face-status-bar').style.display = 'flex';
-
   const video = document.getElementById('webcam-video');
   video.classList.remove('hidden');
-
   if (!faceMeshInstance) {
-    faceMeshInstance = new FaceMesh({
-      locateFile: (file) => `https://cdn.jsdelivr.net/npm/@mediapipe/face_mesh/${file}`
-    });
-    faceMeshInstance.setOptions({
-      maxNumFaces: 1,
-      refineLandmarks: true,
-      minDetectionConfidence: 0.7,
-      minTrackingConfidence: 0.6
-    });
+    faceMeshInstance = new FaceMesh({ locateFile: (f) => `https://cdn.jsdelivr.net/npm/@mediapipe/face_mesh/${f}` });
+    faceMeshInstance.setOptions({ maxNumFaces: 1, refineLandmarks: true, minDetectionConfidence: 0.7, minTrackingConfidence: 0.6 });
     faceMeshInstance.onResults(onFaceMeshResults);
   }
-
   try {
     cameraInstance = new Camera(video, {
-      onFrame: async () => {
-        if (faceMeshInstance) await faceMeshInstance.send({ image: video });
-      },
+      onFrame: async () => { if (faceMeshInstance) await faceMeshInstance.send({ image: video }); },
       width: 640, height: 720,
     });
     await cameraInstance.start();
@@ -808,8 +416,7 @@ async function startWebcam(forceRetry) {
     cameraInstance = null;
     video.classList.add('hidden');
     document.getElementById('face-status-bar').style.display = 'none';
-    const isNotFound = err && (err.name === 'NotFoundError' || err.name === 'DevicesNotFoundError');
-    if (isNotFound) cameraFailed = true;
+    if (err && (err.name === 'NotFoundError' || err.name === 'DevicesNotFoundError')) cameraFailed = true;
     showCameraError(err);
   }
 }
@@ -817,23 +424,22 @@ async function startWebcam(forceRetry) {
 function showCameraError(err) {
   const placeholder = document.getElementById('scanner-placeholder');
   placeholder.style.display = 'flex';
-  const isDenied = err && (err.name === 'NotAllowedError' || err.name === 'PermissionDeniedError');
-  const isNotFound = err && (err.name === 'NotFoundError' || err.name === 'DevicesNotFoundError');
+  const isDenied   = err && (err.name === 'NotAllowedError' || err.name === 'PermissionDeniedError');
+  const isNotFound = err && (err.name === 'NotFoundError'   || err.name === 'DevicesNotFoundError');
   let msg = 'Camera unavailable';
-  if (isDenied) msg = 'Camera permission denied';
+  if (isDenied)   msg = 'Camera permission denied';
   else if (isNotFound) msg = 'No camera found on this device';
   placeholder.innerHTML = `
     <svg viewBox="0 0 48 48" fill="none" stroke="currentColor" stroke-width="1"><circle cx="24" cy="20" r="8"/><path d="M12 40c0-6.627 5.373-12 12-12s12 5.373 12 12"/></svg>
     <p style="color:rgba(255,255,255,0.5);font-size:0.7rem;letter-spacing:0.1em;text-transform:uppercase;text-align:center;padding:0 16px">${msg}</p>
-    ${isDenied ? `<button onclick="cameraFailed=false;startWebcam(true)" style="margin-top:8px;padding:8px 20px;background:var(--gold);color:var(--ink);border:none;cursor:pointer;font-size:0.65rem;letter-spacing:0.15em;text-transform:uppercase">Try Again</button>` : `<button onclick="setMode('upload')" style="margin-top:8px;padding:8px 20px;background:var(--gold);color:var(--ink);border:none;cursor:pointer;font-size:0.65rem;letter-spacing:0.15em;text-transform:uppercase">Use Upload Instead</button>`}
+    ${isDenied
+      ? `<button onclick="cameraFailed=false;startWebcam(true)" style="margin-top:8px;padding:8px 20px;background:var(--gold);color:var(--ink);border:none;cursor:pointer;font-size:0.65rem;letter-spacing:0.15em;text-transform:uppercase">Try Again</button>`
+      : `<button onclick="setMode('upload')" style="margin-top:8px;padding:8px 20px;background:var(--gold);color:var(--ink);border:none;cursor:pointer;font-size:0.65rem;letter-spacing:0.15em;text-transform:uppercase">Use Upload Instead</button>`}
   `;
 }
 
 function stopWebcam() {
-  if (cameraInstance) {
-    cameraInstance.stop();
-    cameraInstance = null;
-  }
+  if (cameraInstance) { cameraInstance.stop(); cameraInstance = null; }
   document.getElementById('webcam-video').classList.add('hidden');
   document.getElementById('face-status-bar').style.display = 'none';
   resetFaceStatus();
@@ -843,8 +449,7 @@ function resetFaceStatus() {
   faceDetected = false;
   lastLandmarks = null;
   const canvas = document.getElementById('face-canvas');
-  const ctx = canvas.getContext('2d');
-  ctx.clearRect(0, 0, canvas.width, canvas.height);
+  canvas.getContext('2d').clearRect(0, 0, canvas.width, canvas.height);
   document.getElementById('face-dot').classList.remove('detected');
   document.getElementById('face-status-text').textContent = 'No face detected';
   document.getElementById('face-quality').textContent = '';
@@ -853,21 +458,18 @@ function resetFaceStatus() {
 
 function onFaceMeshResults(results) {
   const canvas = document.getElementById('face-canvas');
-  const stage = document.getElementById('scanner-stage');
-  canvas.width = stage.offsetWidth;
+  const stage  = document.getElementById('scanner-stage');
+  canvas.width  = stage.offsetWidth;
   canvas.height = stage.offsetHeight;
   const ctx = canvas.getContext('2d');
   ctx.clearRect(0, 0, canvas.width, canvas.height);
-
   if (results.multiFaceLandmarks && results.multiFaceLandmarks.length > 0) {
     lastLandmarks = results.multiFaceLandmarks[0];
     const quality = evaluateFaceQuality(lastLandmarks, canvas.width, canvas.height);
-    faceQuality = quality.score;
-    faceDetected = quality.score > 50;
-
+    faceQuality   = quality.score;
+    faceDetected  = quality.score > 50;
     drawAlignmentGuide(ctx, canvas.width, canvas.height, lastLandmarks);
     drawFaceLandmarkGuide(ctx, lastLandmarks, canvas.width, canvas.height, quality);
-
     document.getElementById('face-dot').classList.toggle('detected', faceDetected);
     document.getElementById('face-status-text').textContent = faceDetected
       ? (quality.score > 80 ? 'Perfect — ready to analyse' : 'Face detected — align to guide')
@@ -881,200 +483,113 @@ function onFaceMeshResults(results) {
     document.getElementById('face-status-text').textContent = 'No face detected';
     document.getElementById('face-quality').textContent = '';
   }
-
   updateAnalyzeBtn();
 }
 
 function evaluateFaceQuality(landmarks, w, h) {
-  const nose = landmarks[MP.NOSE_TIP];
-  const centerX = Math.abs(nose.x - 0.5);
-  const forehead = landmarks[MP.FOREHEAD];
-  const chin = landmarks[MP.CHIN];
-  const faceHeight = (chin.y - forehead.y) * h;
-  const minHeight = h * 0.35;
-  const maxHeight = h * 0.85;
-
+  const nose       = landmarks[MP.NOSE_TIP];
+  const centerX    = Math.abs(nose.x - 0.5);
+  const faceHeight = (landmarks[MP.CHIN].y - landmarks[MP.FOREHEAD].y) * h;
   let score = 100;
   score -= centerX * 120;
-  if (faceHeight < minHeight) score -= (minHeight - faceHeight) / minHeight * 40;
-  if (faceHeight > maxHeight) score -= 20;
-
+  if (faceHeight < h * 0.35) score -= (h * 0.35 - faceHeight) / (h * 0.35) * 40;
+  if (faceHeight > h * 0.85) score -= 20;
   return { score: Math.max(0, Math.min(100, Math.round(score))) };
 }
 
-// ══════════════════════════════════════════════════════════════════
-// CANVAS DRAWING
-// ══════════════════════════════════════════════════════════════════
+// ── CANVAS DRAWING ─────────────────────────────────────────────────
 function drawAlignmentGuide(ctx, w, h, landmarks) {
-  // ── Derive oval from real face landmarks when available ────────
-  // Smoothly interpolate toward detected face so the oval tracks live
   let cx, cy, ow, oh;
-
   if (landmarks) {
     const lm = (idx) => ({ x: landmarks[idx].x * w, y: landmarks[idx].y * h });
-
-    const forehead   = lm(MP.FOREHEAD);
-    const chin       = lm(MP.CHIN);
-    const leftEar    = lm(MP.LEFT_EAR);
-    const rightEar   = lm(MP.RIGHT_EAR);
-    const leftTemple = lm(MP.LEFT_TEMPLE);
-    const rightTemple= lm(MP.RIGHT_TEMPLE);
-
-    // Centre: midpoint of forehead–chin axis
-    cx = (forehead.x + chin.x) / 2;
-    cy = (forehead.y + chin.y) / 2;
-
-    // Height: forehead to chin + a small padding so the oval frames hair too
-    const faceH = Math.hypot(chin.x - forehead.x, chin.y - forehead.y);
-    oh = faceH * 0.58;  // slight padding beyond the detected span
-
-    // Width: widest of ear-to-ear or temple-to-temple, with padding
-    const earSpan    = Math.hypot(rightEar.x - leftEar.x, rightEar.y - leftEar.y);
-    const templeSpan = Math.hypot(rightTemple.x - leftTemple.x, rightTemple.y - leftTemple.y);
+    const fore = lm(MP.FOREHEAD), chin = lm(MP.CHIN);
+    const le   = lm(MP.LEFT_EAR),  re  = lm(MP.RIGHT_EAR);
+    const lt   = lm(MP.LEFT_TEMPLE),rt = lm(MP.RIGHT_TEMPLE);
+    cx = (fore.x + chin.x) / 2;
+    cy = (fore.y + chin.y) / 2;
+    const faceH     = Math.hypot(chin.x - fore.x, chin.y - fore.y);
+    oh = faceH * 0.58;
+    const earSpan    = Math.hypot(re.x - le.x, re.y - le.y);
+    const templeSpan = Math.hypot(rt.x - lt.x, rt.y - lt.y);
     ow = Math.max(earSpan, templeSpan) * 0.58;
-
-    // Smoothly lerp stored guide state toward new values for live cam
-    if (!drawAlignmentGuide._state) {
-      drawAlignmentGuide._state = { cx, cy, ow, oh };
+    if (!drawAlignmentGuide._s) {
+      drawAlignmentGuide._s = { cx, cy, ow, oh };
     } else {
-      const ease = 0.18;
-      drawAlignmentGuide._state.cx += (cx - drawAlignmentGuide._state.cx) * ease;
-      drawAlignmentGuide._state.cy += (cy - drawAlignmentGuide._state.cy) * ease;
-      drawAlignmentGuide._state.ow += (ow - drawAlignmentGuide._state.ow) * ease;
-      drawAlignmentGuide._state.oh += (oh - drawAlignmentGuide._state.oh) * ease;
-      ({ cx, cy, ow, oh } = drawAlignmentGuide._state);
+      const e = 0.18;
+      drawAlignmentGuide._s.cx += (cx - drawAlignmentGuide._s.cx) * e;
+      drawAlignmentGuide._s.cy += (cy - drawAlignmentGuide._s.cy) * e;
+      drawAlignmentGuide._s.ow += (ow - drawAlignmentGuide._s.ow) * e;
+      drawAlignmentGuide._s.oh += (oh - drawAlignmentGuide._s.oh) * e;
+      ({ cx, cy, ow, oh } = drawAlignmentGuide._s);
     }
   } else {
-    // No face yet — reset lerp state and show static hint guide
-    drawAlignmentGuide._state = null;
-    cx = w / 2;
-    cy = h / 2;
-    ow = w * 0.38;
-    oh = h * 0.56;
+    drawAlignmentGuide._s = null;
+    cx = w / 2; cy = h / 2; ow = w * 0.38; oh = h * 0.56;
   }
-
-  // ── Dynamic oval opacity: brighter when tracking a face ────────
   const tracked = !!landmarks;
-  const ovalAlpha   = tracked ? 0.75 : 0.4;
-  const bracketAlpha= tracked ? 0.9  : 0.6;
-  const labelAlpha  = tracked ? 0.65 : 0.55;
-
-  // ── Outer oval ─────────────────────────────────────────────────
+  const oa = tracked ? 0.75 : 0.4;
   ctx.beginPath();
   ctx.ellipse(cx, cy, ow, oh, 0, 0, Math.PI * 2);
-  ctx.strokeStyle = `rgba(201,169,110,${ovalAlpha})`;
-  ctx.lineWidth = tracked ? 1.5 : 1;
+  ctx.strokeStyle = `rgba(201,169,110,${oa})`;
+  ctx.lineWidth   = tracked ? 1.5 : 1;
   ctx.setLineDash(tracked ? [8, 3] : [6, 4]);
-  ctx.stroke();
-  ctx.setLineDash([]);
-
-  // ── Corner brackets (anchored to oval extents) ─────────────────
+  ctx.stroke(); ctx.setLineDash([]);
   const bSize = 18;
-  const pts = [
-    [cx - ow * 0.7, cy - oh * 0.7],
-    [cx + ow * 0.7, cy - oh * 0.7],
-    [cx - ow * 0.7, cy + oh * 0.7],
-    [cx + ow * 0.7, cy + oh * 0.7],
-  ];
-  ctx.strokeStyle = `rgba(201,169,110,${bracketAlpha})`;
-  ctx.lineWidth = 1.5;
-  pts.forEach(([x, y], i) => {
-    const sx = i % 2 === 0 ? 1 : -1;
-    const sy = i < 2 ? 1 : -1;
+  [[cx - ow * 0.7, cy - oh * 0.7],[cx + ow * 0.7, cy - oh * 0.7],[cx - ow * 0.7, cy + oh * 0.7],[cx + ow * 0.7, cy + oh * 0.7]].forEach(([x, y], i) => {
+    const sx = i % 2 === 0 ? 1 : -1, sy = i < 2 ? 1 : -1;
+    ctx.strokeStyle = `rgba(201,169,110,${tracked ? 0.9 : 0.6})`; ctx.lineWidth = 1.5;
     ctx.beginPath(); ctx.moveTo(x, y); ctx.lineTo(x + sx * bSize, y); ctx.stroke();
     ctx.beginPath(); ctx.moveTo(x, y); ctx.lineTo(x, y + sy * bSize); ctx.stroke();
   });
-
-  // ── Guide labels ───────────────────────────────────────────────
   ctx.font = '500 9px Jost, sans-serif';
-  ctx.fillStyle = `rgba(201,169,110,${labelAlpha})`;
-  ctx.letterSpacing = '0.15em';
+  ctx.fillStyle = `rgba(201,169,110,${tracked ? 0.65 : 0.55})`;
   ctx.textAlign = 'center';
   ctx.fillText('HAIRLINE', cx, cy - oh - 10);
   ctx.fillText('CHIN', cx, cy + oh + 18);
-
-  // ── Eye line (derived from actual eye landmark when tracking) ──
   const eyeY = landmarks
     ? ((landmarks[MP.LEFT_EYE_OUTER].y + landmarks[MP.RIGHT_EYE_OUTER].y) / 2) * h
     : cy - oh * 0.12;
   ctx.beginPath();
-  ctx.moveTo(cx - ow * 0.5, eyeY);
-  ctx.lineTo(cx + ow * 0.5, eyeY);
-  ctx.strokeStyle = `rgba(201,169,110,${tracked ? 0.45 : 0.3})`;
-  ctx.lineWidth = 0.8;
-  ctx.setLineDash([4, 6]);
-  ctx.stroke();
-  ctx.setLineDash([]);
+  ctx.moveTo(cx - ow * 0.5, eyeY); ctx.lineTo(cx + ow * 0.5, eyeY);
+  ctx.strokeStyle = `rgba(201,169,110,${tracked ? 0.45 : 0.3})`; ctx.lineWidth = 0.8;
+  ctx.setLineDash([4, 6]); ctx.stroke(); ctx.setLineDash([]);
   ctx.fillStyle = `rgba(201,169,110,${tracked ? 0.6 : 0.45})`;
-  ctx.font = '9px Jost, sans-serif';
-  ctx.textAlign = 'left';
+  ctx.font = '9px Jost, sans-serif'; ctx.textAlign = 'left';
   ctx.fillText('EYE LINE', cx + ow * 0.55, eyeY + 3);
-
-  // ── Ear tick marks ─────────────────────────────────────────────
-  const earY1 = cy - oh * 0.15;
-  const earY2 = cy + oh * 0.15;
   [cx - ow - 8, cx + ow + 8].forEach(x => {
-    ctx.beginPath(); ctx.moveTo(x, earY1); ctx.lineTo(x, earY2);
-    ctx.strokeStyle = `rgba(201,169,110,${tracked ? 0.5 : 0.35})`;
-    ctx.lineWidth = 1; ctx.stroke();
+    ctx.beginPath(); ctx.moveTo(x, cy - oh * 0.15); ctx.lineTo(x, cy + oh * 0.15);
+    ctx.strokeStyle = `rgba(201,169,110,${tracked ? 0.5 : 0.35})`; ctx.lineWidth = 1; ctx.stroke();
   });
-  ctx.fillStyle = `rgba(201,169,110,${tracked ? 0.55 : 0.4})`;
-  ctx.font = '9px Jost, sans-serif';
-  ctx.textAlign = 'center';
+  ctx.fillStyle = `rgba(201,169,110,${tracked ? 0.55 : 0.4})`; ctx.textAlign = 'center';
   ctx.fillText('EAR', cx - ow - 18, cy);
   ctx.fillText('EAR', cx + ow + 18, cy);
 }
 
 function drawFaceLandmarkGuide(ctx, landmarks, w, h, quality) {
-  const lm = (idx) => ({ x: landmarks[idx].x * w, y: landmarks[idx].y * h });
+  const lm    = (idx) => ({ x: landmarks[idx].x * w, y: landmarks[idx].y * h });
   const alpha = quality.score > 50 ? 0.8 : 0.4;
   const color = quality.score > 80 ? `rgba(68,204,136,${alpha})` : `rgba(201,169,110,${alpha})`;
-
-  // Eye line
-  const leftEye = lm(MP.LEFT_EYE_OUTER);
-  const rightEye = lm(MP.RIGHT_EYE_OUTER);
-  ctx.beginPath();
-  ctx.moveTo(leftEye.x, leftEye.y);
-  ctx.lineTo(rightEye.x, rightEye.y);
-  ctx.strokeStyle = color; ctx.lineWidth = 1.5;
-  ctx.setLineDash([4, 4]); ctx.stroke(); ctx.setLineDash([]);
-
-  // Ear markers
+  const leftEye = lm(MP.LEFT_EYE_OUTER), rightEye = lm(MP.RIGHT_EYE_OUTER);
+  ctx.beginPath(); ctx.moveTo(leftEye.x, leftEye.y); ctx.lineTo(rightEye.x, rightEye.y);
+  ctx.strokeStyle = color; ctx.lineWidth = 1.5; ctx.setLineDash([4, 4]); ctx.stroke(); ctx.setLineDash([]);
   [MP.LEFT_EAR, MP.RIGHT_EAR].forEach(idx => {
     const p = lm(idx);
     ctx.beginPath(); ctx.arc(p.x, p.y, 4, 0, Math.PI * 2);
     ctx.strokeStyle = color; ctx.lineWidth = 1.5; ctx.stroke();
   });
-
-  // Chin-to-hairline line
-  const chin = lm(MP.CHIN);
-  const forehead = lm(MP.FOREHEAD);
-  ctx.beginPath();
-  ctx.moveTo(forehead.x, forehead.y);
-  ctx.lineTo(chin.x, chin.y);
-  ctx.strokeStyle = color; ctx.lineWidth = 1;
-  ctx.setLineDash([3, 5]); ctx.stroke(); ctx.setLineDash([]);
-
-  // Jaw width line
-  const leftJaw = lm(MP.LEFT_JAW);
-  const rightJaw = lm(MP.RIGHT_JAW);
-  ctx.beginPath();
-  ctx.moveTo(leftJaw.x, leftJaw.y);
-  ctx.lineTo(rightJaw.x, rightJaw.y);
-  ctx.strokeStyle = color; ctx.lineWidth = 1;
-  ctx.setLineDash([2, 4]); ctx.stroke(); ctx.setLineDash([]);
-
-  // Key points
+  const chin = lm(MP.CHIN), fore = lm(MP.FOREHEAD);
+  ctx.beginPath(); ctx.moveTo(fore.x, fore.y); ctx.lineTo(chin.x, chin.y);
+  ctx.strokeStyle = color; ctx.lineWidth = 1; ctx.setLineDash([3, 5]); ctx.stroke(); ctx.setLineDash([]);
+  const lj = lm(MP.LEFT_JAW), rj = lm(MP.RIGHT_JAW);
+  ctx.beginPath(); ctx.moveTo(lj.x, lj.y); ctx.lineTo(rj.x, rj.y);
+  ctx.strokeStyle = color; ctx.lineWidth = 1; ctx.setLineDash([2, 4]); ctx.stroke(); ctx.setLineDash([]);
   [MP.LEFT_EYE_OUTER, MP.RIGHT_EYE_OUTER, MP.CHIN, MP.FOREHEAD, MP.LEFT_EAR, MP.RIGHT_EAR].forEach(idx => {
     const p = lm(idx);
-    ctx.beginPath(); ctx.arc(p.x, p.y, 2.5, 0, Math.PI * 2);
-    ctx.fillStyle = color; ctx.fill();
+    ctx.beginPath(); ctx.arc(p.x, p.y, 2.5, 0, Math.PI * 2); ctx.fillStyle = color; ctx.fill();
   });
-
-  // Scan line animation
-  const now = Date.now() % 2000 / 2000;
-  const scanY = forehead.y + (chin.y - forehead.y) * now;
-  const grad = ctx.createLinearGradient(0, scanY - 20, 0, scanY + 20);
+  const now   = Date.now() % 2000 / 2000;
+  const scanY = fore.y + (chin.y - fore.y) * now;
+  const grad  = ctx.createLinearGradient(0, scanY - 20, 0, scanY + 20);
   grad.addColorStop(0, 'transparent');
   grad.addColorStop(0.5, quality.score > 80 ? 'rgba(68,204,136,0.15)' : 'rgba(201,169,110,0.1)');
   grad.addColorStop(1, 'transparent');
@@ -1082,13 +597,10 @@ function drawFaceLandmarkGuide(ctx, landmarks, w, h, quality) {
   ctx.fillRect(leftEye.x - 40, scanY - 20, rightEye.x - leftEye.x + 80, 40);
 }
 
-// ══════════════════════════════════════════════════════════════════
-// UPLOAD MODE
-// ══════════════════════════════════════════════════════════════════
+// ── UPLOAD MODE ────────────────────────────────────────────────────
 document.getElementById('file-input').addEventListener('change', async (e) => {
   const file = e.target.files[0];
   if (!file) return;
-
   const url = URL.createObjectURL(file);
   const img = document.getElementById('preview-img');
   img.src = url;
@@ -1096,241 +608,241 @@ document.getElementById('file-input').addEventListener('change', async (e) => {
   document.getElementById('scanner-placeholder').style.display = 'none';
   document.getElementById('face-status-bar').style.display = 'flex';
   document.getElementById('face-status-text').textContent = 'Analysing uploaded photo…';
-
-  img.onload = async () => {
-    await analyseUploadedImage(img);
-  };
+  img.onload = async () => { await analyseUploadedImage(img); };
 });
 
-// Drag and drop
 const uploadZone = document.getElementById('upload-zone');
 uploadZone.addEventListener('dragover', (e) => { e.preventDefault(); uploadZone.style.borderColor = 'var(--gold)'; });
 uploadZone.addEventListener('dragleave', () => { uploadZone.style.borderColor = ''; });
 uploadZone.addEventListener('drop', (e) => {
-  e.preventDefault();
-  uploadZone.style.borderColor = '';
+  e.preventDefault(); uploadZone.style.borderColor = '';
   const file = e.dataTransfer.files[0];
   if (file && file.type.startsWith('image/')) {
-    const dt = new DataTransfer();
-    dt.items.add(file);
+    const dt = new DataTransfer(); dt.items.add(file);
     document.getElementById('file-input').files = dt.files;
     document.getElementById('file-input').dispatchEvent(new Event('change'));
   }
 });
 
+// FIX: named handler — never stacked on repeated uploads
+function onUploadResults(results) {
+  const canvas = document.getElementById('face-canvas');
+  const stage  = document.getElementById('scanner-stage');
+  canvas.width  = stage.offsetWidth;
+  canvas.height = stage.offsetHeight;
+  const ctx = canvas.getContext('2d');
+  ctx.clearRect(0, 0, canvas.width, canvas.height);
+  if (results.multiFaceLandmarks && results.multiFaceLandmarks.length > 0) {
+    lastLandmarks = results.multiFaceLandmarks[0];
+    const quality = evaluateFaceQuality(lastLandmarks, canvas.width, canvas.height);
+    faceQuality   = quality.score;
+    faceDetected  = true;
+    uploadedImageReady = true;
+    drawAlignmentGuide(ctx, canvas.width, canvas.height, lastLandmarks);
+    drawFaceLandmarkGuide(ctx, lastLandmarks, canvas.width, canvas.height, { score: 85 });
+    document.getElementById('face-dot').classList.add('detected');
+    document.getElementById('face-status-text').textContent = 'Face detected — ready to analyse';
+    document.getElementById('face-quality').textContent = `Quality: ${quality.score}%`;
+  } else {
+    faceDetected = false; uploadedImageReady = false;
+    document.getElementById('face-dot').classList.remove('detected');
+    document.getElementById('face-status-text').textContent = 'No face detected — try a clearer photo';
+    document.getElementById('face-quality').textContent = '';
+  }
+  updateAnalyzeBtn();
+}
+
 async function analyseUploadedImage(imgEl) {
   if (!faceMeshInstance) {
-    faceMeshInstance = new FaceMesh({
-      locateFile: (file) => `https://cdn.jsdelivr.net/npm/@mediapipe/face_mesh/${file}`
-    });
-    faceMeshInstance.setOptions({
-      maxNumFaces: 1, refineLandmarks: true,
-      minDetectionConfidence: 0.5, minTrackingConfidence: 0.5
-    });
+    faceMeshInstance = new FaceMesh({ locateFile: (f) => `https://cdn.jsdelivr.net/npm/@mediapipe/face_mesh/${f}` });
+    faceMeshInstance.setOptions({ maxNumFaces: 1, refineLandmarks: true, minDetectionConfidence: 0.5, minTrackingConfidence: 0.5 });
   }
-
-  faceMeshInstance.onResults((results) => {
-    const canvas = document.getElementById('face-canvas');
-    const stage = document.getElementById('scanner-stage');
-    canvas.width = stage.offsetWidth;
-    canvas.height = stage.offsetHeight;
-    const ctx = canvas.getContext('2d');
-    ctx.clearRect(0, 0, canvas.width, canvas.height);
-
-    if (results.multiFaceLandmarks && results.multiFaceLandmarks.length > 0) {
-      lastLandmarks = results.multiFaceLandmarks[0];
-      const quality = evaluateFaceQuality(lastLandmarks, canvas.width, canvas.height);
-      faceQuality = quality.score;
-      faceDetected = true;
-      uploadedImageReady = true;
-      drawAlignmentGuide(ctx, canvas.width, canvas.height, lastLandmarks);
-      drawFaceLandmarkGuide(ctx, lastLandmarks, canvas.width, canvas.height, { score: 85 });
-
-      document.getElementById('face-dot').classList.add('detected');
-      document.getElementById('face-status-text').textContent = 'Face detected — ready to analyse';
-      document.getElementById('face-quality').textContent = `Quality: ${quality.score}%`;
-    } else {
-      faceDetected = false;
-      uploadedImageReady = false;
-      document.getElementById('face-dot').classList.remove('detected');
-      document.getElementById('face-status-text').textContent = 'No face detected — try a clearer photo';
-      document.getElementById('face-quality').textContent = '';
-    }
-    updateAnalyzeBtn();
-  });
-
+  // FIX: always reassign to named handler — never accumulate closures
+  faceMeshInstance.onResults(onUploadResults);
   await faceMeshInstance.send({ image: imgEl });
 }
 
-// ══════════════════════════════════════════════════════════════════
-// FACE SHAPE DETECTION (MediaPipe — no AI)
-// ══════════════════════════════════════════════════════════════════
+// ── FACE SHAPE CLASSIFIER ──────────────────────────────────────────
+// FIX 2: Returns full object {shape, secondShape, ambiguous, confidence, measurements}
+// FIX 1: Uses LEFT_EAR/RIGHT_EAR (234/454) as cheekWidth — not LEFT_CHEEK/RIGHT_CHEEK
 function classifyFaceShape(landmarks, w, h) {
   const lm   = (idx) => ({ x: landmarks[idx].x * w, y: landmarks[idx].y * h });
   const dist = (a, b) => Math.hypot(a.x - b.x, a.y - b.y);
 
-  // ── Key facial measurements ───────────────────────────────────
-  const foreheadPt  = lm(MP.FOREHEAD);
-  const chinPt      = lm(MP.CHIN);
-  const leftEar     = lm(MP.LEFT_EAR);        // malar/cheekbone
-  const rightEar    = lm(MP.RIGHT_EAR);
-  const leftJaw     = lm(MP.LEFT_JAW);        // gonial angle
-  const rightJaw    = lm(MP.RIGHT_JAW);
-  const leftJawMid  = lm(MP.LEFT_JAW_MID);   // mid jaw edge
-  const rightJawMid = lm(MP.RIGHT_JAW_MID);
-  const leftBrow    = lm(MP.LEFT_BROW_OUTER); // brow-level forehead
-  const rightBrow   = lm(MP.RIGHT_BROW_OUTER);
-  const leftTemple  = lm(MP.LEFT_TEMPLE);     // hairline-level temple
-  const rightTemple = lm(MP.RIGHT_TEMPLE);
+  const fore     = lm(MP.FOREHEAD);
+  const chin     = lm(MP.CHIN);
+  const leftEar  = lm(MP.LEFT_EAR);         // ← cheekbone width — stable
+  const rightEar = lm(MP.RIGHT_EAR);
+  const leftJaw  = lm(MP.LEFT_JAW);
+  const rightJaw = lm(MP.RIGHT_JAW);
+  const leftJawM = lm(MP.LEFT_JAW_MID);
+  const rightJawM= lm(MP.RIGHT_JAW_MID);
+  const leftBrow = lm(MP.LEFT_BROW_OUTER);
+  const rightBrow= lm(MP.RIGHT_BROW_OUTER);
+  const leftTemp = lm(MP.LEFT_TEMPLE);
+  const rightTemp= lm(MP.RIGHT_TEMPLE);
 
-  // Raw widths
-  const faceHeight      = dist(foreheadPt, chinPt);
-  const cheekWidth      = dist(leftEar, rightEar);       // widest
-  const jawWidth        = dist(leftJaw, rightJaw);       // jaw corners
-  const midJawWidth     = dist(leftJawMid, rightJawMid); // mid-jaw taper
-  const browWidth       = dist(leftBrow, rightBrow);     // brow-level
-  const templeWidth     = dist(leftTemple, rightTemple); // hairline
+  const faceHeight  = dist(fore, chin);
+  const cheekWidth  = dist(leftEar, rightEar);
+  const jawWidth    = dist(leftJaw, rightJaw);
+  const midJawWidth = dist(leftJawM, rightJawM);
+  const browWidth   = dist(leftBrow, rightBrow);
+  const templeWidth = dist(leftTemp, rightTemp);
 
-  // Guard — bad detection
-  if (cheekWidth < 1 || faceHeight < 1) return 'Oval';
+  if (cheekWidth < 1 || faceHeight < 1) {
+    return { shape: 'Oval', secondShape: null, ambiguous: false, confidence: 1,
+      measurements: { faceAspectRatio: 1.35, foreheadToJawRatio: 1.1, cheekToJawRatio: 1.15, taperRatio: 0.9, avgJawAngle: 138, chinAngle: 120 } };
+  }
 
-  // ── Derived ratios ────────────────────────────────────────────
-  // height:cheek  — elongation. ~1.3–1.4 = average face
-  const hRatio      = faceHeight / cheekWidth;
-  // jaw:cheek     — how wide the jaw is relative to the widest point
-  const jawRatio    = jawWidth / cheekWidth;
-  // brow:cheek    — forehead breadth relative to cheekbones
-  const browRatio   = browWidth / cheekWidth;
-  // temple:cheek  — hairline breadth relative to cheekbones
-  const templeRatio = templeWidth / cheekWidth;
-  // jaw:brow      — taper. >1 = pear, <0.8 = heart
-  const taperRatio  = jawWidth / browWidth;
-  // mid-jaw:jaw   — chin taper within the jaw itself
-  const chinTaper   = midJawWidth / jawWidth;
+  const hRatio       = faceHeight / cheekWidth;
+  const jawRatio     = jawWidth   / cheekWidth;
+  const browRatio    = browWidth  / cheekWidth;
+  const templeRatio  = templeWidth/ cheekWidth;
+  const taperRatio   = jawWidth   / (browWidth > 0 ? browWidth : cheekWidth);
+  const chinTaper    = midJawWidth/ (jawWidth  > 0 ? jawWidth  : cheekWidth);
+  const foreheadRatio= Math.max(browRatio, templeRatio);
 
-  // Use max of brow and temple as "forehead width" — more robust
-  const foreheadRatio = Math.max(browRatio, templeRatio);
-
-  // ── Scoring system ────────────────────────────────────────────
-  // Each shape accumulates points; highest score wins.
-  // Scores are additive so borderline faces blend gracefully.
   const s = { Oval: 5, Round: 0, Square: 0, Heart: 0, Diamond: 0, Oblong: 0, Pear: 0 };
 
-  // ── OBLONG — long and narrow ──────────────────────────────────
+  // OBLONG
   if (hRatio > 1.55)  s.Oblong += 40;
   if (hRatio > 1.65)  s.Oblong += 20;
   if (hRatio > 1.75)  s.Oblong += 15;
-  if (jawRatio < 0.75) s.Oblong += 10;  // narrow jaw adds to elongation
+  if (jawRatio < 0.75) s.Oblong += 10;
 
-  // ── ROUND — short, wide, soft jaw ────────────────────────────
-  if (hRatio < 1.25)  s.Round += 30;
-  if (hRatio < 1.15)  s.Round += 25;
-  if (jawRatio > 0.80) s.Round += 20;
-  if (foreheadRatio > 0.82 && jawRatio > 0.78) s.Round += 15;
-  if (chinTaper > 0.88) s.Round += 10;  // relatively flat chin = round
+  // ROUND — require wide jaw to unlock height bonuses (prevents beard/crop triggering round)
+  if (hRatio < 1.25 && jawRatio > 0.82) s.Round += 30;
+  if (hRatio < 1.15 && jawRatio > 0.85) s.Round += 25;
+  if (jawRatio > 0.80) s.Round += 15;
+  if (foreheadRatio > 0.82 && jawRatio > 0.78) s.Round += 12;
+  if (chinTaper > 0.92)  s.Round += 10;
+  if (taperRatio < 0.90) s.Round -= 20; // tapering jaw ≠ round
 
-  // ── SQUARE — moderate length, wide jaw matching forehead ─────
+  // SQUARE
   if (hRatio >= 1.15 && hRatio <= 1.50) s.Square += 10;
   if (jawRatio > 0.82)  s.Square += 25;
   if (jawRatio > 0.90)  s.Square += 20;
-  if (Math.abs(foreheadRatio - jawRatio) < 0.08) s.Square += 20;  // parallel widths
-  if (chinTaper > 0.85 && jawRatio > 0.82) s.Square += 10;        // squared chin
+  if (Math.abs(foreheadRatio - jawRatio) < 0.08) s.Square += 20;
+  if (chinTaper > 0.85 && jawRatio > 0.82) s.Square += 10;
 
-  // ── HEART — wide forehead/brow, narrow pointed chin ──────────
+  // HEART
   if (foreheadRatio > jawRatio + 0.10) s.Heart += 25;
   if (foreheadRatio > jawRatio + 0.18) s.Heart += 20;
-  if (taperRatio < 0.85)  s.Heart += 20;
-  if (taperRatio < 0.78)  s.Heart += 15;
-  if (chinTaper < 0.80)   s.Heart += 15;  // pointed chin
-  if (hRatio > 1.20)      s.Heart += 10;
+  if (taperRatio < 0.85) s.Heart += 20;
+  if (taperRatio < 0.78) s.Heart += 15;
+  if (chinTaper < 0.80)  s.Heart += 15;
+  if (hRatio > 1.20)     s.Heart += 10;
 
-  // ── PEAR — narrow forehead, wide jaw ─────────────────────────
+  // PEAR
   if (jawRatio > foreheadRatio + 0.08) s.Pear += 25;
   if (jawRatio > foreheadRatio + 0.15) s.Pear += 20;
-  if (taperRatio > 1.10)  s.Pear += 25;
-  if (taperRatio > 1.18)  s.Pear += 15;
-  if (browRatio < 0.80)   s.Pear += 10;  // narrow brow confirms pear
+  if (taperRatio > 1.10) s.Pear += 25;
+  if (taperRatio > 1.18) s.Pear += 15;
+  if (browRatio < 0.80)  s.Pear += 10;
 
-  // ── DIAMOND — prominent cheekbones, narrow forehead AND jaw ──
-  const cheekVsForehead = cheekWidth / (browWidth > 0 ? browWidth : cheekWidth);
-  const cheekVsJaw      = cheekWidth / (jawWidth > 0  ? jawWidth  : cheekWidth);
-  if (cheekVsForehead > 1.08 && cheekVsJaw > 1.08) s.Diamond += 35;
-  if (cheekVsForehead > 1.15) s.Diamond += 15;
-  if (cheekVsJaw > 1.15)      s.Diamond += 15;
-  if (Math.abs(browRatio - jawRatio) < 0.06) s.Diamond += 10;  // forehead ≈ jaw width
+  // DIAMOND
+  const cvf = cheekWidth / (browWidth > 0 ? browWidth : cheekWidth);
+  const cvj = cheekWidth / (jawWidth  > 0 ? jawWidth  : cheekWidth);
+  if (cvf > 1.08 && cvj > 1.08) s.Diamond += 35;
+  if (cvf > 1.15) s.Diamond += 15;
+  if (cvj > 1.15) s.Diamond += 15;
+  if (Math.abs(browRatio - jawRatio) < 0.06) s.Diamond += 10;
 
-  // ── OVAL — the balanced default ──────────────────────────────
-  if (hRatio >= 1.30 && hRatio <= 1.55)       s.Oval += 20;
-  if (jawRatio >= 0.68 && jawRatio <= 0.85)   s.Oval += 15;
-  if (foreheadRatio >= 0.80 && foreheadRatio <= 0.92) s.Oval += 15;
-  if (taperRatio >= 0.82 && taperRatio <= 0.96)       s.Oval += 10;
+  // OVAL
+  if (hRatio >= 1.30 && hRatio <= 1.55)               s.Oval += 20;
+  if (jawRatio >= 0.68 && jawRatio <= 0.85)            s.Oval += 15;
+  if (foreheadRatio >= 0.80 && foreheadRatio <= 0.92)  s.Oval += 15;
+  if (taperRatio >= 0.82 && taperRatio <= 0.96)        s.Oval += 10;
 
-  // ── Determine winner ─────────────────────────────────────────
-  const ranked = Object.entries(s).sort((a, b) => b[1] - a[1]);
-  const winner = ranked[0][0];
+  const ranked     = Object.entries(s).sort((a, b) => b[1] - a[1]);
+  const winner     = ranked[0][0];
+  const runnerUp   = ranked[1][0];
+  const top        = ranked[0][1];
+  const second     = ranked[1][1];
+  const confidence = top > 0 ? (top - second) / top : 1;
+  const ambiguous  = confidence < 0.22;
 
-  // Debug — visible in DevTools console
-  console.log('[ELUME] Ratios:', {
-    hRatio:       hRatio.toFixed(3),
-    jawRatio:     jawRatio.toFixed(3),
-    browRatio:    browRatio.toFixed(3),
-    templeRatio:  templeRatio.toFixed(3),
-    foreheadRatio:foreheadRatio.toFixed(3),
-    taperRatio:   taperRatio.toFixed(3),
-    chinTaper:    chinTaper.toFixed(3),
-  });
-  console.log('[ELUME] Scores:', Object.fromEntries(ranked));
-  console.log('[ELUME] Result:', winner);
+  console.log('[ELUME] Ratios:', { hRatio: hRatio.toFixed(3), jawRatio: jawRatio.toFixed(3), browRatio: browRatio.toFixed(3), foreheadRatio: foreheadRatio.toFixed(3), taperRatio: taperRatio.toFixed(3), chinTaper: chinTaper.toFixed(3) });
+  console.log('[ELUME] Scores:', Object.fromEntries(ranked), '→', winner, ambiguous ? `(ambiguous w/ ${runnerUp})` : '');
 
-  return winner;
+  const measurements = {
+    faceAspectRatio:    parseFloat(hRatio.toFixed(3)),
+    foreheadToJawRatio: parseFloat((browWidth / (jawWidth > 0 ? jawWidth : 1)).toFixed(3)),
+    cheekToJawRatio:    parseFloat((cheekWidth / (jawWidth > 0 ? jawWidth : 1)).toFixed(3)),
+    taperRatio:         parseFloat(taperRatio.toFixed(3)),
+    avgJawAngle:        135,
+    chinAngle:          parseFloat((chinTaper * 100 + 40).toFixed(1)),
+  };
+
+  return { shape: winner, secondShape: runnerUp, ambiguous, confidence, measurements };
 }
 
-// ══════════════════════════════════════════════════════════════════
-// UI HELPERS
-// ══════════════════════════════════════════════════════════════════
+// ── UI HELPERS ─────────────────────────────────────────────────────
 function updateAnalyzeBtn() {
-  const btn = document.getElementById('analyze-btn');
-  const ready = (currentMode === 'webcam' && faceDetected) ||
-    (currentMode === 'upload' && uploadedImageReady);
+  const btn   = document.getElementById('analyze-btn');
+  const ready = (currentMode === 'webcam' && faceDetected) || (currentMode === 'upload' && uploadedImageReady);
   btn.classList.toggle('ready', ready);
 }
 
-// ══════════════════════════════════════════════════════════════════
-// RUN ANALYSIS
-// ══════════════════════════════════════════════════════════════════
+// ── RUN ANALYSIS ───────────────────────────────────────────────────
 async function runAnalysis() {
   if (analysisRunning) return;
   if (!lastLandmarks) return;
-
   analysisRunning = true;
   const btn = document.getElementById('analyze-btn');
   btn.classList.add('loading');
   btn.querySelector('.spinner').style.display = 'block';
 
-  const stage = document.getElementById('scanner-stage');
   const canvas = document.getElementById('face-canvas');
-  // Use canvas dimensions — these match what MediaPipe rendered against
+  const stage  = document.getElementById('scanner-stage');
   const classW = canvas.width  || stage.offsetWidth;
   const classH = canvas.height || stage.offsetHeight;
-  detectedFaceShape = classifyFaceShape(lastLandmarks, classW, classH);
 
-  // Fetch recommendations from GAS via Worker
+  // FIX 2: capture full object
+  faceClassification = classifyFaceShape(lastLandmarks, classW, classH);
+  detectedFaceShape  = faceClassification.shape;
+
+  // FIX 3: call getRecommendations9 with all measurement params
   try {
-    const genderParam = selectedGender === "M" ? "male" : "female";
-    const resp = await fetch(`${WORKER_URL}?action=getRecommendations&faceShape=${detectedFaceShape.toLowerCase()}&gender=${genderParam}`);
+    const genderParam = selectedGender === 'M' ? 'male' : 'female';
+    const m = faceClassification.measurements;
+    const params = new URLSearchParams({
+      action:             'getRecommendations9',
+      faceShape:          detectedFaceShape.toLowerCase(),
+      secondShape:        (faceClassification.secondShape || '').toLowerCase(),
+      ambiguous:          faceClassification.ambiguous ? 'true' : 'false',
+      gender:             genderParam,
+      faceAspectRatio:    m.faceAspectRatio,
+      foreheadToJawRatio: m.foreheadToJawRatio,
+      cheekToJawRatio:    m.cheekToJawRatio,
+      taperRatio:         m.taperRatio,
+      avgJawAngle:        m.avgJawAngle,
+      chinAngle:          m.chinAngle,
+    });
+    const resp = await fetch(`${WORKER_URL}?${params.toString()}`);
     const data = await resp.json();
 
-    if (data.success && (data.primary || data.recommendations)) {
-      recommendations = data.primary || data.recommendations;
+    if (data.success && data.trackA) {
+      // 9-card trackA/B response
+      allCards = [
+        ...(data.trackA?.primary   || []).map(s => ({ ...s, _track: 'a-primary' })),
+        ...(data.trackA?.secondary || []).map(s => ({ ...s, _track: 'a-secondary' })),
+        ...(data.trackB?.styles    || []).map(s => ({ ...s, _track: 'b' })),
+      ];
+      showResults(data);
+    } else if (data.success && data.primary) {
+      // Fallback: old getRecommendations format
+      allCards = (data.primary || []).map(s => ({ ...s, _track: 'a-primary' }));
+      showResultsLegacy();
     } else {
-      // Fallback: basic recommendations
-      recommendations = generateFallbackRecs(detectedFaceShape, selectedGender);
+      allCards = generateFallbackRecs(detectedFaceShape, selectedGender).map(s => ({ ...s, _track: 'a-primary' }));
+      showResultsLegacy();
     }
   } catch (err) {
-    recommendations = generateFallbackRecs(detectedFaceShape, selectedGender);
+    console.error('[ELUME] Fetch error:', err);
+    allCards = generateFallbackRecs(detectedFaceShape, selectedGender).map(s => ({ ...s, _track: 'a-primary' }));
+    showResultsLegacy();
   }
-
-  showResults();
 
   btn.classList.remove('loading');
   btn.querySelector('.spinner').style.display = 'none';
@@ -1338,120 +850,127 @@ async function runAnalysis() {
 }
 
 function makePlaceholder(label) {
-  const lines = label.length > 18 ? [label.slice(0, 18), label.slice(18)] : [label];
-  const textRows = lines.map((t, i) =>
-    `<text x="200" y="${250 + i * 28}" font-family="Georgia,serif" font-size="18" fill="#c9a96e" text-anchor="middle" letter-spacing="1">${t}</text>`
-  ).join('');
+  const lines    = label.length > 18 ? [label.slice(0, 18), label.slice(18)] : [label];
+  const textRows = lines.map((t, i) => `<text x="200" y="${250 + i * 28}" font-family="Georgia,serif" font-size="18" fill="#c9a96e" text-anchor="middle" letter-spacing="1">${t}</text>`).join('');
   const svg = `<svg xmlns="http://www.w3.org/2000/svg" width="400" height="533" viewBox="0 0 400 533"><rect width="400" height="533" fill="#1a1410"/><rect x="60" y="60" width="280" height="413" fill="none" stroke="rgba(201,169,110,0.2)" stroke-width="1"/>${textRows}</svg>`;
   return 'data:image/svg+xml;charset=utf-8,' + encodeURIComponent(svg);
 }
 
 function generateFallbackRecs(faceShape, gender) {
-  const styleMap = {
-    Oval: ['Classic Taper', 'Textured Crop', 'Side-Swept Layers'],
-    Round: ['Angular Fringe', 'Undercut', 'Pompadour'],
-    Square: ['Soft Waves', 'Side Part', 'Textured Quiff'],
-    Heart: ['Curtain Fringe', 'Shag Cut', 'Bob with Layers'],
-    Diamond: ['Side Swept Bang', 'Voluminous Layers', 'Blunt Bob'],
-    Oblong: ['Natural Curls', 'Fringe Layers', 'Voluminous Layers'],
-    Pear: ['Volume Crown', 'Tapered Sides', 'Textured Top'],
-  };
-  return (styleMap[faceShape] || styleMap['Oval']).map((name, i) => ({
-    id: i, styleName: name, imageUrl: null,
-    tags: ['Classic', 'Professional'], description: '',
-    salonProfile: { maintenance: 'Every 6-8 weeks', products: ['Styling cream', 'Sea salt spray'] }
-  }));
+  const styleMap = { Oval:['Classic Taper','Textured Crop','Side-Swept Layers'], Round:['Angular Fringe','Undercut','Pompadour'], Square:['Soft Waves','Side Part','Textured Quiff'], Heart:['Curtain Fringe','Shag Cut','Bob with Layers'], Diamond:['Side Swept Bang','Voluminous Layers','Blunt Bob'], Oblong:['Natural Curls','Fringe Layers','Voluminous Layers'], Pear:['Volume Crown','Tapered Sides','Textured Top'] };
+  return (styleMap[faceShape] || styleMap['Oval']).map((name, i) => ({ id: i, styleName: name, imageUrl: null, tags: [], description: '' }));
 }
 
-// ══════════════════════════════════════════════════════════════════
-// SHOW RESULTS
-// ══════════════════════════════════════════════════════════════════
-function showResults() {
-  // Stop webcam
+// ── SHOW RESULTS (9-card with 3-track layout) ──────────────────────
+// FIX 4: renders ALL cards; no .slice(0,3)
+function showResults(data) {
   if (currentMode === 'webcam') stopWebcam();
-
-  // Update steps
   document.getElementById('step1').classList.remove('active');
   document.getElementById('step1').classList.add('done');
   document.getElementById('step2').classList.add('active');
 
-  // Update face shape badge
-  document.getElementById('face-shape-label').textContent = `${detectedFaceShape} Face Shape`;
+  const cls       = faceClassification;
+  const badgeText = cls.ambiguous
+    ? `${cls.shape}-${cls.secondShape} Face`
+    : `${cls.shape} Face Shape`;
+  document.getElementById('face-shape-label').textContent = badgeText;
 
-  // Build style cards
-  const grid = document.getElementById('style-cards-grid');
-  grid.innerHTML = '';
+  const total = allCards.length;
+  document.getElementById('results-title').innerHTML = `Your Top <em>${total} Style${total !== 1 ? 's' : ''}</em>`;
 
-  if (recommendations.length === 0) {
-    grid.innerHTML = `<div style="grid-column:1/-1;text-align:center;padding:60px 24px">
-      <p style="font-family:'Cormorant Garamond',serif;font-size:1.4rem;font-weight:300;color:var(--ink);margin-bottom:12px">No styles found for <em>${detectedFaceShape}</em> face</p>
-      <p style="font-size:0.75rem;color:var(--ink-light);letter-spacing:0.08em">Our database is still growing — showing our top picks for you instead.</p>
-    </div>`;
-    recommendations = generateFallbackRecs(detectedFaceShape, selectedGender);
-    recommendations.slice(0, 3).forEach((style, i) => {
-      const card = document.createElement('div');
-      card.className = `style-card${i === 0 ? ' rank-1' : ''}`;
-      card.dataset.id = i;
-      const imgSrc = makePlaceholder(style.styleName || 'Style');
-      card.innerHTML = `
-        <img class="style-card-img" src="${imgSrc}" alt="${style.styleName}" loading="lazy">
-        <div class="style-card-info">
-          <div class="style-card-name">${style.styleName || 'Style ' + (i + 1)}</div>
-          <div class="style-card-tags"></div>
-        </div>
-        <div class="style-select-indicator">
-          <svg viewBox="0 0 10 8" fill="none" stroke="currentColor" stroke-width="2"><polyline points="1,4 3.5,7 9,1"/></svg>
-        </div>
-      `;
-      card.addEventListener('click', () => toggleStyleSelect(i, card));
-      grid.appendChild(card);
-    });
+  // Track A Primary
+  const tap      = data.trackA.primary || [];
+  const tapLabel = cls.ambiguous ? `${cls.shape} Shape Styles` : `${cls.shape} Face Styles`;
+  document.getElementById('track-a-primary-label').textContent = tapLabel;
+  document.getElementById('track-a-primary-desc').textContent  = `Top ${tap.length} matches for your primary shape`;
+  renderGrid('track-a-primary-grid', tap, 0, false);
+
+  // Track A Secondary (ambiguous only)
+  const tas = data.trackA.secondary || [];
+  if (cls.ambiguous && tas.length > 0) {
+    document.getElementById('track-a-secondary-section').style.display = '';
+    document.getElementById('track-a-secondary-label').textContent = `${cls.secondShape} Shape Styles`;
+    document.getElementById('track-a-secondary-desc').textContent  = `Top ${tas.length} matches for your secondary shape`;
+    renderGrid('track-a-secondary-grid', tas, tap.length, false);
   } else {
-    recommendations.slice(0, 3).forEach((style, i) => {
-      const card = document.createElement('div');
-      card.className = `style-card${i === 0 ? ' rank-1' : ''}`;
-      card.dataset.id = i;
-
-      const imgSrc = (style.imageUrl || style.imageURL) || makePlaceholder(style.styleName || 'Style');
-      const placeholderSrc = makePlaceholder(style.styleName || 'Style');
-
-      const tags = (style.tags || []).slice(0, 3).map(t =>
-        `<span class="style-tag">${t}</span>`
-      ).join('');
-
-      card.innerHTML = `
-        <img class="style-card-img" src="${imgSrc}" alt="${style.styleName}" loading="lazy" onerror="this.onerror=null;this.src='${placeholderSrc}'">
-        <div class="style-card-info">
-          <div class="style-card-name">${style.styleName || 'Style ' + (i + 1)}</div>
-          <div class="style-card-tags">${tags}</div>
-        </div>
-        <div class="style-select-indicator">
-          <svg viewBox="0 0 10 8" fill="none" stroke="currentColor" stroke-width="2"><polyline points="1,4 3.5,7 9,1"/></svg>
-        </div>
-      `;
-
-      card.addEventListener('click', () => toggleStyleSelect(i, card));
-      grid.appendChild(card);
-    });
+    document.getElementById('track-a-secondary-section').style.display = 'none';
   }
 
-  // Automatically select best match
-  if (recommendations.length > 0) {
-    selectedStyles = [0];
-    const firstCard = grid.querySelector('.style-card');
-    if (firstCard) firstCard.classList.add('selected');
+  // Track B
+  const tb       = data.trackB ? (data.trackB.styles || []) : [];
+  const tbOffset = tap.length + tas.length;
+  if (tb.length > 0 && data.trackB && data.trackB.hasData) {
+    document.getElementById('track-b-section').style.display = '';
+    renderGrid('track-b-grid', tb, tbOffset, true);
   } else {
-    selectedStyles = [];
+    document.getElementById('track-b-section').style.display = 'none';
   }
+
+  // Auto-select first card
+  selectedStyles = [0];
+  const firstCard = document.querySelector('#track-a-primary-grid .style-card');
+  if (firstCard) firstCard.classList.add('selected');
 
   document.getElementById('results-section').style.display = 'block';
   document.getElementById('results-section').classList.add('fade-in');
   document.getElementById('results-section').scrollIntoView({ behavior: 'smooth', block: 'start' });
 }
 
+// Legacy fallback when GAS still returns old getRecommendations format
+function showResultsLegacy() {
+  if (currentMode === 'webcam') stopWebcam();
+  document.getElementById('step1').classList.remove('active');
+  document.getElementById('step1').classList.add('done');
+  document.getElementById('step2').classList.add('active');
+  document.getElementById('face-shape-label').textContent = `${detectedFaceShape} Face Shape`;
+  document.getElementById('results-title').innerHTML = `Your Top <em>${allCards.length} Style${allCards.length !== 1 ? 's' : ''}</em>`;
+  document.getElementById('track-a-primary-label').textContent = `${detectedFaceShape} Shape Styles`;
+  document.getElementById('track-a-primary-desc').textContent  = 'Top matches for your face shape';
+  renderGrid('track-a-primary-grid', allCards, 0, false);
+  document.getElementById('track-a-secondary-section').style.display = 'none';
+  document.getElementById('track-b-section').style.display = 'none';
+  selectedStyles = [0];
+  const firstCard = document.querySelector('#track-a-primary-grid .style-card');
+  if (firstCard) firstCard.classList.add('selected');
+  document.getElementById('results-section').style.display = 'block';
+  document.getElementById('results-section').classList.add('fade-in');
+  document.getElementById('results-section').scrollIntoView({ behavior: 'smooth', block: 'start' });
+}
+
+function renderGrid(gridId, styles, offset, isAttrTrack) {
+  const grid = document.getElementById(gridId);
+  grid.innerHTML = '';
+  if (!styles || styles.length === 0) {
+    grid.innerHTML = `<div style="grid-column:1/-1;padding:40px;text-align:center;font-size:0.75rem;color:var(--ink-light);letter-spacing:0.08em">No styles found — database growing</div>`;
+    return;
+  }
+  styles.forEach((style, i) => {
+    const globalIdx = offset + i;
+    const card      = document.createElement('div');
+    const isFirst   = i === 0 && !isAttrTrack;
+    card.className  = `style-card${isFirst ? ' rank-1' : ''}${isAttrTrack ? ' attr-match' : ''}`;
+    card.dataset.idx = globalIdx;
+    const imgSrc         = (style.imageUrl || style.imageURL) || makePlaceholder(style.styleName || 'Style');
+    const placeholderSrc = makePlaceholder(style.styleName || 'Style');
+    const tags           = (style.tags || []).slice(0, 3).map(t => `<span class="style-tag">${t}</span>`).join('');
+    card.innerHTML = `
+      <img class="style-card-img" src="${imgSrc}" alt="${style.styleName || 'Style'}" loading="lazy" onerror="this.onerror=null;this.src='${placeholderSrc}'">
+      <div class="style-card-info">
+        <div class="style-card-name">${style.styleName || 'Style ' + (globalIdx + 1)}</div>
+        <div class="style-card-tags">${tags}</div>
+      </div>
+      <div class="style-select-indicator">
+        <svg viewBox="0 0 10 8" fill="none" stroke="currentColor" stroke-width="2"><polyline points="1,4 3.5,7 9,1"/></svg>
+      </div>
+    `;
+    card.addEventListener('click', () => toggleStyleSelect(globalIdx, card));
+    grid.appendChild(card);
+  });
+}
+
 function toggleStyleSelect(idx, card) {
   if (selectedStyles.includes(idx)) {
-    if (selectedStyles.length === 1) return; // keep at least 1
+    if (selectedStyles.length === 1) return;
     selectedStyles = selectedStyles.filter(i => i !== idx);
     card.classList.remove('selected');
   } else {
@@ -1460,44 +979,37 @@ function toggleStyleSelect(idx, card) {
   }
 }
 
-// ══════════════════════════════════════════════════════════════════
-// CONSULTATION
-// ══════════════════════════════════════════════════════════════════
+// ── CONSULTATION ───────────────────────────────────────────────────
 async function getConsultation() {
   const btn = document.getElementById('consult-btn');
   btn.classList.add('loading');
   btn.querySelector('.spinner').style.display = 'block';
 
-  const selectedRecs = selectedStyles.map(i => recommendations[i]);
+  // FIX 4: index into allCards (flat array), not old recommendations variable
+  const selectedRecs = selectedStyles.map(i => allCards[i]).filter(Boolean);
 
   document.getElementById('step2').classList.remove('active');
   document.getElementById('step2').classList.add('done');
   document.getElementById('step3').classList.add('active');
 
   const wrap = document.getElementById('consult-cards-wrap');
-  wrap.innerHTML = `
-    <div class="consult-loading">
-      <div class="spinner-lg"></div>
-      <p>Preparing your consultation…</p>
-    </div>
-  `;
+  wrap.innerHTML = `<div class="consult-loading"><div class="spinner-lg"></div><p>Preparing your consultation…</p></div>`;
   document.getElementById('consultation-section').style.display = 'block';
   document.getElementById('consultation-section').scrollIntoView({ behavior: 'smooth' });
 
   btn.classList.remove('loading');
   btn.querySelector('.spinner').style.display = 'none';
 
-  // Try AI consultation, fall back to template
   let cards = [];
   try {
     const resp = await fetch(`${WORKER_URL}`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({
-        action: 'getConsultation',
+        action:    'getConsultation',
         faceShape: detectedFaceShape,
-        gender: selectedGender,
-        styles: selectedRecs,
+        gender:    selectedGender,
+        styles:    selectedRecs,
       }),
     });
     const data = await resp.json();
@@ -1516,112 +1028,66 @@ async function getConsultation() {
 function generateFallbackCard(style, faceShape) {
   const name = style.styleName || 'Your Style';
   return {
-    styleName: name,
-    aiGenerated: false,
+    styleName: name, aiGenerated: false,
     overview: `This ${name.toLowerCase()} has been selected specifically for your ${faceShape.toLowerCase()} face shape. The proportions and framing have been chosen to balance and enhance your natural features.`,
-    homecare: [
-      `Wash with a sulphate-free shampoo 2–3 times per week to maintain natural moisture balance`,
-      `Apply a lightweight leave-in conditioner while hair is damp, focusing on mid-lengths and ends`,
-      `Use a medium-hold styling product suited to your hair texture — cream for fine, wax for thick`,
-      `Protect with heat spray before blow-drying; always finish with a cool shot to seal the cuticle`,
-    ],
-    treatments: [
-      `Scalp treatment — deep cleansing scalp therapy to promote healthy hair growth`,
-      `Bond repair treatment — Olaplex or similar to strengthen hair structure`,
-      `Hydration mask — once monthly to maintain elasticity and shine`,
-    ],
-    chemicals: style.tags && style.tags.includes('Colour')
-      ? ['Colour service — balayage or full tint recommended', 'Toner — to maintain vibrancy between colour visits', 'Colour-protect shampoo essential']
-      : ['Keratin smoothing treatment — optional for frizz control', 'Relaxer — if curl reduction is desired'],
+    homecare: ['Wash with a sulphate-free shampoo 2–3 times per week','Apply a lightweight leave-in conditioner while hair is damp, focusing on mid-lengths and ends','Use a medium-hold styling product suited to your hair texture — cream for fine, wax for thick','Protect with heat spray before blow-drying; always finish with a cool shot to seal the cuticle'],
+    treatments: ['Scalp treatment — deep cleansing scalp therapy to promote healthy hair growth','Bond repair treatment — Olaplex or similar to strengthen hair structure','Hydration mask — once monthly to maintain elasticity and shine'],
+    chemicals: ['Keratin smoothing treatment — optional for frizz control','Scalp treatment — targeted growth serum application during salon visits'],
     maintenance: `Every 6–8 weeks for a trim to maintain shape and remove split ends. A style refresh can be done at week 4 for precision cuts.`,
-    upsells: [
-      'Scalp Analysis', 'Glossing Treatment', 'Blowout Styling', 'Hair Spa', 'Eyebrow Shaping'
-    ],
+    upsells: ['Scalp Analysis', 'Glossing Treatment', 'Blowout Styling', 'Hair Spa', 'Eyebrow Shaping'],
   };
 }
 
 function renderConsultCards(cards, styles) {
   const wrap = document.getElementById('consult-cards-wrap');
   wrap.innerHTML = '';
-
   cards.forEach((card, i) => {
     const style = styles[i] || {};
-    const el = document.createElement('div');
+    const el    = document.createElement('div');
     el.className = 'consult-card fade-in';
     el.style.animationDelay = `${i * 0.15}s`;
     el.innerHTML = `
       <div class="consult-card-header">
         <div>
           <div class="consult-style-name">${card.styleName || style.styleName || 'Style Consultation'}</div>
-          <div class="consult-style-meta">${detectedFaceShape} Face • ${selectedGender === 'M' ? 'Men' : 'Women'}${card.aiGenerated ? '' : ''}</div>
+          <div class="consult-style-meta">${detectedFaceShape} Face • ${selectedGender === 'M' ? 'Men' : 'Women'}</div>
         </div>
         <div class="consult-ai-badge">${card.aiGenerated ? 'AI Consultation' : 'Expert Template'}</div>
       </div>
-
       <div style="margin-bottom:28px">
         <p class="consult-section-label">Overview</p>
         <p class="consult-body">${card.overview || ''}</p>
       </div>
-
       <div class="consult-grid">
         <div>
           <p class="consult-section-label">Home Care Routine</p>
-          <ul class="treatment-list">
-            ${(card.homecare || []).map(item => `
-              <li class="treatment-item">
-                <span class="treatment-dot">◆</span>
-                <span>${item}</span>
-              </li>`).join('')}
-          </ul>
+          <ul class="treatment-list">${(card.homecare||[]).map(item=>`<li class="treatment-item"><span class="treatment-dot">◆</span><span>${item}</span></li>`).join('')}</ul>
         </div>
         <div>
           <p class="consult-section-label">In-Salon Treatments</p>
-          <ul class="treatment-list">
-            ${(card.treatments || []).map(item => `
-              <li class="treatment-item">
-                <span class="treatment-dot">◆</span>
-                <span>${item}</span>
-              </li>`).join('')}
-          </ul>
+          <ul class="treatment-list">${(card.treatments||[]).map(item=>`<li class="treatment-item"><span class="treatment-dot">◆</span><span>${item}</span></li>`).join('')}</ul>
           <p class="consult-section-label" style="margin-top:24px">Chemical Services</p>
-          <ul class="treatment-list">
-            ${(card.chemicals || []).map(item => `
-              <li class="treatment-item">
-                <span class="treatment-dot">◆</span>
-                <span>${item}</span>
-              </li>`).join('')}
-          </ul>
+          <ul class="treatment-list">${(card.chemicals||[]).map(item=>`<li class="treatment-item"><span class="treatment-dot">◆</span><span>${item}</span></li>`).join('')}</ul>
         </div>
       </div>
-
       <div style="margin-bottom:24px">
         <p class="consult-section-label">Maintenance Schedule</p>
         <p class="consult-body">${card.maintenance || ''}</p>
       </div>
-
       <div class="upsell-strip">
         <p class="consult-section-label" style="margin-bottom:0">Recommended Add-On Services</p>
-        <div class="upsell-items">
-          ${(card.upsells || []).map(u => `<span class="upsell-chip">${u}</span>`).join('')}
-        </div>
+        <div class="upsell-items">${(card.upsells||[]).map(u=>`<span class="upsell-chip">${u}</span>`).join('')}</div>
       </div>
     `;
     wrap.appendChild(el);
   });
 }
 
-// ══════════════════════════════════════════════════════════════════
-// RESTART
-// ══════════════════════════════════════════════════════════════════
+// ── RESTART ────────────────────────────────────────────────────────
 function restartApp() {
   stopWebcam();
-  faceDetected = false;
-  uploadedImageReady = false;
-  lastLandmarks = null;
-  recommendations = [];
-  selectedStyles = [];
-  detectedFaceShape = null;
-
+  faceDetected = false; uploadedImageReady = false; lastLandmarks = null;
+  allCards = []; selectedStyles = []; detectedFaceShape = null; faceClassification = null;
   document.getElementById('preview-img').classList.add('hidden');
   document.getElementById('preview-img').src = '';
   document.getElementById('file-input').value = '';
@@ -1629,27 +1095,15 @@ function restartApp() {
   document.getElementById('face-status-bar').style.display = 'none';
   document.getElementById('results-section').style.display = 'none';
   document.getElementById('consultation-section').style.display = 'none';
-
-  // Reset steps
-  ['step1','step2','step3'].forEach(s => {
-    document.getElementById(s).classList.remove('active','done');
-  });
+  ['step1','step2','step3'].forEach(s => document.getElementById(s).classList.remove('active','done'));
   document.getElementById('step1').classList.add('active');
-
   updateAnalyzeBtn();
   setMode('webcam');
   document.getElementById('app-section').scrollIntoView({ behavior: 'smooth' });
 }
 
-// ══════════════════════════════════════════════════════════════════
-// INIT
-// ══════════════════════════════════════════════════════════════════
-window.addEventListener('load', () => {
-  // Don't auto-start webcam — wait for user
-  updateAnalyzeBtn();
-});
-
-// Auto-start webcam when entering app section
+// ── INIT ───────────────────────────────────────────────────────────
+window.addEventListener('load', () => { updateAnalyzeBtn(); });
 const observer = new IntersectionObserver((entries) => {
   entries.forEach(e => {
     if (e.isIntersecting && currentMode === 'webcam' && !cameraInstance && !cameraFailed) {
