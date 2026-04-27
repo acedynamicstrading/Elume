@@ -1,0 +1,2049 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>ÉLUME — AI Hair Try-On Studio</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,600;1,300;1,400&family=Jost:wght@200;300;400;500&display=swap" rel="stylesheet">
+<style>
+:root {
+  --gold: #c9a96e;
+  --gold-light: #e8d5a3;
+  --gold-dark: #8a6a3a;
+  --cream: #faf6f0;
+  --ink: #1a1410;
+  --ink-mid: #3d2e1e;
+  --ink-light: #7a6555;
+  --border: rgba(201,169,110,0.25);
+  --shadow: 0 8px 40px rgba(26,20,16,0.12);
+  --r: 2px;
+}
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0;}
+html{font-size:16px;}
+body{font-family:'Jost',sans-serif;background:#0f0d0a;color:var(--cream);min-height:100vh;overflow-x:hidden;}
+
+/* ── HEADER ── */
+.site-header{
+  position:fixed;top:0;left:0;right:0;z-index:200;
+  display:flex;align-items:center;justify-content:space-between;
+  padding:16px 36px;
+  background:rgba(15,13,10,0.92);backdrop-filter:blur(20px);
+  border-bottom:1px solid rgba(201,169,110,0.15);
+}
+.logo{font-family:'Cormorant Garamond',serif;font-size:1.6rem;font-weight:300;letter-spacing:0.3em;color:var(--cream);}
+.logo span{color:var(--gold);}
+.header-right{display:flex;align-items:center;gap:16px;}
+.back-btn{
+  padding:7px 18px;border:1px solid var(--border);background:transparent;
+  color:var(--ink-light);font-family:'Jost',sans-serif;font-size:0.65rem;
+  letter-spacing:0.15em;text-transform:uppercase;cursor:pointer;transition:all 0.25s;
+  text-decoration:none;display:inline-block;
+}
+.back-btn:hover{border-color:var(--gold);color:var(--gold);}
+.header-tag{font-size:0.6rem;letter-spacing:0.25em;text-transform:uppercase;color:rgba(201,169,110,0.5);}
+
+/* ── TAB BAR ── */
+.tab-bar{
+  position:fixed;top:60px;left:0;right:0;z-index:190;
+  display:flex;overflow-x:auto;
+  background:rgba(15,13,10,0.97);
+  border-bottom:1px solid rgba(201,169,110,0.12);
+  scrollbar-width:none;
+}
+.tab-bar::-webkit-scrollbar{display:none;}
+.tab-btn{
+  flex-shrink:0;
+  padding:14px 24px;
+  font-family:'Jost',sans-serif;font-size:0.65rem;font-weight:400;
+  letter-spacing:0.18em;text-transform:uppercase;
+  border:none;background:transparent;color:rgba(255,255,255,0.3);
+  cursor:pointer;transition:all 0.25s;white-space:nowrap;
+  border-bottom:2px solid transparent;position:relative;
+}
+.tab-btn.active{color:var(--gold);border-bottom-color:var(--gold);}
+.tab-btn:hover:not(.active){color:rgba(255,255,255,0.65);}
+.tab-badge{
+  display:inline-block;margin-left:6px;padding:1px 5px;
+  background:rgba(201,169,110,0.15);border:1px solid rgba(201,169,110,0.3);
+  font-size:0.5rem;letter-spacing:0.1em;color:var(--gold);
+  vertical-align:middle;border-radius:2px;
+}
+
+/* ── PANELS ── */
+.panel{display:none;padding-top:112px;min-height:100vh;}
+.panel.active{display:block;}
+
+/* ── SHARED PHOTO CAPTURE STRIP ── */
+.capture-strip{
+  max-width:960px;margin:0 auto;padding:32px 24px 0;
+  display:grid;grid-template-columns:1fr 1fr;gap:20px;
+}
+@media(max-width:640px){.capture-strip{grid-template-columns:1fr;}}
+.capture-box{
+  background:rgba(255,255,255,0.03);border:1px solid rgba(201,169,110,0.15);
+  padding:20px;
+}
+.capture-label{font-size:0.6rem;letter-spacing:0.2em;text-transform:uppercase;color:var(--gold);margin-bottom:12px;}
+.webcam-stage{
+  position:relative;width:100%;aspect-ratio:4/3;background:#070504;overflow:hidden;
+}
+#main-video{width:100%;height:100%;object-fit:cover;transform:scaleX(-1);display:none;}
+#main-preview{width:100%;height:100%;object-fit:cover;display:none;}
+.stage-placeholder{
+  position:absolute;inset:0;display:flex;flex-direction:column;
+  align-items:center;justify-content:center;gap:12px;
+  color:rgba(255,255,255,0.2);font-size:0.7rem;letter-spacing:0.12em;text-transform:uppercase;
+}
+.capture-controls{display:flex;gap:8px;margin-top:12px;flex-wrap:wrap;}
+.ctrl-btn{
+  flex:1;min-width:80px;padding:10px 14px;
+  border:1px solid rgba(201,169,110,0.2);background:transparent;
+  color:rgba(201,169,110,0.7);font-family:'Jost',sans-serif;
+  font-size:0.65rem;letter-spacing:0.12em;text-transform:uppercase;
+  cursor:pointer;transition:all 0.2s;
+}
+.ctrl-btn:hover,.ctrl-btn.active{background:var(--gold);color:var(--ink);border-color:var(--gold);}
+.ctrl-btn.primary{background:var(--gold);color:var(--ink);border-color:var(--gold);}
+.ctrl-btn.primary:hover{background:var(--cream);}
+.photo-thumb{
+  width:100%;aspect-ratio:1;background:#070504;overflow:hidden;
+  border:2px dashed rgba(201,169,110,0.15);display:flex;align-items:center;
+  justify-content:center;cursor:pointer;position:relative;
+  font-size:0.65rem;color:rgba(201,169,110,0.4);letter-spacing:0.1em;text-transform:uppercase;
+  transition:border-color 0.2s;
+}
+.photo-thumb:hover{border-color:rgba(201,169,110,0.4);}
+.photo-thumb img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;}
+.photo-thumb input[type=file]{display:none;}
+
+/* ── STATUS BAR ── */
+.status-bar{
+  max-width:960px;margin:12px auto 0;padding:0 24px;
+}
+.status-pill{
+  display:inline-flex;align-items:center;gap:8px;
+  padding:6px 14px;background:rgba(255,255,255,0.04);
+  border:1px solid rgba(201,169,110,0.15);font-size:0.65rem;
+  letter-spacing:0.1em;color:rgba(255,255,255,0.4);
+}
+.status-dot{width:6px;height:6px;border-radius:50%;background:#555;flex-shrink:0;}
+.status-dot.green{background:#44cc88;animation:pulse 2s infinite;}
+.status-dot.amber{background:#e0a050;}
+.status-dot.red{background:#ff4444;}
+@keyframes pulse{0%,100%{opacity:1;}50%{opacity:0.5;}}
+
+/* ── RESULT ZONE ── */
+.result-zone{
+  max-width:960px;margin:20px auto 0;padding:0 24px 60px;
+  display:grid;grid-template-columns:repeat(auto-fill,minmax(280px,1fr));gap:12px;
+}
+.result-card{
+  background:rgba(255,255,255,0.03);border:1px solid rgba(201,169,110,0.1);
+  overflow:hidden;position:relative;
+}
+.result-card img{width:100%;display:block;}
+.result-card-meta{padding:14px;}
+.result-card-title{font-family:'Cormorant Garamond',serif;font-size:1.1rem;color:var(--cream);}
+.result-card-sub{font-size:0.6rem;letter-spacing:0.1em;color:var(--ink-light);margin-top:4px;}
+.result-card-actions{display:flex;gap:8px;margin-top:10px;}
+.dl-btn{
+  flex:1;padding:8px;border:1px solid rgba(201,169,110,0.2);background:transparent;
+  color:var(--gold);font-family:'Jost',sans-serif;font-size:0.6rem;letter-spacing:0.12em;
+  text-transform:uppercase;cursor:pointer;transition:all 0.2s;
+}
+.dl-btn:hover{background:var(--gold);color:var(--ink);}
+
+/* ── SECTION HEADING ── */
+.section-head{max-width:960px;margin:0 auto;padding:28px 24px 0;}
+.section-title{font-family:'Cormorant Garamond',serif;font-size:1.6rem;font-weight:300;color:var(--cream);}
+.section-sub{font-size:0.72rem;color:var(--ink-light);margin-top:6px;letter-spacing:0.04em;line-height:1.7;}
+
+/* ── REPLICATE MODEL SELECTOR ── */
+.model-grid{
+  max-width:960px;margin:20px auto 0;padding:0 24px;
+  display:grid;grid-template-columns:repeat(auto-fill,minmax(240px,1fr));gap:10px;
+}
+.model-card{
+  border:2px solid rgba(201,169,110,0.1);background:rgba(255,255,255,0.02);
+  padding:16px;cursor:pointer;transition:all 0.2s;position:relative;
+}
+.model-card:hover{border-color:rgba(201,169,110,0.35);background:rgba(201,169,110,0.04);}
+.model-card.selected{border-color:var(--gold);background:rgba(201,169,110,0.08);}
+.model-card-check{
+  position:absolute;top:10px;right:10px;width:18px;height:18px;
+  border-radius:50%;border:1px solid rgba(201,169,110,0.3);
+  display:flex;align-items:center;justify-content:center;
+}
+.model-card.selected .model-card-check{background:var(--gold);border-color:var(--gold);}
+.model-card.selected .model-card-check::after{content:'✓';font-size:10px;color:var(--ink);}
+.model-name{font-size:0.8rem;font-weight:500;color:var(--cream);margin-bottom:4px;}
+.model-desc{font-size:0.68rem;color:var(--ink-light);line-height:1.5;}
+.model-badge{
+  display:inline-block;margin-top:8px;padding:2px 8px;
+  font-size:0.55rem;letter-spacing:0.12em;text-transform:uppercase;
+  border:1px solid rgba(201,169,110,0.3);color:var(--gold);border-radius:2px;
+}
+.model-badge.warn{border-color:rgba(224,160,80,0.4);color:#e0a050;}
+.model-badge.slow{border-color:rgba(100,100,180,0.4);color:#9090cc;}
+
+/* ── FORM FIELDS ── */
+.fields{max-width:960px;margin:16px auto 0;padding:0 24px;display:flex;flex-direction:column;gap:12px;}
+.field-row{display:grid;grid-template-columns:1fr 1fr;gap:12px;}
+@media(max-width:600px){.field-row{grid-template-columns:1fr;}}
+.field{display:flex;flex-direction:column;gap:6px;}
+.field label{font-size:0.6rem;letter-spacing:0.18em;text-transform:uppercase;color:rgba(201,169,110,0.7);}
+.field input,.field select,.field textarea{
+  background:rgba(255,255,255,0.04);border:1px solid rgba(201,169,110,0.15);
+  color:var(--cream);font-family:'Jost',sans-serif;font-size:0.82rem;
+  padding:10px 14px;outline:none;transition:border-color 0.2s;
+  border-radius:var(--r);
+}
+.field input:focus,.field select:focus,.field textarea:focus{border-color:var(--gold);}
+.field select option{background:#1a1410;}
+.field textarea{resize:vertical;min-height:70px;}
+
+/* ── RUN BUTTON ── */
+.run-wrap{max-width:960px;margin:20px auto;padding:0 24px;}
+.run-btn{
+  width:100%;padding:16px;background:var(--gold);color:var(--ink);
+  border:none;cursor:pointer;font-family:'Jost',sans-serif;
+  font-size:0.75rem;font-weight:500;letter-spacing:0.22em;text-transform:uppercase;
+  transition:all 0.25s;display:flex;align-items:center;justify-content:center;gap:12px;
+}
+.run-btn:hover{background:var(--cream);}
+.run-btn:disabled{opacity:0.4;pointer-events:none;}
+.run-btn .spin{width:14px;height:14px;border:2px solid transparent;border-top-color:currentColor;border-radius:50%;animation:spin 0.7s linear infinite;display:none;}
+.run-btn.loading .spin{display:block;}
+@keyframes spin{to{transform:rotate(360deg);}}
+
+/* ── AR PANEL ── */
+.ar-wrap{
+  max-width:1100px;margin:0 auto;padding:0 24px 60px;
+  display:grid;grid-template-columns:1fr 280px;gap:20px;
+}
+@media(max-width:700px){.ar-wrap{grid-template-columns:1fr;}}
+.ar-stage-wrap{
+  position:relative;background:#070504;overflow:hidden;
+  aspect-ratio:3/4;max-height:74vh;
+}
+.ar-video{width:100%;height:100%;object-fit:cover;transform:scaleX(-1);}
+#ar-canvas,#ar-hair-canvas,#ar-hair-back-canvas,#ar-seg-canvas{
+  position:absolute;inset:0;width:100%;height:100%;pointer-events:none;
+}
+.ar-loading{
+  position:absolute;inset:0;display:flex;flex-direction:column;
+  align-items:center;justify-content:center;gap:16px;background:rgba(7,5,4,0.9);
+}
+.ar-loading-ring{width:40px;height:40px;border:2px solid rgba(201,169,110,0.2);border-top-color:var(--gold);border-radius:50%;animation:spin 1s linear infinite;}
+.ar-loading p{font-size:0.65rem;letter-spacing:0.15em;text-transform:uppercase;color:rgba(201,169,110,0.6);}
+.ar-controls-panel{display:flex;flex-direction:column;gap:16px;padding-top:4px;}
+.ar-ctrl-section{background:rgba(255,255,255,0.02);border:1px solid rgba(201,169,110,0.1);padding:16px;}
+.ar-ctrl-label{font-size:0.58rem;letter-spacing:0.2em;text-transform:uppercase;color:rgba(201,169,110,0.6);margin-bottom:10px;}
+.color-swatches{display:flex;flex-wrap:wrap;gap:6px;}
+.swatch{width:28px;height:28px;border-radius:50%;cursor:pointer;border:2px solid transparent;transition:all 0.2s;}
+.swatch:hover,.swatch.active{border-color:var(--gold);transform:scale(1.15);}
+.ar-snap-btn{
+  width:100%;padding:13px;background:rgba(201,169,110,0.12);
+  border:1px solid rgba(201,169,110,0.3);color:var(--gold);
+  font-family:'Jost',sans-serif;font-size:0.68rem;letter-spacing:0.18em;
+  text-transform:uppercase;cursor:pointer;transition:all 0.2s;
+}
+.ar-snap-btn:hover{background:var(--gold);color:var(--ink);}
+.ar-status{display:flex;align-items:center;gap:8px;padding:10px 0;}
+.style-nav{display:flex;align-items:center;gap:8px;}
+.nav-btn{
+  width:30px;height:30px;border:1px solid rgba(201,169,110,0.2);background:transparent;
+  color:var(--gold);cursor:pointer;display:flex;align-items:center;justify-content:center;font-size:14px;
+  transition:all 0.2s;
+}
+.nav-btn:hover{background:rgba(201,169,110,0.15);}
+.nav-btn:disabled{opacity:0.25;pointer-events:none;}
+.style-name-disp{flex:1;text-align:center;font-size:0.7rem;letter-spacing:0.06em;color:var(--cream);font-family:'Cormorant Garamond',serif;font-size:1rem;}
+.opacity-slider{width:100%;accent-color:var(--gold);margin-top:4px;}
+
+/* ── YOUCAM PANEL ── */
+.youcam-info{
+  max-width:960px;margin:20px auto 0;padding:0 24px;
+  background:rgba(201,169,110,0.05);border:1px solid rgba(201,169,110,0.12);padding:20px 24px;
+}
+.youcam-step{display:flex;gap:14px;margin-bottom:14px;align-items:flex-start;}
+.youcam-num{
+  width:26px;height:26px;border-radius:50%;background:var(--gold);color:var(--ink);
+  font-size:0.7rem;font-weight:600;display:flex;align-items:center;justify-content:center;flex-shrink:0;margin-top:2px;
+}
+.youcam-step-text{font-size:0.78rem;color:rgba(255,255,255,0.6);line-height:1.6;}
+.youcam-step-text strong{color:var(--cream);}
+
+/* ── CANVAS PANEL ── */
+.canvas-info{
+  max-width:960px;margin:16px auto 0;padding:0 24px;
+  display:grid;grid-template-columns:repeat(4,1fr);gap:8px;
+}
+@media(max-width:560px){.canvas-info{grid-template-columns:1fr 1fr;}}
+.canvas-info-chip{
+  padding:10px 12px;background:rgba(255,255,255,0.03);border:1px solid rgba(201,169,110,0.1);
+  font-size:0.62rem;letter-spacing:0.1em;color:rgba(255,255,255,0.4);text-align:center;
+}
+.canvas-info-chip strong{display:block;color:var(--gold);font-size:0.75rem;margin-bottom:3px;font-weight:400;}
+
+/* ── FAL PANEL ── */
+.fal-models{
+  max-width:960px;margin:16px auto 0;padding:0 24px;
+  display:grid;grid-template-columns:1fr 1fr;gap:10px;
+}
+@media(max-width:600px){.fal-models{grid-template-columns:1fr;}}
+.fal-card{
+  border:2px solid rgba(201,169,110,0.1);background:rgba(255,255,255,0.02);
+  padding:16px;cursor:pointer;transition:all 0.2s;
+}
+.fal-card:hover{border-color:rgba(201,169,110,0.3);}
+.fal-card.selected{border-color:var(--gold);background:rgba(201,169,110,0.06);}
+.fal-card-name{font-size:0.8rem;font-weight:500;color:var(--cream);margin-bottom:4px;}
+.fal-card-endpoint{font-size:0.6rem;letter-spacing:0.05em;color:rgba(201,169,110,0.5);font-family:monospace;margin-bottom:6px;}
+.fal-card-desc{font-size:0.68rem;color:var(--ink-light);line-height:1.5;}
+
+/* ── PROGRESS ── */
+.progress-wrap{display:none;max-width:960px;margin:16px auto 0;padding:0 24px;}
+.progress-wrap.show{display:block;}
+.progress-bar-outer{height:3px;background:rgba(201,169,110,0.1);border-radius:2px;overflow:hidden;margin-bottom:8px;}
+.progress-bar-inner{height:100%;background:var(--gold);width:0;transition:width 0.3s;border-radius:2px;}
+.progress-text{font-size:0.65rem;letter-spacing:0.1em;color:rgba(201,169,110,0.6);}
+
+/* ── DIVIDER ── */
+.divider{max-width:960px;margin:24px auto;padding:0 24px;}
+.divider hr{border:none;border-top:1px solid rgba(201,169,110,0.1);}
+
+/* ── PRESET CHIP ── */
+.preset-chip{
+  padding:6px 12px;border:1px solid rgba(201,169,110,0.2);background:transparent;
+  color:rgba(201,169,110,0.7);font-family:'Jost',sans-serif;
+  font-size:0.62rem;letter-spacing:0.1em;cursor:pointer;transition:all 0.2s;white-space:nowrap;
+}
+.preset-chip:hover,.preset-chip.active{background:rgba(201,169,110,0.12);border-color:var(--gold);color:var(--gold);}
+
+/* ── GROQ RESPONSE ── */
+.groq-card{
+  background:rgba(255,255,255,0.03);border:1px solid rgba(201,169,110,0.15);
+  padding:24px;margin-bottom:16px;position:relative;overflow:hidden;
+}
+.groq-card::before{
+  content:'';position:absolute;top:0;left:0;width:3px;height:100%;background:var(--gold);opacity:0.6;
+}
+.groq-card-label{
+  font-size:0.58rem;letter-spacing:0.2em;text-transform:uppercase;
+  color:rgba(201,169,110,0.5);margin-bottom:10px;
+}
+.groq-card-content{
+  font-size:0.85rem;line-height:1.8;color:rgba(255,255,255,0.75);
+  white-space:pre-wrap;
+}
+.groq-card-content strong{color:var(--cream);}
+.groq-rec-grid{
+  display:grid;grid-template-columns:repeat(auto-fill,minmax(200px,1fr));gap:10px;margin-top:16px;
+}
+.groq-rec-item{
+  background:rgba(255,255,255,0.03);border:1px solid rgba(201,169,110,0.1);
+  padding:14px;
+}
+.groq-rec-name{font-family:'Cormorant Garamond',serif;font-size:1.05rem;color:var(--cream);margin-bottom:5px;}
+.groq-rec-why{font-size:0.7rem;color:var(--ink-light);line-height:1.55;}
+.groq-try-btn{
+  margin-top:8px;padding:6px 12px;border:1px solid rgba(201,169,110,0.2);
+  background:transparent;color:var(--gold);font-family:'Jost',sans-serif;
+  font-size:0.6rem;letter-spacing:0.1em;text-transform:uppercase;cursor:pointer;transition:all 0.2s;
+}
+.groq-try-btn:hover{background:rgba(201,169,110,0.1);}
+.groq-timestamp{font-size:0.6rem;color:rgba(255,255,255,0.2);margin-top:10px;letter-spacing:0.06em;}
+.fade-in{animation:fadeIn 0.4s ease;}
+@keyframes fadeIn{from{opacity:0;transform:translateY(8px);}to{opacity:1;transform:none;}}
+</style>
+</head>
+<body>
+
+<!-- ── HEADER ── -->
+<header class="site-header">
+  <div class="logo">ÉL<span>U</span>ME</div>
+  <div class="header-right">
+    <span class="header-tag">AI Hair Try-On Studio</span>
+    <a href="index.html" class="back-btn">← Back to Analysis</a>
+  </div>
+</header>
+
+<!-- ── TAB BAR ── -->
+<nav class="tab-bar" id="tab-bar">
+  <button class="tab-btn active" data-tab="ar" onclick="switchTab('ar')">
+    AR Live <span class="tab-badge">Live</span>
+  </button>
+  <button class="tab-btn" data-tab="canvas" onclick="switchTab('canvas')">
+    Canvas 2D <span class="tab-badge">Offline</span>
+  </button>
+  <button class="tab-btn" data-tab="replicate" onclick="switchTab('replicate')">
+    Replicate AI <span class="tab-badge">6 Models</span>
+  </button>
+  <button class="tab-btn" data-tab="fal" onclick="switchTab('fal')">
+    fal.ai <span class="tab-badge">Fast</span>
+  </button>
+  <button class="tab-btn" data-tab="youcam" onclick="switchTab('youcam')">
+    YouCam <span class="tab-badge">Best</span>
+  </button>
+  <button class="tab-btn" data-tab="groq" onclick="switchTab('groq')">
+    AI Advisor <span class="tab-badge">Groq</span>
+  </button>
+</nav>
+
+<!-- ════════════════════════════════════════════ -->
+<!-- TAB: AR LIVE                                 -->
+<!-- ════════════════════════════════════════════ -->
+<div class="panel active" id="panel-ar">
+  <div class="section-head">
+    <div class="section-title">Live AR Hair Preview</div>
+    <div class="section-sub">Real-time MediaPipe face tracking. Hair renders live on your webcam feed. No server calls — runs entirely in your browser.</div>
+  </div>
+
+  <div style="max-width:960px;margin:20px auto 0;padding:0 24px;">
+    <div class="ar-wrap" style="max-width:100%;padding:0;">
+      <div class="ar-stage-wrap">
+        <video class="ar-video" id="ar-video" autoplay playsinline muted></video>
+        <canvas id="ar-seg-canvas"></canvas>
+        <canvas id="ar-hair-back-canvas"></canvas>
+        <canvas id="ar-canvas"></canvas>
+        <canvas id="ar-hair-canvas"></canvas>
+        <div class="ar-loading" id="ar-loading">
+          <div class="ar-loading-ring"></div>
+          <p>Initialising camera…</p>
+        </div>
+      </div>
+
+      <div class="ar-controls-panel">
+        <!-- Style nav -->
+        <div class="ar-ctrl-section">
+          <div class="ar-ctrl-label">Style</div>
+          <div class="style-nav">
+            <button class="nav-btn" id="ar-prev" onclick="arNav(-1)" disabled>‹</button>
+            <div class="style-name-disp" id="ar-style-name">—</div>
+            <button class="nav-btn" id="ar-next" onclick="arNav(1)" disabled>›</button>
+          </div>
+          <div style="text-align:center;margin-top:6px;font-size:0.58rem;color:var(--ink-light);letter-spacing:0.08em;">
+            <span id="ar-style-idx">—</span> / <span id="ar-style-total">—</span>
+          </div>
+        </div>
+
+        <!-- Opacity -->
+        <div class="ar-ctrl-section">
+          <div class="ar-ctrl-label">Opacity <span id="ar-opacity-val" style="float:right;color:var(--gold)">82%</span></div>
+          <input type="range" class="opacity-slider" id="ar-opacity" min="0.2" max="1" step="0.05" value="0.82"
+            oninput="arOpacity=+this.value;document.getElementById('ar-opacity-val').textContent=Math.round(arOpacity*100)+'%'">
+        </div>
+
+        <!-- Colour -->
+        <div class="ar-ctrl-section">
+          <div class="ar-ctrl-label">Hair Colour</div>
+          <div class="color-swatches" id="ar-swatches"></div>
+        </div>
+
+        <!-- Status -->
+        <div class="ar-ctrl-section" style="display:flex;align-items:center;gap:8px;">
+          <div class="status-dot" id="ar-dot"></div>
+          <span style="font-size:0.65rem;color:rgba(255,255,255,0.4);letter-spacing:0.06em;" id="ar-status-txt">Waiting for camera…</span>
+        </div>
+
+        <!-- Snapshot -->
+        <button class="ar-snap-btn" onclick="arSnap()">
+          ⬡ Save Snapshot
+        </button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ════════════════════════════════════════════ -->
+<!-- TAB: CANVAS 2D                               -->
+<!-- ════════════════════════════════════════════ -->
+<div class="panel" id="panel-canvas">
+  <div class="section-head">
+    <div class="section-title">Canvas 2D Hair Preview</div>
+    <div class="section-sub">Procedural bezier-curve hair drawn directly on your webcam feed. Works fully offline — no API keys needed.</div>
+  </div>
+
+  <div class="canvas-info">
+    <div class="canvas-info-chip"><strong>Offline</strong>No internet needed</div>
+    <div class="canvas-info-chip"><strong>Real-time</strong>60fps rendering</div>
+    <div class="canvas-info-chip"><strong>Free</strong>No API costs</div>
+    <div class="canvas-info-chip"><strong>Instant</strong>No processing wait</div>
+  </div>
+
+  <div style="max-width:960px;margin:20px auto 0;padding:0 24px;">
+    <div class="ar-wrap" style="max-width:100%;padding:0;">
+      <div class="ar-stage-wrap">
+        <video class="ar-video" id="canvas-video" autoplay playsinline muted></video>
+        <canvas id="canvas-seg"></canvas>
+        <canvas id="canvas-hair-back"></canvas>
+        <canvas id="canvas-guide"></canvas>
+        <canvas id="canvas-hair"></canvas>
+        <div class="ar-loading" id="canvas-loading">
+          <div class="ar-loading-ring"></div>
+          <p>Starting camera…</p>
+        </div>
+      </div>
+
+      <div class="ar-controls-panel">
+        <div class="ar-ctrl-section">
+          <div class="ar-ctrl-label">Style</div>
+          <div class="style-nav">
+            <button class="nav-btn" id="cv-prev" onclick="cvNav(-1)" disabled>‹</button>
+            <div class="style-name-disp" id="cv-style-name">—</div>
+            <button class="nav-btn" id="cv-next" onclick="cvNav(1)" disabled>›</button>
+          </div>
+          <div style="text-align:center;margin-top:6px;font-size:0.58rem;color:var(--ink-light)">
+            <span id="cv-idx">—</span> / <span id="cv-total">—</span>
+          </div>
+        </div>
+
+        <div class="ar-ctrl-section">
+          <div class="ar-ctrl-label">Opacity <span id="cv-opacity-val" style="float:right;color:var(--gold)">82%</span></div>
+          <input type="range" class="opacity-slider" id="cv-opacity" min="0.2" max="1" step="0.05" value="0.82"
+            oninput="cvOpacity=+this.value;document.getElementById('cv-opacity-val').textContent=Math.round(cvOpacity*100)+'%'">
+        </div>
+
+        <div class="ar-ctrl-section">
+          <div class="ar-ctrl-label">Hair Colour</div>
+          <div class="color-swatches" id="cv-swatches"></div>
+        </div>
+
+        <div class="ar-ctrl-section" style="display:flex;align-items:center;gap:8px;">
+          <div class="status-dot" id="cv-dot"></div>
+          <span style="font-size:0.65rem;color:rgba(255,255,255,0.4)" id="cv-status">Starting…</span>
+        </div>
+
+        <button class="ar-snap-btn" onclick="cvSnap()">⬡ Save Snapshot</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ════════════════════════════════════════════ -->
+<!-- TAB: REPLICATE                               -->
+<!-- ════════════════════════════════════════════ -->
+<div class="panel" id="panel-replicate">
+  <div class="section-head">
+    <div class="section-title">Replicate AI Hair Transfer</div>
+    <div class="section-sub">Choose from 6 Replicate models. Upload your photo, select a reference style, and generate a photorealistic result. Requires REPLICATE_KEY set in your Cloudflare Worker.</div>
+  </div>
+
+  <!-- Model picker -->
+  <div class="model-grid" id="replicate-model-grid">
+    <!-- populated by JS -->
+  </div>
+
+  <!-- Inputs -->
+  <div class="capture-strip" style="margin-top:20px;">
+    <div class="capture-box">
+      <div class="capture-label">Your Photo (Face)</div>
+      <div class="photo-thumb" id="rep-face-thumb" onclick="document.getElementById('rep-face-input').click()">
+        <span>Tap to upload or use webcam</span>
+        <img id="rep-face-img" style="display:none">
+        <input type="file" id="rep-face-input" accept="image/*" onchange="handleRepFaceUpload(this)">
+      </div>
+      <div class="capture-controls">
+        <button class="ctrl-btn" onclick="repCaptureWebcam()">📷 Use Webcam</button>
+        <button class="ctrl-btn" onclick="document.getElementById('rep-face-input').click()">⬆ Upload</button>
+      </div>
+    </div>
+    <div class="capture-box">
+      <div class="capture-label">Style Reference Photo</div>
+      <div class="photo-thumb" id="rep-style-thumb" onclick="document.getElementById('rep-style-input').click()">
+        <span>Upload style reference</span>
+        <img id="rep-style-img" style="display:none">
+        <input type="file" id="rep-style-input" accept="image/*" onchange="handleRepStyleUpload(this)">
+      </div>
+      <div class="capture-controls">
+        <button class="ctrl-btn" onclick="document.getElementById('rep-style-input').click()">⬆ Upload</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Model-specific extra fields -->
+  <div class="fields" id="rep-extra-fields">
+    <!-- injected per model -->
+  </div>
+
+  <!-- Progress -->
+  <div class="progress-wrap" id="rep-progress">
+    <div class="progress-bar-outer"><div class="progress-bar-inner" id="rep-progress-bar"></div></div>
+    <div class="progress-text" id="rep-progress-text">Queuing…</div>
+  </div>
+
+  <!-- Run -->
+  <div class="run-wrap">
+    <button class="run-btn" id="rep-run-btn" onclick="runReplicate()" disabled>
+      <span class="spin"></span>Generate with Replicate
+    </button>
+  </div>
+
+  <!-- Results -->
+  <div class="result-zone" id="rep-results"></div>
+</div>
+
+<!-- ════════════════════════════════════════════ -->
+<!-- TAB: FAL.AI                                  -->
+<!-- ════════════════════════════════════════════ -->
+<div class="panel" id="panel-fal">
+  <div class="section-head">
+    <div class="section-title">fal.ai Hair Transform</div>
+    <div class="section-sub">Fast AI hair editing via fal.ai. Two available endpoints — one uses a text prompt to change hair, the other transfers a style from a reference photo. Requires FAL_KEYS in your Cloudflare Worker.</div>
+  </div>
+
+  <div class="fal-models" id="fal-model-list">
+    <!-- populated by JS -->
+  </div>
+
+  <div class="capture-strip" style="margin-top:20px;">
+    <div class="capture-box">
+      <div class="capture-label">Your Photo</div>
+      <div class="photo-thumb" id="fal-face-thumb" onclick="document.getElementById('fal-face-input').click()">
+        <span>Upload or use webcam</span>
+        <img id="fal-face-img" style="display:none">
+        <input type="file" id="fal-face-input" accept="image/*" onchange="handleFalFaceUpload(this)">
+      </div>
+      <div class="capture-controls">
+        <button class="ctrl-btn" onclick="falCaptureWebcam()">📷 Webcam</button>
+        <button class="ctrl-btn" onclick="document.getElementById('fal-face-input').click()">⬆ Upload</button>
+      </div>
+    </div>
+    <div class="capture-box" id="fal-ref-box">
+      <div class="capture-label">Style Reference (for hair-swap)</div>
+      <div class="photo-thumb" id="fal-ref-thumb" onclick="document.getElementById('fal-ref-input').click()">
+        <span>Optional reference photo</span>
+        <img id="fal-ref-img" style="display:none">
+        <input type="file" id="fal-ref-input" accept="image/*" onchange="handleFalRefUpload(this)">
+      </div>
+    </div>
+  </div>
+
+  <div class="fields" id="fal-fields">
+    <div class="field">
+      <label>Hairstyle Prompt (for hair-change model)</label>
+      <input type="text" id="fal-prompt" value="long flowing waves, natural brunette" placeholder="e.g. short bob, platinum blonde highlights">
+    </div>
+    <div class="field">
+      <label>Quick Style Presets</label>
+      <div style="display:flex;flex-wrap:wrap;gap:6px;margin-top:2px;" id="fal-presets"></div>
+    </div>
+  </div>
+
+  <div class="progress-wrap" id="fal-progress">
+    <div class="progress-bar-outer"><div class="progress-bar-inner" id="fal-progress-bar"></div></div>
+    <div class="progress-text" id="fal-progress-text">Submitting…</div>
+  </div>
+
+  <div class="run-wrap">
+    <button class="run-btn" id="fal-run-btn" onclick="runFal()" disabled>
+      <span class="spin"></span>Generate with fal.ai
+    </button>
+  </div>
+
+  <div class="result-zone" id="fal-results"></div>
+</div>
+
+<!-- ════════════════════════════════════════════ -->
+<!-- TAB: YOUCAM                                  -->
+<!-- ════════════════════════════════════════════ -->
+<div class="panel" id="panel-youcam">
+  <div class="section-head">
+    <div class="section-title">YouCam AI Hairstyle Transfer</div>
+    <div class="section-sub">Photorealistic AI hairstyle transfer via Perfect Corp's YouCam API. Requires YOUCAM_KEY in your Cloudflare Worker. Best quality of all engines — uploads selfie to YouCam's servers, uses your style photo as reference.</div>
+  </div>
+
+  <div class="youcam-info" style="max-width:960px;margin:20px auto 0;">
+    <div class="youcam-step">
+      <div class="youcam-num">1</div>
+      <div class="youcam-step-text"><strong>Capture or upload your selfie</strong> — clear front-facing photo, good lighting, hair visible</div>
+    </div>
+    <div class="youcam-step">
+      <div class="youcam-num">2</div>
+      <div class="youcam-step-text"><strong>Upload a style reference photo</strong> — celebrity or salon photo showing the desired hairstyle</div>
+    </div>
+    <div class="youcam-step">
+      <div class="youcam-num">3</div>
+      <div class="youcam-step-text"><strong>Generate</strong> — ÉLUME uploads your selfie to YouCam's S3, runs the AI transfer, and downloads the result automatically</div>
+    </div>
+  </div>
+
+  <div class="capture-strip" style="margin-top:16px;">
+    <div class="capture-box">
+      <div class="capture-label">Your Selfie</div>
+      <div class="photo-thumb" id="yc-face-thumb" onclick="document.getElementById('yc-face-input').click()">
+        <span>Upload or use webcam</span>
+        <img id="yc-face-img" style="display:none">
+        <input type="file" id="yc-face-input" accept="image/*" onchange="handleYcFaceUpload(this)">
+      </div>
+      <div class="capture-controls">
+        <button class="ctrl-btn" onclick="ycCaptureWebcam()">📷 Webcam</button>
+        <button class="ctrl-btn" onclick="document.getElementById('yc-face-input').click()">⬆ Upload</button>
+      </div>
+    </div>
+    <div class="capture-box">
+      <div class="capture-label">Style Reference Photo</div>
+      <div class="photo-thumb" id="yc-style-thumb" onclick="document.getElementById('yc-style-input').click()">
+        <span>Upload style reference</span>
+        <img id="yc-style-img" style="display:none">
+        <input type="file" id="yc-style-input" accept="image/*" onchange="handleYcStyleUpload(this)">
+      </div>
+      <div class="capture-controls">
+        <button class="ctrl-btn" onclick="document.getElementById('yc-style-input').click()">⬆ Upload</button>
+      </div>
+    </div>
+  </div>
+
+  <div class="progress-wrap" id="yc-progress">
+    <div class="progress-bar-outer"><div class="progress-bar-inner" id="yc-progress-bar"></div></div>
+    <div class="progress-text" id="yc-progress-text">Uploading selfie…</div>
+  </div>
+
+  <div class="run-wrap">
+    <button class="run-btn" id="yc-run-btn" onclick="runYouCam()" disabled>
+      <span class="spin"></span>Generate with YouCam AI
+    </button>
+  </div>
+
+  <div class="result-zone" id="yc-results"></div>
+</div>
+
+<!-- ════════════════════════════════════════════ -->
+<!-- TAB: GROQ AI ADVISOR                        -->
+<!-- ════════════════════════════════════════════ -->
+<div class="panel" id="panel-groq">
+  <div class="section-head">
+    <div class="section-title">AI Hair Advisor</div>
+    <div class="section-sub">Powered by Groq (llama3-8b-8192). Upload your photo and describe your goals — the AI stylist analyses your features and recommends tailored hairstyles, colours, and care routines. Requires GROQ_KEY in your Cloudflare Worker.</div>
+  </div>
+
+  <!-- Upload -->
+  <div class="capture-strip" style="margin-top:20px;grid-template-columns:1fr 1fr;">
+    <div class="capture-box">
+      <div class="capture-label">Your Photo (optional)</div>
+      <div class="photo-thumb" id="groq-face-thumb" onclick="document.getElementById('groq-face-input').click()">
+        <span>Upload for visual analysis</span>
+        <img id="groq-face-img" style="display:none">
+        <input type="file" id="groq-face-input" accept="image/*" onchange="handleGroqPhotoUpload(this)">
+      </div>
+      <div class="capture-controls">
+        <button class="ctrl-btn" onclick="groqCaptureWebcam()">📷 Webcam</button>
+        <button class="ctrl-btn" onclick="document.getElementById('groq-face-input').click()">⬆ Upload</button>
+      </div>
+    </div>
+    <div class="capture-box" style="display:flex;flex-direction:column;gap:12px;">
+      <div class="capture-label">About You</div>
+      <div class="field" style="flex:1;">
+        <label>Face Shape (or let AI guess)</label>
+        <select id="groq-face-shape">
+          <option value="">Auto-detect from description</option>
+          <option value="oval">Oval</option>
+          <option value="round">Round</option>
+          <option value="square">Square</option>
+          <option value="heart">Heart / Inverted Triangle</option>
+          <option value="diamond">Diamond</option>
+          <option value="oblong">Oblong / Rectangle</option>
+        </select>
+      </div>
+      <div class="field">
+        <label>Hair Type</label>
+        <select id="groq-hair-type">
+          <option value="straight">Straight (Type 1)</option>
+          <option value="wavy">Wavy (Type 2)</option>
+          <option value="curly">Curly (Type 3)</option>
+          <option value="coily">Coily / Kinky (Type 4)</option>
+        </select>
+      </div>
+    </div>
+  </div>
+
+  <!-- Question chips -->
+  <div style="max-width:960px;margin:16px auto 0;padding:0 24px;">
+    <div style="font-size:0.6rem;letter-spacing:0.18em;text-transform:uppercase;color:rgba(201,169,110,0.7);margin-bottom:10px;">Quick Questions</div>
+    <div style="display:flex;flex-wrap:wrap;gap:7px;" id="groq-question-chips"></div>
+  </div>
+
+  <!-- Custom question -->
+  <div class="fields" style="margin-top:12px;">
+    <div class="field">
+      <label>Your Question or Goals</label>
+      <textarea id="groq-question" style="min-height:90px;" placeholder="e.g. I have a round face and fine wavy hair. What haircut would slim my face and add volume? I prefer low-maintenance styles."></textarea>
+    </div>
+  </div>
+
+  <div class="progress-wrap" id="groq-progress">
+    <div class="progress-bar-outer"><div class="progress-bar-inner" id="groq-progress-bar"></div></div>
+    <div class="progress-text" id="groq-progress-text">Consulting AI stylist…</div>
+  </div>
+
+  <div class="run-wrap">
+    <button class="run-btn" id="groq-run-btn" onclick="runGroq()">
+      <span class="spin"></span>Ask AI Stylist
+    </button>
+  </div>
+
+  <!-- Response area -->
+  <div style="max-width:960px;margin:0 auto;padding:0 24px 60px;" id="groq-response-area"></div>
+</div>
+
+<!-- ── HIDDEN WEBCAM FOR CAPTURE ── -->
+<video id="capture-video" style="display:none" autoplay playsinline muted></video>
+<canvas id="capture-canvas" style="display:none"></canvas>
+
+<!-- ── MEDIAPIPE ── -->
+<script src="https://cdn.jsdelivr.net/npm/@mediapipe/camera_utils/camera_utils.js" crossorigin="anonymous"></script>
+<script src="https://cdn.jsdelivr.net/npm/@mediapipe/face_mesh/face_mesh.js" crossorigin="anonymous"></script>
+<script src="https://cdn.jsdelivr.net/npm/@mediapipe/selfie_segmentation/selfie_segmentation.js" crossorigin="anonymous"></script>
+
+<script>
+// ── CONFIG ──────────────────────────────────────────────────────────
+const WORKER_URL = 'https://elmo-hairstyler-worker.acedynamicstrading.workers.dev';
+
+// ── TAB SWITCHING ───────────────────────────────────────────────────
+function switchTab(tab) {
+  document.querySelectorAll('.panel').forEach(p => p.classList.remove('active'));
+  document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+  document.getElementById('panel-' + tab).classList.add('active');
+  document.querySelector(`[data-tab="${tab}"]`).classList.add('active');
+
+  if (tab === 'ar'     && !arStarted)     initAR();
+  if (tab === 'canvas' && !cvStarted)     initCanvas();
+  if (tab === 'groq') { /* no init needed */ }
+}
+
+// ── HAIR COLOURS ────────────────────────────────────────────────────
+const HAIR_COLORS = [
+  {label:'Jet Black',hex:'#0d0a07'},{label:'Dark Brown',hex:'#2c1a0e'},
+  {label:'Natural',hex:'#3b2314'},{label:'Auburn',hex:'#7b3c1d'},
+  {label:'Chestnut',hex:'#5c2e0e'},{label:'Caramel',hex:'#a0622a'},
+  {label:'Honey',hex:'#c4892e'},{label:'Blonde',hex:'#d4a96a'},
+  {label:'Platinum',hex:'#e8dcc8'},{label:'Ash Grey',hex:'#7a7068'},
+  {label:'Silver',hex:'#b0aaa2'},{label:'Rose Gold',hex:'#c47b6a'},
+];
+
+function buildSwatches(containerId, colorVar, onSelect) {
+  const wrap = document.getElementById(containerId);
+  HAIR_COLORS.forEach((c, i) => {
+    const s = document.createElement('div');
+    s.className = 'swatch' + (i === 0 ? ' active' : '');
+    s.style.background = c.hex;
+    s.title = c.label;
+    s.onclick = () => {
+      onSelect(c.hex);
+      wrap.querySelectorAll('.swatch').forEach(el => el.classList.remove('active'));
+      s.classList.add('active');
+    };
+    wrap.appendChild(s);
+  });
+}
+
+// ══════════════════════════════════════════════════════════════════
+// REPLICATE MODELS
+// ══════════════════════════════════════════════════════════════════
+const REPLICATE_MODELS = [
+  {
+    id: 'flux-kontext',
+    name: 'FLUX Kontext — Change Haircut',
+    desc: 'State-of-the-art FLUX.1 Kontext Pro model. Text-prompt based. 90+ hairstyle options, 31 colours. Best overall quality.',
+    badge: 'Best', badgeClass: '',
+    model: 'flux-kontext-apps/change-haircut',
+    useLatest: true,
+    inputs: (faceB64, styleB64, extra) => ({
+      image: faceB64,
+      prompt: extra.prompt || 'Change to a beautiful flowing hairstyle',
+      aspect_ratio: '1:1',
+    }),
+    extraFields: [
+      {id:'prompt', label:'Describe the hairstyle you want', type:'text', default:'long flowing beach waves, brunette'},
+    ],
+  },
+  {
+    id: 'hairclip',
+    name: 'HairCLIP — Text + Image',
+    desc: 'CVPR 2022 research model. Edit hairstyle AND colour by text description or reference image. StyleGAN-based.',
+    badge: 'Research', badgeClass: 'slow',
+    model: 'wty-ustc/hairclip',
+    version: '5b549c01a7e07f5e02ae6dff71ca5e8c6e01fa3b33a13b19e4e5e9e0f4b36d62',
+    inputs: (faceB64, styleB64, extra) => ({
+      image: faceB64,
+      hairstyle_description: extra.hairstyle || 'bob',
+      color_description: extra.color_desc || '',
+      editing_type: extra.editing_type || 'hairstyle',
+    }),
+    extraFields: [
+      {id:'hairstyle', label:'Hairstyle description', type:'text', default:'beach waves'},
+      {id:'color_desc', label:'Colour description (optional)', type:'text', default:''},
+      {id:'editing_type', label:'Edit type', type:'select', options:['hairstyle','color','both'], default:'hairstyle'},
+    ],
+  },
+  {
+    id: 'style-your-hair',
+    name: 'Style Your Hair — ECCV 2022',
+    desc: 'Pose-invariant hairstyle transfer. Uses two photos: your face + a reference hairstyle image. Works well across pose differences.',
+    badge: 'Image-based', badgeClass: '',
+    model: 'cjwbw/style-your-hair',
+    version: 'f9e6cef5f6f4f60c4e4c80d19e6b2c6e1ce4b6b9f79f9a3e0d5e1b9b8e8d4c0b',
+    inputs: (faceB64, styleB64, extra) => ({
+      face_image: faceB64,
+      hair_image:  styleB64,
+    }),
+    extraFields: [],
+    needsStyle: true,
+  },
+  {
+    id: 'ai-haircuts',
+    name: 'AI Haircuts (LoRA)',
+    desc: 'Flux-dev LoRA fine-tuned specifically for haircut generation. Prompt-driven with inpainting support.',
+    badge: 'LoRA', badgeClass: '',
+    model: 'barbacoaexpert1/ai-haircuts',
+    useLatest: true,
+    inputs: (faceB64, styleB64, extra) => ({
+      image: faceB64,
+      prompt: extra.prompt || 'HRCTZ hairstyle, professional salon photo',
+      model: 'dev',
+      num_inference_steps: 28,
+    }),
+    extraFields: [
+      {id:'prompt', label:'Prompt (use trigger word: HRCTZ)', type:'text', default:'HRCTZ beach wave layers, brunette'},
+    ],
+  },
+  {
+    id: 'custom-hair',
+    name: 'Custom Hair Transfer',
+    desc: 'Image-to-image hair transfer model. Upload face + style reference for direct hair transplant.',
+    badge: 'Transfer', badgeClass: '',
+    model: 'subhash25rawat/custom-hair',
+    useLatest: true,
+    inputs: (faceB64, styleB64, extra) => ({
+      face_image:  faceB64,
+      style_image: styleB64,
+    }),
+    extraFields: [],
+    needsStyle: true,
+  },
+  {
+    id: 'hair-face-lora',
+    name: 'Hair Face LoRA',
+    desc: 'LoRA-based hairstyle overlay model. Merges hairstyle LoRA onto a face portrait.',
+    badge: 'LoRA', badgeClass: 'warn',
+    model: 'rafanime/hair-face-lora',
+    useLatest: true,
+    inputs: (faceB64, styleB64, extra) => ({
+      image: faceB64,
+      prompt: extra.prompt || 'woman with beautiful hairstyle',
+    }),
+    extraFields: [
+      {id:'prompt', label:'Describe the result', type:'text', default:'professional portrait with elegant hairstyle'},
+    ],
+  },
+];
+
+let selectedRepModel = REPLICATE_MODELS[0];
+let repFaceData = null;
+let repStyleData = null;
+let repExtraValues = {};
+
+function buildReplicateModels() {
+  const grid = document.getElementById('replicate-model-grid');
+  REPLICATE_MODELS.forEach((m, i) => {
+    const card = document.createElement('div');
+    card.className = 'model-card' + (i === 0 ? ' selected' : '');
+    card.id = 'rep-model-' + m.id;
+    card.innerHTML = `
+      <div class="model-card-check"></div>
+      <div class="model-name">${m.name}</div>
+      <div class="model-desc">${m.desc}</div>
+      <span class="model-badge ${m.badgeClass}">${m.badge}</span>
+    `;
+    card.onclick = () => selectRepModel(m);
+    grid.appendChild(card);
+  });
+  renderRepExtraFields();
+}
+
+function selectRepModel(m) {
+  selectedRepModel = m;
+  document.querySelectorAll('.model-card').forEach(c => c.classList.remove('selected'));
+  document.getElementById('rep-model-' + m.id).classList.add('selected');
+  renderRepExtraFields();
+  updateRepRunBtn();
+}
+
+function renderRepExtraFields() {
+  const wrap = document.getElementById('rep-extra-fields');
+  wrap.innerHTML = '';
+  if (!selectedRepModel.extraFields || selectedRepModel.extraFields.length === 0) return;
+  const row = document.createElement('div');
+  row.className = 'field-row';
+  selectedRepModel.extraFields.forEach(f => {
+    const field = document.createElement('div');
+    field.className = 'field';
+    if (f.type === 'select') {
+      field.innerHTML = `<label>${f.label}</label><select id="rep-extra-${f.id}">${f.options.map(o=>`<option value="${o}"${o===f.default?' selected':''}>${o}</option>`).join('')}</select>`;
+    } else {
+      field.innerHTML = `<label>${f.label}</label><input type="text" id="rep-extra-${f.id}" value="${f.default}" placeholder="${f.label}">`;
+    }
+    row.appendChild(field);
+  });
+  wrap.appendChild(row);
+}
+
+function getRepExtra() {
+  const out = {};
+  (selectedRepModel.extraFields || []).forEach(f => {
+    const el = document.getElementById('rep-extra-' + f.id);
+    if (el) out[f.id] = el.value;
+  });
+  return out;
+}
+
+function updateRepRunBtn() {
+  const btn = document.getElementById('rep-run-btn');
+  const needsStyle = selectedRepModel.needsStyle;
+  btn.disabled = !repFaceData || (needsStyle && !repStyleData);
+}
+
+function handleRepFaceUpload(input) {
+  const file = input.files[0];
+  if (!file) return;
+  const reader = new FileReader();
+  reader.onload = e => {
+    repFaceData = e.target.result;
+    const img = document.getElementById('rep-face-img');
+    img.src = repFaceData; img.style.display = 'block';
+    updateRepRunBtn();
+  };
+  reader.readAsDataURL(file);
+}
+
+function handleRepStyleUpload(input) {
+  const file = input.files[0];
+  if (!file) return;
+  const reader = new FileReader();
+  reader.onload = e => {
+    repStyleData = e.target.result;
+    const img = document.getElementById('rep-style-img');
+    img.src = repStyleData; img.style.display = 'block';
+    updateRepRunBtn();
+  };
+  reader.readAsDataURL(file);
+}
+
+function repCaptureWebcam() {
+  captureFromWebcam(data => {
+    repFaceData = data;
+    const img = document.getElementById('rep-face-img');
+    img.src = data; img.style.display = 'block';
+    updateRepRunBtn();
+  });
+}
+
+async function runReplicate() {
+  const btn = document.getElementById('rep-run-btn');
+  const progress = document.getElementById('rep-progress');
+  const bar = document.getElementById('rep-progress-bar');
+  const txt = document.getElementById('rep-progress-text');
+
+  btn.classList.add('loading'); btn.disabled = true;
+  progress.classList.add('show');
+  bar.style.width = '5%';
+  txt.textContent = 'Submitting to Replicate…';
+
+  const extra = getRepExtra();
+  const inputs = selectedRepModel.inputs(repFaceData, repStyleData, extra);
+
+  try {
+    const payload = {
+      action: 'startHairTransfer',
+      model:  selectedRepModel.model,
+      useLatest: selectedRepModel.useLatest || false,
+      version: selectedRepModel.version || null,
+      input: inputs,
+    };
+
+    const res = await fetch(WORKER_URL, {
+      method: 'POST', headers: {'Content-Type':'application/json'},
+      body: JSON.stringify(payload),
+    });
+    const data = await res.json();
+    if (!data.success) throw new Error(data.error || 'Submission failed');
+
+    bar.style.width = '20%';
+    txt.textContent = 'Processing… (this may take 30s–5min depending on model)';
+
+    // Poll
+    const predId = data.predictionId;
+    let output = null;
+    for (let i = 0; i < 80; i++) {
+      await sleep(3000);
+      bar.style.width = Math.min(90, 20 + i * 1.2) + '%';
+      txt.textContent = `Processing… (${Math.round((i+1)*3)}s)`;
+      const poll = await fetch(`${WORKER_URL}?action=pollPrediction&id=${predId}`).then(r=>r.json());
+      if (poll.status === 'succeeded') { output = poll.output; break; }
+      if (poll.status === 'failed') throw new Error('Replicate failed: ' + (poll.error || ''));
+    }
+    if (!output) throw new Error('Timed out');
+
+    bar.style.width = '100%';
+    txt.textContent = 'Done!';
+
+    const resultUrl = Array.isArray(output) ? output[0] : output;
+    addResult('rep-results', resultUrl, selectedRepModel.name, 'replicate');
+
+  } catch(err) {
+    txt.textContent = '✗ Error: ' + err.message;
+    bar.style.background = '#ff4444';
+  } finally {
+    btn.classList.remove('loading'); btn.disabled = false;
+    setTimeout(() => { progress.classList.remove('show'); bar.style.width='0'; bar.style.background=''; }, 4000);
+  }
+}
+
+// ══════════════════════════════════════════════════════════════════
+// FAL.AI MODELS
+// ══════════════════════════════════════════════════════════════════
+const FAL_MODELS = [
+  {
+    id: 'hair-change',
+    name: 'Hair Change (Text Prompt)',
+    endpoint: 'fal-ai/image-editing/hair-change',
+    desc: 'Change hair using a text description. Fast, no reference image needed. Supports bald to any style.',
+    needsRef: false,
+    buildInput: (faceData, refData, prompt) => ({
+      image_url: faceData,
+      prompt: prompt || 'long wavy hair, natural brunette',
+    }),
+  },
+  {
+    id: 'image-apps-hair',
+    name: 'Hair Change v2 (Image Apps)',
+    endpoint: 'fal-ai/image-apps-v2/hair-change',
+    desc: 'Enhanced version via fal image apps. Text prompt-driven. Wider style range.',
+    needsRef: false,
+    buildInput: (faceData, refData, prompt) => ({
+      image_url: faceData,
+      prompt: prompt || 'elegant wavy hairstyle',
+    }),
+  },
+];
+
+let selectedFalModel = FAL_MODELS[0];
+let falFaceData = null;
+let falRefData = null;
+
+function buildFalModels() {
+  const list = document.getElementById('fal-model-list');
+  FAL_MODELS.forEach((m, i) => {
+    const card = document.createElement('div');
+    card.className = 'fal-card' + (i === 0 ? ' selected' : '');
+    card.id = 'fal-card-' + m.id;
+    card.innerHTML = `
+      <div class="fal-card-name">${m.name}</div>
+      <div class="fal-card-endpoint">${m.endpoint}</div>
+      <div class="fal-card-desc">${m.desc}</div>
+    `;
+    card.onclick = () => {
+      selectedFalModel = m;
+      document.querySelectorAll('.fal-card').forEach(c => c.classList.remove('selected'));
+      card.classList.add('selected');
+      document.getElementById('fal-ref-box').style.display = m.needsRef ? '' : 'none';
+      updateFalRunBtn();
+    };
+    list.appendChild(card);
+  });
+}
+
+function updateFalRunBtn() {
+  document.getElementById('fal-run-btn').disabled = !falFaceData;
+}
+
+function handleFalFaceUpload(input) {
+  readFile(input.files[0], data => {
+    falFaceData = data;
+    const img = document.getElementById('fal-face-img');
+    img.src = data; img.style.display = 'block';
+    updateFalRunBtn();
+  });
+}
+function handleFalRefUpload(input) {
+  readFile(input.files[0], data => {
+    falRefData = data;
+    const img = document.getElementById('fal-ref-img');
+    img.src = data; img.style.display = 'block';
+  });
+}
+function falCaptureWebcam() {
+  captureFromWebcam(data => {
+    falFaceData = data;
+    const img = document.getElementById('fal-face-img');
+    img.src = data; img.style.display = 'block';
+    updateFalRunBtn();
+  });
+}
+
+async function runFal() {
+  const btn = document.getElementById('fal-run-btn');
+  const progress = document.getElementById('fal-progress');
+  const bar = document.getElementById('fal-progress-bar');
+  const txt = document.getElementById('fal-progress-text');
+  const prompt = document.getElementById('fal-prompt')?.value || '';
+
+  btn.classList.add('loading'); btn.disabled = true;
+  progress.classList.add('show');
+  bar.style.width = '8%';
+  txt.textContent = 'Submitting to fal.ai…';
+
+  try {
+    const input = selectedFalModel.buildInput(falFaceData, falRefData, prompt);
+    const res = await fetch(WORKER_URL, {
+      method: 'POST', headers: {'Content-Type':'application/json'},
+      body: JSON.stringify({ action: 'falHairTransfer', endpoint: selectedFalModel.endpoint, input }),
+    });
+    const data = await res.json();
+    if (!data.success) throw new Error(data.error || 'fal.ai request failed');
+
+    if (data.resultUrl) {
+      bar.style.width = '100%';
+      txt.textContent = 'Done!';
+      addResult('fal-results', data.resultUrl, selectedFalModel.name, 'fal.ai');
+      return;
+    }
+
+    if (data.requestId) {
+      bar.style.width = '20%';
+      txt.textContent = 'Processing…';
+      let resultUrl = null;
+      for (let i = 0; i < 40; i++) {
+        await sleep(2500);
+        bar.style.width = Math.min(90, 20 + i * 2) + '%';
+        const poll = await fetch(`${WORKER_URL}?action=falPoll&id=${encodeURIComponent(data.requestId)}`).then(r=>r.json());
+        if (poll.status === 'completed' && poll.resultUrl) { resultUrl = poll.resultUrl; break; }
+        if (poll.status === 'failed') throw new Error('fal.ai processing failed');
+      }
+      if (!resultUrl) throw new Error('fal.ai timed out');
+      bar.style.width = '100%'; txt.textContent = 'Done!';
+      addResult('fal-results', resultUrl, selectedFalModel.name, 'fal.ai');
+    }
+
+  } catch(err) {
+    txt.textContent = '✗ ' + err.message;
+    bar.style.background = '#ff4444';
+  } finally {
+    btn.classList.remove('loading'); btn.disabled = false;
+    setTimeout(() => { progress.classList.remove('show'); bar.style.width='0'; bar.style.background=''; }, 5000);
+  }
+}
+
+// ══════════════════════════════════════════════════════════════════
+// YOUCAM
+// ══════════════════════════════════════════════════════════════════
+let ycFaceData = null;
+let ycStyleFile = null;
+
+function handleYcFaceUpload(input) {
+  readFile(input.files[0], data => {
+    ycFaceData = data;
+    const img = document.getElementById('yc-face-img');
+    img.src = data; img.style.display = 'block';
+    updateYcBtn();
+  });
+}
+function handleYcStyleUpload(input) {
+  ycStyleFile = input.files[0];
+  if (!ycStyleFile) return;
+  const url = URL.createObjectURL(ycStyleFile);
+  const img = document.getElementById('yc-style-img');
+  img.src = url; img.style.display = 'block';
+  updateYcBtn();
+}
+function updateYcBtn() {
+  document.getElementById('yc-run-btn').disabled = !(ycFaceData && ycStyleFile);
+}
+function ycCaptureWebcam() {
+  captureFromWebcam(data => {
+    ycFaceData = data;
+    const img = document.getElementById('yc-face-img');
+    img.src = data; img.style.display = 'block';
+    updateYcBtn();
+  });
+}
+
+async function runYouCam() {
+  const btn = document.getElementById('yc-run-btn');
+  const progress = document.getElementById('yc-progress');
+  const bar = document.getElementById('yc-progress-bar');
+  const txt = document.getElementById('yc-progress-text');
+
+  btn.classList.add('loading'); btn.disabled = true;
+  progress.classList.add('show');
+
+  try {
+    // Convert selfie to blob
+    const b64 = ycFaceData.split(',')[1];
+    const byteChars = atob(b64);
+    const byteArr = new Uint8Array(byteChars.length);
+    for (let i = 0; i < byteChars.length; i++) byteArr[i] = byteChars.charCodeAt(i);
+    const selfieBlob = new Blob([byteArr], {type:'image/jpeg'});
+
+    bar.style.width = '10%'; txt.textContent = 'Getting upload URL from YouCam…';
+
+    // Step 1: get upload URL
+    const uploadRes = await fetch(WORKER_URL, {
+      method: 'POST', headers:{'Content-Type':'application/json'},
+      body: JSON.stringify({
+        action: 'youcamGetUploadUrl',
+        fileName: 'elume-selfie.jpg',
+        fileSize: selfieBlob.size,
+        contentType: 'image/jpeg',
+      }),
+    }).then(r => r.json());
+
+    if (!uploadRes.success) throw new Error(uploadRes.error || 'Failed to get upload URL');
+    const {uploadUrl, fileId} = uploadRes;
+
+    bar.style.width = '25%'; txt.textContent = 'Uploading selfie to YouCam S3…';
+
+    // Step 2: PUT to S3
+    const s3Res = await fetch(uploadUrl, {
+      method: 'PUT', headers: {'Content-Type':'image/jpeg'}, body: selfieBlob,
+    });
+    if (!s3Res.ok) throw new Error(`S3 upload failed: ${s3Res.status}`);
+
+    bar.style.width = '40%'; txt.textContent = 'Preparing style reference…';
+
+    // Upload style file to a temp URL via imgBB or use Drive URL
+    // For now we use a FileReader and send as data URL to worker
+    const styleB64 = await fileToDataURL(ycStyleFile);
+
+    bar.style.width = '50%'; txt.textContent = 'Running YouCam AI transfer…';
+
+    // Step 3: Run task — send style as base64 ref (worker will handle it)
+    const taskRes = await fetch(WORKER_URL, {
+      method: 'POST', headers:{'Content-Type':'application/json'},
+      body: JSON.stringify({
+        action: 'youcamRunTask',
+        srcFileId: fileId,
+        refFileData: styleB64, // worker should upload this and use the URL
+        refFileUrl: styleB64.startsWith('http') ? styleB64 : null,
+      }),
+    }).then(r => r.json());
+
+    if (!taskRes.success) throw new Error(taskRes.error || 'Task creation failed');
+    const taskId = taskRes.taskId;
+
+    bar.style.width = '60%'; txt.textContent = 'Processing…';
+
+    // Step 4: Poll
+    let resultUrl = null;
+    for (let i = 0; i < 40; i++) {
+      await sleep(3000);
+      bar.style.width = Math.min(90, 60 + i) + '%';
+      txt.textContent = `Processing… (${(i+1)*3}s)`;
+      const poll = await fetch(`${WORKER_URL}?action=youcamPollTask&id=${taskId}`).then(r=>r.json());
+      if (poll.status === 'success') { resultUrl = poll.resultUrl; break; }
+      if (poll.status === 'error') throw new Error('YouCam error: ' + (poll.error || ''));
+    }
+    if (!resultUrl) throw new Error('YouCam timed out');
+
+    bar.style.width = '100%'; txt.textContent = 'Done!';
+    addResult('yc-results', resultUrl, 'YouCam AI Result', 'youcam');
+
+  } catch(err) {
+    txt.textContent = '✗ ' + err.message;
+    bar.style.background = '#ff4444';
+  } finally {
+    btn.classList.remove('loading'); btn.disabled = false;
+    setTimeout(() => { progress.classList.remove('show'); bar.style.width='0'; bar.style.background=''; }, 5000);
+  }
+}
+
+// ══════════════════════════════════════════════════════════════════
+// AR ENGINE
+// ══════════════════════════════════════════════════════════════════
+let arStarted = false, arOpen = false;
+let arFaceMesh = null, arSegmentation = null;
+let arCamera = null, arAnimFrame = null;
+let arLandmarks = null, arFaceDetected = false, arSegMask = null;
+let arOpacity = 0.82, arColorHex = '#3b2314';
+let arStyles = [], arIdx = 0;
+let arPose = {yaw:0,pitch:0,roll:0};
+
+function initAR() {
+  arStarted = true;
+  arOpen = true;
+  buildSwatches('ar-swatches', 'arColorHex', hex => arColorHex = hex);
+  loadArStyles();
+  startArCamera();
+}
+
+async function loadArStyles() {
+  try {
+    const data = await fetch(`${WORKER_URL}?action=getRecommendations9&faceShape=oval&gender=female&ambiguous=false`).then(r=>r.json());
+    const styles = [
+      ...(data?.trackA?.primary || []),
+      ...(data?.trackA?.secondary || []),
+      ...(data?.trackB?.styles || []),
+    ];
+    arStyles = styles.length > 0 ? styles : [{styleName:'Classic Waves',imageUrl:null},{styleName:'Bob Cut',imageUrl:null},{styleName:'Long Layers',imageUrl:null}];
+  } catch {
+    arStyles = [{styleName:'Classic Waves',imageUrl:null},{styleName:'Bob Cut',imageUrl:null},{styleName:'Long Layers',imageUrl:null}];
+  }
+  updateArNav();
+}
+
+function updateArNav() {
+  const total = arStyles.length;
+  const el = arStyles[arIdx];
+  document.getElementById('ar-style-name').textContent = el ? (el.styleName || '—') : '—';
+  document.getElementById('ar-style-idx').textContent = total ? arIdx + 1 : '—';
+  document.getElementById('ar-style-total').textContent = total || '—';
+  document.getElementById('ar-prev').disabled = arIdx === 0;
+  document.getElementById('ar-next').disabled = arIdx >= total - 1;
+}
+
+function arNav(dir) {
+  const next = arIdx + dir;
+  if (next < 0 || next >= arStyles.length) return;
+  arIdx = next;
+  updateArNav();
+}
+
+async function startArCamera() {
+  const video = document.getElementById('ar-video');
+  const canvas = document.getElementById('ar-canvas');
+  const hairCvs = document.getElementById('ar-hair-canvas');
+  const hairBackCvs = document.getElementById('ar-hair-back-canvas');
+  const segCvs = document.getElementById('ar-seg-canvas');
+
+  if (!arFaceMesh) {
+    arFaceMesh = new FaceMesh({locateFile: f => `https://cdn.jsdelivr.net/npm/@mediapipe/face_mesh/${f}`});
+    arFaceMesh.setOptions({maxNumFaces:1, refineLandmarks:true, minDetectionConfidence:0.65, minTrackingConfidence:0.6});
+    arFaceMesh.onResults(onArFaceResults);
+  }
+  if (!arSegmentation) {
+    arSegmentation = new SelfieSegmentation({locateFile: f => `https://cdn.jsdelivr.net/npm/@mediapipe/selfie_segmentation/${f}`});
+    arSegmentation.setOptions({modelSelection:1});
+    arSegmentation.onResults(r => { arSegMask = r.segmentationMask; });
+  }
+
+  try {
+    arCamera = new Camera(video, {
+      onFrame: async () => {
+        if (!arOpen) return;
+        await Promise.all([
+          arFaceMesh.send({image: video}),
+          arSegmentation.send({image: video}),
+        ]);
+      },
+      width: 640, height: 720,
+    });
+    await arCamera.start();
+    document.getElementById('ar-loading').style.display = 'none';
+    video.style.display = 'block';
+    document.getElementById('ar-status-txt').textContent = 'Camera live';
+    document.getElementById('ar-dot').classList.add('green');
+    startArLoop(canvas, hairCvs, hairBackCvs, segCvs, video);
+  } catch(e) {
+    document.getElementById('ar-loading').innerHTML = `<p style="color:rgba(255,100,100,0.7);font-size:0.7rem;text-align:center;padding:24px">Camera unavailable — allow camera access</p>`;
+  }
+}
+
+function onArFaceResults(results) {
+  if (results.multiFaceLandmarks && results.multiFaceLandmarks.length > 0) {
+    arLandmarks = results.multiFaceLandmarks[0];
+    arFaceDetected = true;
+    document.getElementById('ar-dot').classList.add('green');
+    document.getElementById('ar-status-txt').textContent = 'Face tracked';
+  } else {
+    arLandmarks = null; arFaceDetected = false;
+    document.getElementById('ar-dot').classList.remove('green');
+    document.getElementById('ar-status-txt').textContent = 'No face detected';
+  }
+}
+
+function startArLoop(canvas, hairCvs, hairBackCvs, segCvs, video) {
+  function loop() {
+    if (!arOpen) return;
+    const pane = document.querySelector('.ar-stage-wrap');
+    const W = pane ? pane.offsetWidth : 640;
+    const H = pane ? pane.offsetHeight : 720;
+    for (const c of [canvas, hairCvs, hairBackCvs, segCvs]) {
+      if (c.width !== W || c.height !== H) { c.width = W; c.height = H; }
+    }
+    const ctx = canvas.getContext('2d');
+    const hCtx = hairCvs.getContext('2d');
+    const hbCtx = hairBackCvs.getContext('2d');
+    const segCtx = segCvs.getContext('2d');
+    ctx.clearRect(0,0,W,H); hCtx.clearRect(0,0,W,H);
+    hbCtx.clearRect(0,0,W,H); segCtx.clearRect(0,0,W,H);
+
+    if (arLandmarks && arFaceDetected) {
+      const style = arStyles[arIdx];
+      const hint = (style?.styleName || '').toLowerCase();
+      const key = classifyHairStyle(hint);
+      drawArHair(hCtx, arLandmarks, W, H, arColorHex, arOpacity, key);
+    }
+    arAnimFrame = requestAnimationFrame(loop);
+  }
+  loop();
+}
+
+function arSnap() {
+  const video = document.getElementById('ar-video');
+  const hairCvs = document.getElementById('ar-hair-canvas');
+  const snap = document.createElement('canvas');
+  snap.width = video.videoWidth || 640;
+  snap.height = video.videoHeight || 720;
+  const ctx = snap.getContext('2d');
+  ctx.save(); ctx.translate(snap.width,0); ctx.scale(-1,1);
+  ctx.drawImage(video, 0, 0, snap.width, snap.height);
+  ctx.restore();
+  ctx.drawImage(hairCvs, 0, 0, snap.width, snap.height);
+  ctx.font = `${snap.width * 0.025}px 'Cormorant Garamond',serif`;
+  ctx.fillStyle = 'rgba(201,169,110,0.7)'; ctx.textAlign = 'right';
+  ctx.fillText('ÉLUME', snap.width - 16, snap.height - 12);
+  const a = document.createElement('a');
+  a.href = snap.toDataURL('image/jpeg', 0.92);
+  a.download = 'elume-ar-snapshot.jpg'; a.click();
+}
+
+// ══════════════════════════════════════════════════════════════════
+// CANVAS ENGINE (same as AR but separate camera instance)
+// ══════════════════════════════════════════════════════════════════
+let cvStarted = false, cvOpen = false;
+let cvFaceMesh = null, cvSegmentation = null;
+let cvCamera = null, cvAnimFrame = null;
+let cvLandmarks = null, cvFaceDetected = false, cvSegMask = null;
+let cvOpacity = 0.82, cvColorHex = '#3b2314';
+let cvStyles = [], cvIdx = 0;
+
+function initCanvas() {
+  cvStarted = true; cvOpen = true;
+  buildSwatches('cv-swatches', 'cvColorHex', hex => cvColorHex = hex);
+  cvStyles = [{styleName:'Short Pixie'},{styleName:'Bob Cut'},{styleName:'Medium Waves'},
+              {styleName:'Long Layers'},{styleName:'Beach Waves'},{styleName:'Bun/Updo'},
+              {styleName:'Side Part'},{styleName:'Afro/Natural'},{styleName:'Curly/Wavy'}];
+  updateCvNav();
+  startCvCamera();
+}
+
+function updateCvNav() {
+  const el = cvStyles[cvIdx];
+  document.getElementById('cv-style-name').textContent = el?.styleName || '—';
+  document.getElementById('cv-idx').textContent = cvIdx + 1;
+  document.getElementById('cv-total').textContent = cvStyles.length;
+  document.getElementById('cv-prev').disabled = cvIdx === 0;
+  document.getElementById('cv-next').disabled = cvIdx >= cvStyles.length - 1;
+}
+
+function cvNav(dir) {
+  const next = cvIdx + dir;
+  if (next < 0 || next >= cvStyles.length) return;
+  cvIdx = next; updateCvNav();
+}
+
+async function startCvCamera() {
+  const video = document.getElementById('canvas-video');
+  const canvas = document.getElementById('canvas-guide');
+  const hairCvs = document.getElementById('canvas-hair');
+  const hairBackCvs = document.getElementById('canvas-hair-back');
+  const segCvs = document.getElementById('canvas-seg');
+
+  if (!cvFaceMesh) {
+    cvFaceMesh = new FaceMesh({locateFile: f => `https://cdn.jsdelivr.net/npm/@mediapipe/face_mesh/${f}`});
+    cvFaceMesh.setOptions({maxNumFaces:1, refineLandmarks:true, minDetectionConfidence:0.65, minTrackingConfidence:0.6});
+    cvFaceMesh.onResults(r => {
+      if (r.multiFaceLandmarks && r.multiFaceLandmarks.length > 0) {
+        cvLandmarks = r.multiFaceLandmarks[0]; cvFaceDetected = true;
+        document.getElementById('cv-dot').classList.add('green');
+        document.getElementById('cv-status').textContent = 'Face tracked';
+      } else {
+        cvLandmarks = null; cvFaceDetected = false;
+        document.getElementById('cv-dot').classList.remove('green');
+        document.getElementById('cv-status').textContent = 'No face detected';
+      }
+    });
+  }
+
+  try {
+    cvCamera = new Camera(video, {
+      onFrame: async () => { if (cvOpen) await cvFaceMesh.send({image:video}); },
+      width: 640, height: 720,
+    });
+    await cvCamera.start();
+    document.getElementById('canvas-loading').style.display = 'none';
+    video.style.display = 'block';
+    document.getElementById('cv-dot').classList.add('green');
+    document.getElementById('cv-status').textContent = 'Camera live';
+    startCvLoop(canvas, hairCvs, hairBackCvs, segCvs, video);
+  } catch(e) {
+    document.getElementById('canvas-loading').innerHTML = `<p style="color:rgba(255,100,100,0.7);font-size:0.7rem;text-align:center;padding:24px">Camera unavailable</p>`;
+  }
+}
+
+function startCvLoop(canvas, hairCvs, hairBackCvs, segCvs, video) {
+  function loop() {
+    if (!cvOpen) return;
+    const pane = document.querySelector('#panel-canvas .ar-stage-wrap');
+    const W = pane ? pane.offsetWidth : 640;
+    const H = pane ? pane.offsetHeight : 720;
+    for (const c of [canvas, hairCvs, hairBackCvs, segCvs]) {
+      if (c.width !== W || c.height !== H) { c.width = W; c.height = H; }
+    }
+    canvas.getContext('2d').clearRect(0,0,W,H);
+    const hCtx = hairCvs.getContext('2d');
+    hCtx.clearRect(0,0,W,H);
+    if (cvLandmarks && cvFaceDetected) {
+      const key = classifyHairStyle((cvStyles[cvIdx]?.styleName || '').toLowerCase());
+      drawArHair(hCtx, cvLandmarks, W, H, cvColorHex, cvOpacity, key);
+    }
+    cvAnimFrame = requestAnimationFrame(loop);
+  }
+  loop();
+}
+
+function cvSnap() {
+  const video = document.getElementById('canvas-video');
+  const hairCvs = document.getElementById('canvas-hair');
+  const snap = document.createElement('canvas');
+  snap.width = video.videoWidth || 640; snap.height = video.videoHeight || 720;
+  const ctx = snap.getContext('2d');
+  ctx.save(); ctx.translate(snap.width,0); ctx.scale(-1,1);
+  ctx.drawImage(video,0,0,snap.width,snap.height); ctx.restore();
+  ctx.drawImage(hairCvs,0,0,snap.width,snap.height);
+  const a = document.createElement('a');
+  a.href = snap.toDataURL('image/jpeg',0.92);
+  a.download = 'elume-canvas.jpg'; a.click();
+}
+
+// ══════════════════════════════════════════════════════════════════
+// HAIR DRAWING (shared between AR + Canvas tabs)
+// ══════════════════════════════════════════════════════════════════
+const MP = {FOREHEAD:10, CHIN:152, LEFT_EAR:234, RIGHT_EAR:454, LEFT_JAW:172, RIGHT_JAW:397,
+            LEFT_TEMPLE:162, RIGHT_TEMPLE:389, LEFT_JAW_MID:136, RIGHT_JAW_MID:365};
+
+function classifyHairStyle(name) {
+  if (/pixie|crop|buzz|caesar|crew|short/i.test(name)) return 'pixie';
+  if (/undercut|fade|taper|skin|high.?fade|mid.?fade/i.test(name)) return 'undercut';
+  if (/pompadour|quiff|slick/i.test(name)) return 'pompadour';
+  if (/curtain|fringe/i.test(name)) return 'curtain';
+  if (/\bbob\b|lob/i.test(name)) return 'bob';
+  if (/shag|wolf/i.test(name)) return 'shag';
+  if (/bun|updo|knot|chignon/i.test(name)) return 'bun';
+  if (/long|wave|mermaid|beach/i.test(name)) return 'long';
+  if (/side.?part|comb/i.test(name)) return 'sidepart';
+  if (/afro|natural|coil/i.test(name)) return 'afro';
+  if (/curl|ringlet|wavy/i.test(name)) return 'curly';
+  return 'medium';
+}
+
+function getAnchors(lm, W, H) {
+  const p = i => ({x: lm[i].x*W, y: lm[i].y*H});
+  const fore = p(MP.FOREHEAD), chin = p(MP.CHIN);
+  const lEar = p(MP.LEFT_EAR), rEar = p(MP.RIGHT_EAR);
+  const lTemp = p(MP.LEFT_TEMPLE), rTemp = p(MP.RIGHT_TEMPLE);
+  const lJaw = p(MP.LEFT_JAW), rJaw = p(MP.RIGHT_JAW);
+  const faceH = Math.hypot(chin.x-fore.x, chin.y-fore.y);
+  const faceW = Math.hypot(rEar.x-lEar.x, rEar.y-lEar.y);
+  const cx = (fore.x + (lEar.x+rEar.x)/2) / 2;
+  const eyeL = p(33), eyeR = p(263);
+  const tilt = Math.atan2(eyeR.y-eyeL.y, eyeR.x-eyeL.x);
+  return {fore,chin,lEar,rEar,lTemp,rTemp,lJaw,rJaw,faceH,faceW,cx,tilt};
+}
+
+function hexToRgb(hex) {
+  return {r:parseInt(hex.slice(1,3),16),g:parseInt(hex.slice(3,5),16),b:parseInt(hex.slice(5,7),16)};
+}
+
+function makeGrad(ctx, color, cx, topY, botY) {
+  const g = ctx.createLinearGradient(cx, topY, cx, botY);
+  const {r,g:gr,b} = hexToRgb(color);
+  g.addColorStop(0, `rgb(${Math.min(255,r+55)},${Math.min(255,gr+44)},${Math.min(255,b+28)})`);
+  g.addColorStop(0.4, `rgb(${r},${gr},${b})`);
+  g.addColorStop(1, `rgb(${Math.max(0,r-35)},${Math.max(0,gr-28)},${Math.max(0,b-20)})`);
+  return g;
+}
+
+function drawArHair(ctx, lm, W, H, color, opacity, key) {
+  ctx.save(); ctx.globalAlpha = opacity;
+  const a = getAnchors(lm, W, H);
+  ctx.translate(a.fore.x, a.fore.y);
+  ctx.rotate(a.tilt);
+  ctx.translate(-a.fore.x, -a.fore.y);
+
+  switch(key) {
+    case 'pixie':    drawPixie(ctx, a, color); break;
+    case 'bob':      drawBob(ctx, a, color);   break;
+    case 'bun':      drawBun(ctx, a, color);   break;
+    case 'long':     drawLong(ctx, a, color);  break;
+    case 'sidepart': drawSidePart(ctx, a, color); break;
+    case 'afro':     drawAfro(ctx, a, color);  break;
+    case 'curly':    drawCurly(ctx, a, color); break;
+    default:         drawMedium(ctx, a, color); break;
+  }
+  ctx.restore();
+}
+
+function drawMedium(ctx, a, color) {
+  const {fore, lEar, rEar, lTemp, rTemp, lJaw, rJaw, faceH, faceW, cx} = a;
+  const topY = fore.y - faceH*0.52, sideY = lJaw.y + faceH*0.14;
+  const grad = makeGrad(ctx, color, cx, topY, sideY);
+  ctx.beginPath();
+  ctx.moveTo(fore.x - faceW*0.56, fore.y + faceH*0.02);
+  ctx.bezierCurveTo(fore.x - faceW*0.58, fore.y - faceH*0.2, fore.x - faceW*0.4, topY + faceH*0.1, fore.x - faceW*0.24, topY);
+  ctx.bezierCurveTo(fore.x - faceW*0.08, topY - faceH*0.04, fore.x + faceW*0.08, topY - faceH*0.04, fore.x + faceW*0.24, topY);
+  ctx.bezierCurveTo(fore.x + faceW*0.4, topY + faceH*0.1, fore.x + faceW*0.58, fore.y - faceH*0.2, fore.x + faceW*0.56, fore.y + faceH*0.02);
+  ctx.bezierCurveTo(fore.x + faceW*0.63, fore.y + faceH*0.2, rTemp.x + faceW*0.1, rTemp.y + faceH*0.32, rJaw.x + faceW*0.12, sideY);
+  ctx.bezierCurveTo(rJaw.x, sideY + faceH*0.03, lJaw.x, sideY + faceH*0.03, lJaw.x - faceW*0.12, sideY);
+  ctx.bezierCurveTo(lTemp.x - faceW*0.1, lTemp.y + faceH*0.32, fore.x - faceW*0.63, fore.y + faceH*0.2, fore.x - faceW*0.56, fore.y + faceH*0.02);
+  ctx.closePath(); ctx.fillStyle = grad; ctx.fill();
+}
+
+function drawPixie(ctx, a, color) {
+  const {fore, lEar, rEar, lTemp, rTemp, lJaw, rJaw, faceH, faceW, cx} = a;
+  const topY = fore.y - faceH*0.32;
+  const grad = makeGrad(ctx, color, cx, topY, fore.y + faceH*0.1);
+  ctx.beginPath();
+  ctx.moveTo(fore.x - faceW*0.52, fore.y + faceH*0.02);
+  ctx.bezierCurveTo(fore.x - faceW*0.52, fore.y - faceH*0.1, fore.x - faceW*0.34, topY + faceH*0.06, fore.x - faceW*0.2, topY);
+  ctx.bezierCurveTo(fore.x - faceW*0.05, topY - faceH*0.03, fore.x + faceW*0.05, topY - faceH*0.03, fore.x + faceW*0.2, topY);
+  ctx.bezierCurveTo(fore.x + faceW*0.34, topY + faceH*0.06, fore.x + faceW*0.52, fore.y - faceH*0.1, fore.x + faceW*0.52, fore.y + faceH*0.02);
+  ctx.bezierCurveTo(fore.x + faceW*0.55, fore.y + faceH*0.12, rTemp.x + faceW*0.04, rTemp.y, rEar.x, rEar.y - faceH*0.04);
+  ctx.bezierCurveTo(rJaw.x + faceW*0.02, rJaw.y - faceH*0.1, lJaw.x - faceW*0.02, lJaw.y - faceH*0.1, lEar.x, lEar.y - faceH*0.04);
+  ctx.bezierCurveTo(lTemp.x - faceW*0.04, lTemp.y, fore.x - faceW*0.55, fore.y + faceH*0.12, fore.x - faceW*0.52, fore.y + faceH*0.02);
+  ctx.closePath(); ctx.fillStyle = grad; ctx.fill();
+}
+
+function drawBob(ctx, a, color) {
+  const {fore, chin, lEar, rEar, lTemp, rTemp, lJaw, rJaw, faceH, faceW, cx} = a;
+  const topY = fore.y - faceH*0.44, hemY = chin.y + faceH*0.04;
+  const grad = makeGrad(ctx, color, cx, topY, hemY);
+  ctx.beginPath();
+  ctx.moveTo(fore.x - faceW*0.56, fore.y + faceH*0.02);
+  ctx.bezierCurveTo(fore.x - faceW*0.58, fore.y - faceH*0.19, fore.x - faceW*0.4, topY + faceH*0.09, fore.x - faceW*0.24, topY);
+  ctx.bezierCurveTo(fore.x - faceW*0.08, topY - faceH*0.04, fore.x + faceW*0.08, topY - faceH*0.04, fore.x + faceW*0.24, topY);
+  ctx.bezierCurveTo(fore.x + faceW*0.4, topY + faceH*0.09, fore.x + faceW*0.58, fore.y - faceH*0.19, fore.x + faceW*0.56, fore.y + faceH*0.02);
+  ctx.bezierCurveTo(fore.x + faceW*0.64, fore.y + faceH*0.22, rTemp.x + faceW*0.1, rTemp.y + faceH*0.35, rJaw.x + faceW*0.14, hemY);
+  ctx.lineTo(lJaw.x - faceW*0.14, hemY);
+  ctx.bezierCurveTo(lTemp.x - faceW*0.1, lTemp.y + faceH*0.35, fore.x - faceW*0.64, fore.y + faceH*0.22, fore.x - faceW*0.56, fore.y + faceH*0.02);
+  ctx.closePath(); ctx.fillStyle = grad; ctx.fill();
+}
+
+function drawBun(ctx, a, color) {
+  drawPixie(ctx, a, color);
+  const {fore, faceH, faceW, cx} = a;
+  const bunCY = fore.y - faceH*0.5;
+  const bunR = faceW * 0.18;
+  const {r,g,b} = hexToRgb(color);
+  const bg = ctx.createRadialGradient(cx - bunR*0.2, bunCY - bunR*0.2, bunR*0.1, cx, bunCY, bunR);
+  bg.addColorStop(0, `rgb(${Math.min(255,r+50)},${Math.min(255,g+40)},${Math.min(255,b+28)})`);
+  bg.addColorStop(1, `rgb(${Math.max(0,r-30)},${Math.max(0,g-24)},${Math.max(0,b-16)})`);
+  ctx.beginPath(); ctx.arc(cx, bunCY, bunR, 0, Math.PI*2);
+  ctx.fillStyle = bg; ctx.fill();
+}
+
+function drawLong(ctx, a, color) {
+  const {fore, chin, lEar, rEar, lTemp, rTemp, lJaw, rJaw, faceH, faceW, cx} = a;
+  const topY = fore.y - faceH*0.38, hemY = chin.y + faceH*0.72;
+  const grad = makeGrad(ctx, color, cx, topY, hemY);
+  ctx.beginPath();
+  ctx.moveTo(fore.x - faceW*0.56, fore.y + faceH*0.02);
+  ctx.bezierCurveTo(fore.x - faceW*0.58, fore.y - faceH*0.18, fore.x - faceW*0.4, topY + faceH*0.08, fore.x - faceW*0.24, topY);
+  ctx.bezierCurveTo(fore.x - faceW*0.08, topY - faceH*0.03, fore.x + faceW*0.08, topY - faceH*0.03, fore.x + faceW*0.24, topY);
+  ctx.bezierCurveTo(fore.x + faceW*0.4, topY + faceH*0.08, fore.x + faceW*0.58, fore.y - faceH*0.18, fore.x + faceW*0.56, fore.y + faceH*0.02);
+  ctx.bezierCurveTo(fore.x + faceW*0.65, fore.y + faceH*0.25, rTemp.x + faceW*0.14, rTemp.y + faceH*0.5, rJaw.x + faceW*0.18, chin.y + faceH*0.25);
+  ctx.bezierCurveTo(rJaw.x + faceW*0.2, chin.y + faceH*0.5, cx + faceW*0.28, hemY);
+  ctx.bezierCurveTo(cx + faceW*0.02, hemY + faceH*0.06, cx - faceW*0.02, hemY + faceH*0.06, cx - faceW*0.28, hemY);
+  ctx.bezierCurveTo(lJaw.x - faceW*0.2, chin.y + faceH*0.5, lJaw.x - faceW*0.18, chin.y + faceH*0.25, lTemp.x - faceW*0.14, lTemp.y + faceH*0.5);
+  ctx.bezierCurveTo(fore.x - faceW*0.65, fore.y + faceH*0.25, fore.x - faceW*0.56, fore.y + faceH*0.02);
+  ctx.closePath(); ctx.fillStyle = grad; ctx.fill();
+}
+
+function drawSidePart(ctx, a, color) {
+  const {fore, lEar, rEar, lTemp, rTemp, lJaw, rJaw, faceH, faceW, cx} = a;
+  const topY = fore.y - faceH*0.58;
+  const grad = makeGrad(ctx, color, cx, topY, fore.y + faceH*0.2);
+  ctx.beginPath();
+  ctx.moveTo(fore.x - faceW*0.54, fore.y + faceH*0.02);
+  ctx.bezierCurveTo(fore.x - faceW*0.56, fore.y - faceH*0.14, fore.x - faceW*0.44, topY + faceH*0.3, fore.x - faceW*0.3, topY + faceH*0.22);
+  ctx.bezierCurveTo(fore.x - faceW*0.1, topY + faceH*0.08, fore.x + faceW*0.18, topY - faceH*0.04, fore.x + faceW*0.28, topY);
+  ctx.bezierCurveTo(fore.x + faceW*0.44, topY + faceH*0.06, fore.x + faceW*0.54, fore.y - faceH*0.16, fore.x + faceW*0.54, fore.y + faceH*0.02);
+  ctx.bezierCurveTo(fore.x + faceW*0.6, fore.y + faceH*0.18, rTemp.x + faceW*0.07, rTemp.y + faceH*0.25, rEar.x, rEar.y + faceH*0.08);
+  ctx.bezierCurveTo(rJaw.x, rJaw.y + faceH*0.04, lJaw.x, lJaw.y + faceH*0.04, lEar.x, lEar.y + faceH*0.08);
+  ctx.bezierCurveTo(lTemp.x - faceW*0.07, lTemp.y + faceH*0.25, fore.x - faceW*0.6, fore.y + faceH*0.18, fore.x - faceW*0.54, fore.y + faceH*0.02);
+  ctx.closePath(); ctx.fillStyle = grad; ctx.fill();
+}
+
+function drawAfro(ctx, a, color) {
+  const {fore, faceH, faceW, cx} = a;
+  const rx = faceW*0.72, ry = faceH*0.78, cy = fore.y - faceH*0.24;
+  const {r,g,b} = hexToRgb(color);
+  const grad = ctx.createRadialGradient(cx - rx*0.2, cy - ry*0.25, ry*0.08, cx, cy, ry);
+  grad.addColorStop(0, `rgb(${Math.min(255,r+55)},${Math.min(255,g+42)},${Math.min(255,b+30)})`);
+  grad.addColorStop(0.55, `rgb(${r},${g},${b})`);
+  grad.addColorStop(1, `rgb(${Math.max(0,r-35)},${Math.max(0,g-28)},${Math.max(0,b-20)})`);
+  ctx.beginPath(); ctx.ellipse(cx, cy, rx, ry, 0, 0, Math.PI*2);
+  ctx.fillStyle = grad; ctx.fill();
+}
+
+function drawCurly(ctx, a, color) {
+  const {fore, lTemp, rTemp, lJaw, rJaw, faceH, faceW, cx} = a;
+  const topY = fore.y - faceH*0.5, hemY = lJaw.y + faceH*0.32;
+  const grad = makeGrad(ctx, color, cx, topY, hemY);
+  ctx.beginPath();
+  ctx.moveTo(fore.x - faceW*0.58, fore.y + faceH*0.02);
+  ctx.bezierCurveTo(fore.x - faceW*0.6, fore.y - faceH*0.22, fore.x - faceW*0.42, topY + faceH*0.12, fore.x - faceW*0.26, topY);
+  ctx.bezierCurveTo(fore.x - faceW*0.08, topY - faceH*0.06, fore.x + faceW*0.08, topY - faceH*0.06, fore.x + faceW*0.26, topY);
+  ctx.bezierCurveTo(fore.x + faceW*0.42, topY + faceH*0.12, fore.x + faceW*0.6, fore.y - faceH*0.22, fore.x + faceW*0.58, fore.y + faceH*0.02);
+  ctx.bezierCurveTo(fore.x + faceW*0.66, fore.y + faceH*0.24, rTemp.x + faceW*0.12, rTemp.y + faceH*0.38, rJaw.x + faceW*0.14, hemY);
+  for (let i = 7; i >= 0; i--) {
+    const t = i/7;
+    const hx = lJaw.x + (rJaw.x-lJaw.x)*t;
+    const hy = hemY + Math.sin(t*Math.PI*3.5)*faceH*0.06;
+    ctx.lineTo(i===7 ? hx + faceW*0.14 : hx, hy);
+  }
+  ctx.bezierCurveTo(lTemp.x - faceW*0.12, lTemp.y + faceH*0.38, fore.x - faceW*0.66, fore.y + faceH*0.24, fore.x - faceW*0.58, fore.y + faceH*0.02);
+  ctx.closePath(); ctx.fillStyle = grad; ctx.fill();
+}
+
+// ══════════════════════════════════════════════════════════════════
+// SHARED UTILITIES
+// ══════════════════════════════════════════════════════════════════
+function sleep(ms) { return new Promise(r => setTimeout(r, ms)); }
+
+function readFile(file, cb) {
+  if (!file) return;
+  const reader = new FileReader();
+  reader.onload = e => cb(e.target.result);
+  reader.readAsDataURL(file);
+}
+
+function fileToDataURL(file) {
+  return new Promise((res, rej) => {
+    const reader = new FileReader();
+    reader.onload = e => res(e.target.result);
+    reader.onerror = rej;
+    reader.readAsDataURL(file);
+  });
+}
+
+let captureStream = null;
+
+async function captureFromWebcam(cb) {
+  const video = document.getElementById('capture-video');
+  const canvas = document.getElementById('capture-canvas');
+  try {
+    if (!captureStream) {
+      captureStream = await navigator.mediaDevices.getUserMedia({video:{width:1024,height:1024,facingMode:'user'}});
+      video.srcObject = captureStream;
+      await new Promise(r => { video.onloadedmetadata = r; });
+    }
+    await sleep(500);
+    canvas.width = video.videoWidth;
+    canvas.height = video.videoHeight;
+    const ctx = canvas.getContext('2d');
+    ctx.translate(canvas.width, 0); ctx.scale(-1, 1);
+    ctx.drawImage(video, 0, 0);
+    cb(canvas.toDataURL('image/jpeg', 0.92));
+  } catch(e) {
+    alert('Webcam access denied or not available.');
+  }
+}
+
+function addResult(containerId, url, title, engine) {
+  const zone = document.getElementById(containerId);
+  const card = document.createElement('div');
+  card.className = 'result-card fade-in';
+  card.innerHTML = `
+    <img src="${url}" alt="${title}" style="max-height:400px;object-fit:cover;">
+    <div class="result-card-meta">
+      <div class="result-card-title">${title}</div>
+      <div class="result-card-sub">Generated via ${engine} · ${new Date().toLocaleTimeString()}</div>
+      <div class="result-card-actions">
+        <button class="dl-btn" onclick="downloadImg('${url}','elume-${engine}-result.jpg')">⬇ Download</button>
+        <button class="dl-btn" onclick="openFull('${url}')">↗ Full Size</button>
+      </div>
+    </div>
+  `;
+  zone.insertBefore(card, zone.firstChild);
+}
+
+function downloadImg(url, filename) {
+  const a = document.createElement('a');
+  a.href = url; a.download = filename; a.target = '_blank'; a.click();
+}
+function openFull(url) { window.open(url, '_blank'); }
+
+// ══════════════════════════════════════════════════════════════════
+// FAL STYLE PRESETS
+// ══════════════════════════════════════════════════════════════════
+const FAL_PRESETS = [
+  'long beach waves, honey blonde','short textured pixie cut, brunette',
+  'sleek straight bob, jet black','loose curls, warm chestnut',
+  'voluminous blowout, caramel highlights','french braid updo, dark brown',
+  'curtain bangs, auburn','side-swept layers, platinum blonde',
+  'natural afro, rich black','shaggy lob, ash grey highlights',
+  'slicked-back ponytail, dark brown','braided crown, rose gold',
+];
+
+function buildFalPresets() {
+  const wrap = document.getElementById('fal-presets');
+  if (!wrap) return;
+  FAL_PRESETS.forEach(p => {
+    const chip = document.createElement('button');
+    chip.className = 'preset-chip';
+    chip.textContent = p.split(',')[0];
+    chip.title = p;
+    chip.onclick = () => {
+      document.getElementById('fal-prompt').value = p;
+      wrap.querySelectorAll('.preset-chip').forEach(c => c.classList.remove('active'));
+      chip.classList.add('active');
+    };
+    wrap.appendChild(chip);
+  });
+}
+
+// ══════════════════════════════════════════════════════════════════
+// GROQ AI ADVISOR
+// ══════════════════════════════════════════════════════════════════
+const GROQ_QUESTIONS = [
+  'What hairstyle suits my face shape?',
+  'Best colour for my skin tone?',
+  'Low-maintenance styles for fine hair',
+  'How to add volume to flat hair?',
+  'Styles that look professional',
+  'Bold transformation ideas',
+  'Best cuts for curly/wavy hair',
+  'Anti-frizz style recommendations',
+];
+
+let groqPhotoData = null;
+
+function buildGroqChips() {
+  const wrap = document.getElementById('groq-question-chips');
+  if (!wrap) return;
+  GROQ_QUESTIONS.forEach(q => {
+    const chip = document.createElement('button');
+    chip.className = 'preset-chip';
+    chip.textContent = q;
+    chip.onclick = () => {
+      document.getElementById('groq-question').value = q;
+      wrap.querySelectorAll('.preset-chip').forEach(c => c.classList.remove('active'));
+      chip.classList.add('active');
+    };
+    wrap.appendChild(chip);
+  });
+}
+
+function handleGroqPhotoUpload(input) {
+  readFile(input.files[0], data => {
+    groqPhotoData = data;
+    const img = document.getElementById('groq-face-img');
+    img.src = data; img.style.display = 'block';
+  });
+}
+function groqCaptureWebcam() {
+  captureFromWebcam(data => {
+    groqPhotoData = data;
+    const img = document.getElementById('groq-face-img');
+    img.src = data; img.style.display = 'block';
+  });
+}
+
+async function runGroq() {
+  const btn = document.getElementById('groq-run-btn');
+  const progress = document.getElementById('groq-progress');
+  const bar = document.getElementById('groq-progress-bar');
+  const txt = document.getElementById('groq-progress-text');
+  const question = document.getElementById('groq-question').value.trim();
+  const faceShape = document.getElementById('groq-face-shape').value;
+  const hairType = document.getElementById('groq-hair-type').value;
+
+  if (!question) {
+    alert('Please enter a question or select a quick question.');
+    return;
+  }
+
+  btn.classList.add('loading'); btn.disabled = true;
+  progress.classList.add('show');
+  bar.style.width = '10%';
+  txt.textContent = 'Consulting AI stylist…';
+
+  try {
+    const systemPrompt = `You are ÉLUME's expert AI hair stylist — refined, knowledgeable, and warm. You provide personalised hairstyle recommendations grounded in face shape theory, hair texture science, and current salon trends.
+
+When giving recommendations:
+1. Start with a brief empathetic acknowledgement
+2. Suggest 3–5 specific named hairstyles with brief explanations of WHY each suits the client
+3. Include colour suggestions where relevant
+4. Add 1–2 care/styling tips
+5. Use a luxurious but accessible tone — never clinical, never generic
+6. Format with clear sections using line breaks. Use **bold** for hairstyle names.
+
+Face shape context: ${faceShape || 'not specified — infer from description if possible'}
+Hair type: ${hairType}`;
+
+    const userMsg = question + (groqPhotoData ? '\n\n[Note: the client has uploaded a photo for reference, but as a text model please base advice on their written description.]' : '');
+
+    const res = await fetch(WORKER_URL, {
+      method: 'POST',
+      headers: {'Content-Type': 'application/json'},
+      body: JSON.stringify({
+        action: 'groqAnalyse',
+        model: 'llama3-8b-8192',
+        systemPrompt,
+        userMessage: userMsg,
+      }),
+    });
+    const data = await res.json();
+    if (!data.success) throw new Error(data.error || 'Groq request failed');
+
+    bar.style.width = '100%';
+    txt.textContent = 'Done!';
+
+    const area = document.getElementById('groq-response-area');
+    const card = document.createElement('div');
+    card.className = 'groq-card fade-in';
+
+    // Parse response into richer format
+    const raw = data.response || '';
+    const formatted = raw
+      .replace(/\*\*(.+?)\*\*/g, '<strong>$1</strong>')
+      .replace(/\n\n/g, '</p><p>')
+      .replace(/\n/g, '<br>');
+
+    card.innerHTML = `
+      <div class="groq-card-label">AI Stylist Recommendation · llama3-8b</div>
+      <div class="groq-card-content"><p>${formatted}</p></div>
+      <div class="groq-timestamp">Generated ${new Date().toLocaleTimeString()} · Question: "${question.slice(0,60)}${question.length>60?'…':''}"</div>
+    `;
+    area.insertBefore(card, area.firstChild);
+
+  } catch(err) {
+    txt.textContent = '✗ ' + err.message;
+    bar.style.background = '#ff4444';
+    const area = document.getElementById('groq-response-area');
+    area.insertAdjacentHTML('afterbegin', `<div class="groq-card fade-in" style="border-color:rgba(255,100,100,0.2);">
+      <div class="groq-card-label" style="color:rgba(255,100,100,0.6);">Error</div>
+      <div class="groq-card-content" style="color:rgba(255,120,120,0.7)">${err.message}<br><br>Make sure GROQ_KEY is set in your Cloudflare Worker and the <code>groqAnalyse</code> action is handled.</div>
+    </div>`);
+  } finally {
+    btn.classList.remove('loading'); btn.disabled = false;
+    setTimeout(() => { progress.classList.remove('show'); bar.style.width='0'; bar.style.background=''; }, 5000);
+  }
+}
+
+// end
+window.addEventListener('load', () => {
+  buildReplicateModels();
+  buildFalModels();
+  buildFalPresets();
+  buildGroqChips();
+  // Start AR immediately since it's the default tab
+  initAR();
+});
+</script>
+</body>
+</html>
