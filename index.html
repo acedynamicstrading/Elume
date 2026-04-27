@@ -177,6 +177,343 @@
     .step-connector { width: 20px; }
     .step-label { display: none; }
   }
+
+  /* ── SCANNER STAGE: BIGGER ── */
+  .scanner-stage { width: min(600px, 100%) !important; height: clamp(480px, 70vw, 680px) !important; }
+  .upload-zone, .gender-select-wrap, .live-tips { width: min(600px, 100%) !important; }
+
+  /* ── TRY ON BUTTON ON STYLE CARD ── */
+  .try-on-btn {
+    position: absolute; bottom: 60px; right: 12px; z-index: 3;
+    padding: 7px 14px;
+    background: rgba(201,169,110,0.15);
+    border: 1px solid rgba(201,169,110,0.6);
+    color: var(--gold-light);
+    font-family: 'Jost', sans-serif;
+    font-size: 0.6rem; font-weight: 500;
+    letter-spacing: 0.15em; text-transform: uppercase;
+    cursor: pointer; backdrop-filter: blur(8px);
+    transition: var(--transition);
+    display: flex; align-items: center; gap: 6px;
+    opacity: 0;
+    transform: translateY(4px);
+  }
+  .style-card:hover .try-on-btn { opacity: 1; transform: translateY(0); }
+  .try-on-btn:hover { background: var(--gold); color: var(--ink); border-color: var(--gold); }
+  .try-on-btn svg { width: 10px; height: 10px; }
+
+  /* ── TRY ON always visible on touch devices ── */
+  @media (hover: none) { .try-on-btn { opacity: 1; transform: translateY(0); } }
+
+  /* ── AR TRY-ON MODAL ── */
+  .ar-modal-overlay {
+    position: fixed; inset: 0; z-index: 1000;
+    background: rgba(26,20,16,0.97);
+    display: flex; align-items: center; justify-content: center;
+    opacity: 0; pointer-events: none;
+    transition: opacity 0.4s cubic-bezier(0.4,0,0.2,1);
+    padding: 0;
+  }
+  .ar-modal-overlay.open { opacity: 1; pointer-events: auto; }
+  /* Desktop */
+  .ar-modal {
+    width: 100%; max-width: 920px;
+    background: var(--ink);
+    border: 1px solid rgba(201,169,110,0.2);
+    display: grid;
+    grid-template-columns: 1fr 300px;
+    height: 92vh; max-height: 720px;
+    overflow: hidden;
+    transform: translateY(20px) scale(0.97);
+    transition: transform 0.4s cubic-bezier(0.4,0,0.2,1);
+    box-shadow: 0 40px 120px rgba(0,0,0,0.7);
+    margin: 16px;
+    border-radius: 2px;
+  }
+  .ar-modal-overlay.open .ar-modal { transform: translateY(0) scale(1); }
+  /* Mobile: full screen */
+  @media (max-width: 700px) {
+    .ar-modal-overlay { align-items: stretch; }
+    .ar-modal {
+      grid-template-columns: 1fr;
+      grid-template-rows: 1fr auto;
+      height: 100vh; height: 100dvh;
+      max-height: none; margin: 0;
+      border: none; border-radius: 0;
+    }
+  }
+
+  /* AR camera pane - fills its grid cell */
+  .ar-camera-pane {
+    position: relative;
+    background: #0d0b08;
+    overflow: hidden;
+    /* Fill the entire grid cell */
+    width: 100%; height: 100%;
+  }
+  @media (max-width: 700px) {
+    /* On mobile, camera takes all space above the panel */
+    .ar-camera-pane { min-height: 55vh; }
+  }
+  #ar-video {
+    position: absolute; inset: 0; width: 100%; height: 100%;
+    object-fit: cover; transform: scaleX(-1);
+  }
+  /* All AR canvas layers share the same footprint */
+  #ar-seg-canvas, #ar-hair-back-canvas, #ar-canvas, #ar-hair-canvas {
+    position: absolute; inset: 0; width: 100%; height: 100%;
+    pointer-events: none;
+  }
+
+  /* AR status bar */
+  .ar-status-bar {
+    position: absolute; bottom: 0; left: 0; right: 0;
+    padding: 10px 16px;
+    background: linear-gradient(transparent, rgba(13,11,8,0.85));
+    display: flex; align-items: center; justify-content: space-between;
+  }
+  .ar-status-dot { width: 7px; height: 7px; border-radius: 50%; background: #ff4444; transition: background 0.3s; }
+  .ar-status-dot.live { background: #44cc88; animation: pulse-green 1.5s ease-in-out infinite; }
+  @keyframes pulse-green { 0%,100%{opacity:1} 50%{opacity:0.5} }
+  .ar-status-text { font-size: 0.6rem; letter-spacing: 0.15em; text-transform: uppercase; color: rgba(255,255,255,0.65); margin-left: 8px; }
+  .ar-quality { font-size: 0.6rem; color: rgba(201,169,110,0.7); letter-spacing: 0.08em; }
+
+  /* AR corner brackets */
+  .ar-bracket {
+    position: absolute; width: 20px; height: 20px;
+    border-color: rgba(201,169,110,0.5); border-style: solid;
+    border-width: 0;
+  }
+  .ar-bracket.tl { top: 12px; left: 12px; border-top-width: 1.5px; border-left-width: 1.5px; }
+  .ar-bracket.tr { top: 12px; right: 12px; border-top-width: 1.5px; border-right-width: 1.5px; }
+  .ar-bracket.bl { bottom: 40px; left: 12px; border-bottom-width: 1.5px; border-left-width: 1.5px; }
+  .ar-bracket.br { bottom: 40px; right: 12px; border-bottom-width: 1.5px; border-right-width: 1.5px; }
+
+  /* AR side panel */
+  .ar-side-panel {
+    display: flex; flex-direction: column;
+    padding: 24px 22px;
+    border-left: 1px solid rgba(201,169,110,0.12);
+    overflow-y: auto; gap: 20px;
+    position: relative;
+  }
+  /* Mobile: compact horizontal strip at bottom */
+  @media (max-width: 700px) {
+    .ar-side-panel {
+      flex-direction: row; flex-wrap: nowrap;
+      align-items: center;
+      padding: 14px 16px;
+      gap: 14px;
+      border-left: none;
+      border-top: 1px solid rgba(201,169,110,0.15);
+      overflow-x: auto; overflow-y: hidden;
+      min-height: 0;
+      background: var(--ink);
+    }
+    /* Hide verbose elements on mobile, keep only essentials */
+    .ar-panel-title, .ar-panel-subtitle, .ar-style-name, .ar-note, .ar-divider { display: none; }
+    .ar-controls { flex-direction: row; gap: 12px; align-items: center; flex-shrink: 0; }
+    .ar-color-swatches { flex-wrap: nowrap; }
+    .ar-swatch { width: 26px; height: 26px; flex-shrink: 0; }
+    .ar-control-label { display: none; }
+    .ar-opacity-slider { width: 80px; }
+    .ar-capture-btn { flex-shrink: 0; padding: 10px 14px; white-space: nowrap; width: auto; }
+    .ar-capture-btn span.btn-text { display: none; }
+  }
+  .ar-panel-title {
+    font-family: 'Cormorant Garamond', serif;
+    font-size: 1.4rem; font-weight: 300; color: var(--cream);
+    line-height: 1.2;
+  }
+  .ar-panel-subtitle { font-size: 0.65rem; letter-spacing: 0.15em; text-transform: uppercase; color: rgba(201,169,110,0.7); margin-top: 4px; }
+  .ar-style-name { font-family: 'Cormorant Garamond', serif; font-size: 1.1rem; color: var(--gold); font-style: italic; margin-top: 2px; }
+
+  /* AR controls */
+  .ar-controls { display: flex; flex-direction: column; gap: 10px; }
+  .ar-control-label { font-size: 0.6rem; letter-spacing: 0.2em; text-transform: uppercase; color: rgba(201,169,110,0.6); margin-bottom: 6px; }
+  .ar-opacity-slider {
+    width: 100%; -webkit-appearance: none; appearance: none;
+    height: 2px; background: rgba(201,169,110,0.25); outline: none;
+    border-radius: 1px;
+  }
+  .ar-opacity-slider::-webkit-slider-thumb {
+    -webkit-appearance: none; width: 14px; height: 14px;
+    border-radius: 50%; background: var(--gold); cursor: pointer;
+    border: 2px solid var(--ink);
+  }
+
+  /* AR color swatches */
+  .ar-color-swatches { display: flex; gap: 8px; flex-wrap: wrap; }
+  .ar-swatch {
+    width: 28px; height: 28px; border-radius: 50%; cursor: pointer;
+    border: 2px solid transparent; transition: all 0.2s;
+    position: relative;
+  }
+  .ar-swatch.active { border-color: var(--gold); transform: scale(1.15); }
+  .ar-swatch::after { content: ''; position: absolute; inset: 2px; border-radius: 50%; }
+
+  /* AR close button */
+  .ar-close-btn {
+    position: absolute; top: 14px; right: 14px; z-index: 10;
+    width: 36px; height: 36px;
+    background: rgba(26,20,16,0.8); border: 1px solid rgba(201,169,110,0.3);
+    color: rgba(255,255,255,0.7); font-size: 1.1rem;
+    cursor: pointer; display: flex; align-items: center; justify-content: center;
+    transition: var(--transition); backdrop-filter: blur(8px);
+  }
+  .ar-close-btn:hover { background: var(--ink); color: var(--cream); border-color: var(--gold); }
+
+  /* AR loading state */
+  .ar-loading {
+    position: absolute; inset: 0;
+    display: flex; flex-direction: column; align-items: center; justify-content: center;
+    gap: 16px; color: rgba(255,255,255,0.4);
+    background: #0d0b08;
+  }
+  .ar-loading-ring {
+    width: 48px; height: 48px;
+    border: 1.5px solid rgba(201,169,110,0.2);
+    border-top-color: var(--gold);
+    border-radius: 50%;
+    animation: spin 1s linear infinite;
+  }
+  .ar-loading p { font-size: 0.65rem; letter-spacing: 0.2em; text-transform: uppercase; }
+
+  /* AR no face warning */
+  .ar-no-face {
+    position: absolute; bottom: 50px; left: 50%; transform: translateX(-50%);
+    white-space: nowrap;
+    padding: 8px 16px;
+    background: rgba(26,20,16,0.85);
+    border: 1px solid rgba(201,169,110,0.3);
+    font-size: 0.6rem; letter-spacing: 0.15em; text-transform: uppercase;
+    color: rgba(201,169,110,0.8);
+    opacity: 0; transition: opacity 0.3s;
+    pointer-events: none;
+  }
+  .ar-no-face.show { opacity: 1; }
+
+  /* AR capture button */
+  .ar-capture-btn {
+    width: 100%; padding: 13px;
+    background: transparent; border: 1px solid rgba(201,169,110,0.4);
+    color: var(--gold-light); font-family: 'Jost', sans-serif;
+    font-size: 0.7rem; letter-spacing: 0.18em; text-transform: uppercase;
+    cursor: pointer; transition: var(--transition);
+    display: flex; align-items: center; justify-content: center; gap: 8px;
+  }
+  .ar-capture-btn:hover { background: var(--gold); color: var(--ink); border-color: var(--gold); }
+  .ar-capture-btn svg { width: 13px; height: 13px; }
+
+  /* ── AR PANEL HEADER ── */
+  .ar-panel-header { display: flex; flex-direction: column; gap: 3px; }
+  .ar-style-category {
+    font-size: 0.58rem; letter-spacing: 0.18em; text-transform: uppercase;
+    color: rgba(201,169,110,0.45); margin-top: 2px;
+  }
+
+  /* ── STYLE NAVIGATOR ── */
+  .ar-nav-section { display: flex; flex-direction: column; gap: 8px; }
+  .ar-style-nav {
+    display: flex; align-items: center; justify-content: space-between;
+    background: rgba(201,169,110,0.05);
+    border: 1px solid rgba(201,169,110,0.12);
+    padding: 6px 10px;
+  }
+  .ar-nav-btn {
+    width: 28px; height: 28px; background: transparent;
+    border: 1px solid rgba(201,169,110,0.25); color: rgba(201,169,110,0.7);
+    cursor: pointer; display: flex; align-items: center; justify-content: center;
+    transition: all 0.2s;
+  }
+  .ar-nav-btn:hover { background: rgba(201,169,110,0.12); border-color: var(--gold); color: var(--gold); }
+  .ar-nav-btn:disabled { opacity: 0.25; cursor: default; }
+  .ar-nav-btn svg { width: 10px; height: 16px; }
+  .ar-nav-info { font-size: 0.7rem; color: rgba(255,255,255,0.5); letter-spacing: 0.1em; }
+  .ar-nav-sep { color: rgba(201,169,110,0.3); }
+
+  /* ── POSE INDICATOR ── */
+  .ar-pose-wrap { display: flex; flex-direction: column; gap: 8px; }
+  .ar-pose-indicator {
+    width: 100%; height: 44px;
+    background: rgba(201,169,110,0.04);
+    border: 1px solid rgba(201,169,110,0.1);
+    position: relative; overflow: hidden;
+  }
+  .ar-pose-dot {
+    position: absolute; width: 8px; height: 8px;
+    background: var(--gold); border-radius: 50%;
+    top: 50%; left: 50%;
+    transform: translate(-50%, -50%);
+    transition: left 0.08s ease-out, top 0.08s ease-out;
+    box-shadow: 0 0 6px rgba(201,169,110,0.5);
+  }
+  /* Crosshair lines */
+  .ar-pose-indicator::before, .ar-pose-indicator::after {
+    content: ''; position: absolute;
+    background: rgba(201,169,110,0.12);
+  }
+  .ar-pose-indicator::before { width: 100%; height: 1px; top: 50%; left: 0; }
+  .ar-pose-indicator::after  { width: 1px; height: 100%; left: 50%; top: 0; }
+  .ar-pose-labels {
+    display: flex; justify-content: space-between;
+    font-size: 0.58rem; color: rgba(255,255,255,0.28); letter-spacing: 0.08em;
+  }
+
+  /* ── STYLE TRANSITION FLASH ── */
+  @keyframes ar-style-flash {
+    0%   { opacity: 0; }
+    30%  { opacity: 0.18; }
+    100% { opacity: 0; }
+  }
+  .ar-style-flash {
+    position: absolute; inset: 0; background: rgba(201,169,110,1);
+    pointer-events: none; opacity: 0;
+    animation: ar-style-flash 0.35s ease-out forwards;
+  }
+
+  /* ── MOBILE SWIPE HINT ── */
+  .ar-swipe-hint {
+    position: absolute; bottom: 48px; left: 50%; transform: translateX(-50%);
+    display: flex; align-items: center; gap: 8px;
+    padding: 6px 14px;
+    background: rgba(26,20,16,0.75); border: 1px solid rgba(201,169,110,0.2);
+    font-size: 0.58rem; letter-spacing: 0.14em; text-transform: uppercase;
+    color: rgba(201,169,110,0.65); white-space: nowrap;
+    pointer-events: none;
+    animation: swipe-hint-fade 3.5s ease-in-out forwards;
+  }
+  @keyframes swipe-hint-fade {
+    0%   { opacity: 0; transform: translateX(-50%) translateY(4px); }
+    15%  { opacity: 1; transform: translateX(-50%) translateY(0); }
+    75%  { opacity: 1; }
+    100% { opacity: 0; }
+  }
+
+  /* ── SNAPSHOT FLASH ── */
+  @keyframes snap-flash {
+    0%   { opacity: 0.85; }
+    100% { opacity: 0; }
+  }
+  .ar-snap-flash {
+    position: absolute; inset: 0; background: white;
+    pointer-events: none; opacity: 0;
+    animation: snap-flash 0.4s ease-out forwards;
+  }
+
+  /* Mobile panel overrides for new elements */
+  @media (max-width: 700px) {
+    .ar-panel-header, .ar-note, .ar-divider,
+    .ar-pose-wrap, .ar-nav-section { display: none; }
+    .ar-style-category { display: none; }
+    .ar-controls { flex-direction: row; gap: 12px; align-items: center; flex-shrink: 0; }
+    .ar-color-swatches { flex-wrap: nowrap; }
+    .ar-swatch { width: 26px; height: 26px; flex-shrink: 0; }
+    .ar-control-label { display: none; }
+    .ar-opacity-slider { width: 80px; }
+    .ar-capture-btn { flex-shrink: 0; padding: 10px 14px; white-space: nowrap; width: auto; }
+    .ar-capture-btn .btn-text { display: none; }
+  }
 </style>
 </head>
 <body>
@@ -324,12 +661,114 @@
     <button class="restart-btn" onclick="restartApp()">Start New Consultation</button>
   </div>
 </section>
+<!-- ── AR TRY-ON MODAL ─────────────────────────────────────────── -->
+<div class="ar-modal-overlay" id="ar-modal-overlay" onclick="handleArOverlayClick(event)">
+  <div class="ar-modal" id="ar-modal">
+    <div class="ar-camera-pane" id="ar-camera-pane">
+      <div class="ar-loading" id="ar-loading">
+        <div class="ar-loading-ring"></div>
+        <p>Starting camera…</p>
+      </div>
+      <video id="ar-video" autoplay muted playsinline></video>
+      <!-- Layer order (bottom→top): video → seg-mask → hair-back → ar-guide → hair-front -->
+      <canvas id="ar-seg-canvas"></canvas>
+      <canvas id="ar-hair-back-canvas"></canvas>
+      <canvas id="ar-canvas"></canvas>
+      <canvas id="ar-hair-canvas"></canvas>
+      <div class="ar-bracket tl"></div>
+      <div class="ar-bracket tr"></div>
+      <div class="ar-bracket bl"></div>
+      <div class="ar-bracket br"></div>
+      <div class="ar-no-face" id="ar-no-face">Position face in frame</div>
+      <div class="ar-status-bar">
+        <div style="display:flex;align-items:center">
+          <div class="ar-status-dot" id="ar-status-dot"></div>
+          <span class="ar-status-text" id="ar-status-text">Initialising…</span>
+        </div>
+        <span class="ar-quality" id="ar-quality"></span>
+      </div>
+    </div>
+    <div class="ar-side-panel">
+      <button class="ar-close-btn" onclick="closeArModal()" title="Close">✕</button>
+
+      <!-- Header -->
+      <div class="ar-panel-header">
+        <div class="ar-panel-subtitle">Live Try-On</div>
+        <div class="ar-panel-title">See Your<br>New Look</div>
+        <div class="ar-style-name" id="ar-style-display-name">—</div>
+        <div class="ar-style-category" id="ar-style-category"></div>
+      </div>
+
+      <div class="ar-divider"></div>
+
+      <!-- Style navigator -->
+      <div class="ar-nav-section">
+        <div class="ar-control-label">Switch Style</div>
+        <div class="ar-style-nav">
+          <button class="ar-nav-btn" id="ar-nav-prev" onclick="arNavigateStyle(-1)" title="Previous style">
+            <svg viewBox="0 0 10 16" fill="none" stroke="currentColor" stroke-width="1.5"><polyline points="8,2 2,8 8,14"/></svg>
+          </button>
+          <div class="ar-nav-info">
+            <span id="ar-nav-index">1</span><span class="ar-nav-sep"> / </span><span id="ar-nav-total">1</span>
+          </div>
+          <button class="ar-nav-btn" id="ar-nav-next" onclick="arNavigateStyle(1)" title="Next style">
+            <svg viewBox="0 0 10 16" fill="none" stroke="currentColor" stroke-width="1.5"><polyline points="2,2 8,8 2,14"/></svg>
+          </button>
+        </div>
+      </div>
+
+      <div class="ar-divider"></div>
+
+      <!-- Controls -->
+      <div class="ar-controls">
+        <div>
+          <div class="ar-control-label">Opacity <span id="ar-opacity-val" style="color:var(--gold);float:right">82%</span></div>
+          <input type="range" class="ar-opacity-slider" id="ar-opacity" min="0.3" max="1" step="0.05" value="0.82"
+            oninput="arOpacity=parseFloat(this.value);document.getElementById('ar-opacity-val').textContent=Math.round(arOpacity*100)+'%'">
+        </div>
+        <div>
+          <div class="ar-control-label">Colour</div>
+          <div class="ar-color-swatches" id="ar-swatches"></div>
+        </div>
+      </div>
+
+      <div class="ar-divider"></div>
+
+      <!-- Pose indicator -->
+      <div class="ar-pose-wrap">
+        <div class="ar-control-label">Head Tracking</div>
+        <div class="ar-pose-indicator" id="ar-pose-indicator">
+          <div class="ar-pose-dot" id="ar-pose-dot"></div>
+        </div>
+        <div class="ar-pose-labels">
+          <span id="ar-pose-yaw">—</span>
+          <span id="ar-pose-pitch">—</span>
+        </div>
+      </div>
+
+      <div class="ar-divider"></div>
+
+      <!-- Snapshot -->
+      <button class="ar-capture-btn" onclick="captureArSnapshot()">
+        <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5">
+          <rect x="1" y="3" width="14" height="10" rx="1"/>
+          <circle cx="8" cy="8" r="2.5"/>
+        </svg>
+        <span class="btn-text">Save Snapshot</span>
+      </button>
+
+      <p class="ar-note">Rendered in your browser — no data leaves your device.</p>
+    </div>
+  </div>
+</div>
+
 <footer>
   <span>© ÉLUME Salon Technology — Powered by MediaPipe &amp; AI</span>
 </footer>
 
 <script src="https://cdn.jsdelivr.net/npm/@mediapipe/camera_utils/camera_utils.js" crossorigin="anonymous"></script>
 <script src="https://cdn.jsdelivr.net/npm/@mediapipe/face_mesh/face_mesh.js" crossorigin="anonymous"></script>
+<script src="https://cdn.jsdelivr.net/npm/@mediapipe/selfie_segmentation/selfie_segmentation.js" crossorigin="anonymous"></script>
 
 <script>
 const WORKER_URL = "https://elmo-hairstyler-worker.acedynamicstrading.workers.dev";
@@ -400,6 +839,7 @@ async function startWebcam(forceRetry) {
   document.getElementById('scanner-placeholder').style.display = 'none';
   document.getElementById('face-status-bar').style.display = 'flex';
   const video = document.getElementById('webcam-video');
+  // Always un-hide — stopWebcam() hides it; AR close must bring it back
   video.classList.remove('hidden');
   if (!faceMeshInstance) {
     faceMeshInstance = new FaceMesh({ locateFile: (f) => `https://cdn.jsdelivr.net/npm/@mediapipe/face_mesh/${f}` });
@@ -823,6 +1263,12 @@ async function runAnalysis() {
     const data = await resp.json();
 
     if (data.success && data.trackA) {
+      // Apply client-side gender filter as safety net
+      const filterG = selectedGender;
+      data.trackA.primary   = filterStylesByGender(data.trackA.primary   || [], filterG);
+      data.trackA.secondary = filterStylesByGender(data.trackA.secondary || [], filterG);
+      if (data.trackB) data.trackB.styles = filterStylesByGender(data.trackB.styles || [], filterG);
+
       // 9-card trackA/B response
       allCards = [
         ...(data.trackA?.primary   || []).map(s => ({ ...s, _track: 'a-primary' })),
@@ -832,7 +1278,8 @@ async function runAnalysis() {
       showResults(data);
     } else if (data.success && data.primary) {
       // Fallback: old getRecommendations format
-      allCards = (data.primary || []).map(s => ({ ...s, _track: 'a-primary' }));
+      const filtered = filterStylesByGender(data.primary || [], selectedGender);
+      allCards = filtered.map(s => ({ ...s, _track: 'a-primary' }));
       showResultsLegacy();
     } else {
       allCards = generateFallbackRecs(detectedFaceShape, selectedGender).map(s => ({ ...s, _track: 'a-primary' }));
@@ -856,9 +1303,62 @@ function makePlaceholder(label) {
   return 'data:image/svg+xml;charset=utf-8,' + encodeURIComponent(svg);
 }
 
+// ── GENDER FILTER ─────────────────────────────────────────────────
+// Applied client-side as a safety net in case the worker returns mixed results.
+// Checks styleName and tags fields against known gendered keywords.
+const MALE_KEYWORDS   = /\b(taper|fade|undercut|pompadour|quiff|crop|comb.?over|side.?part|buzz|caesar|mohawk|skin.?fade|high.?fade|crew|clipper|barber|men|man|male|gentleman|masculine|slick.?back|hard.?part|temp.?fade|drop.?fade|mid.?fade|low.?fade|textured.?top|french.?crop|ivy.?league|regulation|curtains|two.?block)\b/i;
+const FEMALE_KEYWORDS = /\b(bob|lob|shag|wolf|bun|updo|chignon|fringe|bang|layers|layered|beach.?wave|mermaid|pixie|long|balayage|highlights|blowout|volume|curl|ringlet|braids?|ponytail|half.?up|women|woman|female|girl|feminine|goddess|fishtail|waterfall|swept)\b/i;
+
+function filterStylesByGender(styles, gender) {
+  if (!styles || styles.length === 0) return styles;
+  const isMale = gender === 'M' || gender === 'male';
+
+  return styles.filter(s => {
+    const haystack = `${s.styleName || ''} ${(s.tags || []).join(' ')} ${s.gender || ''} ${s.description || ''}`.toLowerCase();
+
+    const hasGenderField = s.gender && s.gender.trim() !== '';
+    if (hasGenderField) {
+      // Trust explicit gender field if present
+      const g = s.gender.toLowerCase();
+      if (g === 'unisex' || g === 'both' || g === 'all') return true;
+      if (isMale)  return g.includes('m') || g.includes('male') || g.includes('men');
+      return g.includes('f') || g.includes('female') || g.includes('wom');
+    }
+
+    // No gender field — infer from name/tags
+    const hasMaleKW   = MALE_KEYWORDS.test(haystack);
+    const hasFemaleKW = FEMALE_KEYWORDS.test(haystack);
+
+    if (hasMaleKW && hasFemaleKW) return true;  // ambiguous — keep it
+    if (!hasMaleKW && !hasFemaleKW) return true; // no keywords — keep it
+    if (isMale)  return hasMaleKW;
+    return hasFemaleKW;
+  });
+}
+
 function generateFallbackRecs(faceShape, gender) {
-  const styleMap = { Oval:['Classic Taper','Textured Crop','Side-Swept Layers'], Round:['Angular Fringe','Undercut','Pompadour'], Square:['Soft Waves','Side Part','Textured Quiff'], Heart:['Curtain Fringe','Shag Cut','Bob with Layers'], Diamond:['Side Swept Bang','Voluminous Layers','Blunt Bob'], Oblong:['Natural Curls','Fringe Layers','Voluminous Layers'], Pear:['Volume Crown','Tapered Sides','Textured Top'] };
-  return (styleMap[faceShape] || styleMap['Oval']).map((name, i) => ({ id: i, styleName: name, imageUrl: null, tags: [], description: '' }));
+  const isMale = gender === 'M' || gender === 'male';
+  const maleMap = {
+    Oval:    ['Classic Taper','Textured Crop','Side Part','Curtain Fringe','Pompadour'],
+    Round:   ['Angular Fringe','High Fade','Pompadour','Undercut','Textured Quiff'],
+    Square:  ['Side Part','Textured Crop','Quiff','Low Fade','Caesar Cut'],
+    Heart:   ['Curtain Fringe','Textured Top','Side Swept','Undercut','Quiff'],
+    Diamond: ['Side Part','Textured Fringe','Undercut','Fade','Pompadour'],
+    Oblong:  ['Side Part','Crop','Fringe','Low Fade','Textured Top'],
+    Pear:    ['Volume Crown','Textured Top','Undercut','Fade','Quiff'],
+  };
+  const femaleMap = {
+    Oval:    ['Soft Waves','Long Layers','Bob','Curtain Fringe','Beach Waves'],
+    Round:   ['Long Layers','Side Swept Bang','Shag Cut','Wolf Cut','Voluminous Layers'],
+    Square:  ['Soft Waves','Side Part Layers','Shag Cut','Long Bob','Curtain Fringe'],
+    Heart:   ['Curtain Fringe','Shag Cut','Bob with Layers','Side Swept','Lob'],
+    Diamond: ['Side Swept Bang','Voluminous Layers','Blunt Bob','Long Waves','Lob'],
+    Oblong:  ['Natural Curls','Fringe Layers','Voluminous Layers','Bob','Beach Waves'],
+    Pear:    ['Volume Crown Layers','Shag Cut','Curtain Fringe','Wolf Cut','Lob'],
+  };
+  const map  = isMale ? maleMap : femaleMap;
+  const names = map[faceShape] || map['Oval'];
+  return names.map((name, i) => ({ id: i, styleName: name, imageUrl: null, tags: [], description: '', gender: isMale ? 'male' : 'female' }));
 }
 
 // ── SHOW RESULTS (9-card with 3-track layout) ──────────────────────
@@ -953,6 +1453,7 @@ function renderGrid(gridId, styles, offset, isAttrTrack) {
     const imgSrc         = (style.imageUrl || style.imageURL) || makePlaceholder(style.styleName || 'Style');
     const placeholderSrc = makePlaceholder(style.styleName || 'Style');
     const tags           = (style.tags || []).slice(0, 3).map(t => `<span class="style-tag">${t}</span>`).join('');
+    const safeStyleName = (style.styleName || 'Style ' + (globalIdx + 1)).replace(/'/g, "\\'");
     card.innerHTML = `
       <img class="style-card-img" src="${imgSrc}" alt="${style.styleName || 'Style'}" loading="lazy" onerror="this.onerror=null;this.src='${placeholderSrc}'">
       <div class="style-card-info">
@@ -962,6 +1463,10 @@ function renderGrid(gridId, styles, offset, isAttrTrack) {
       <div class="style-select-indicator">
         <svg viewBox="0 0 10 8" fill="none" stroke="currentColor" stroke-width="2"><polyline points="1,4 3.5,7 9,1"/></svg>
       </div>
+      <button class="try-on-btn" onclick="openArModal('${safeStyleName}', event)">
+        <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5"><rect x="1" y="3" width="14" height="10" rx="1"/><circle cx="8" cy="8" r="2.5"/></svg>
+        Try On
+      </button>
     `;
     card.addEventListener('click', () => toggleStyleSelect(globalIdx, card));
     grid.appendChild(card);
@@ -1101,6 +1606,1091 @@ function restartApp() {
   setMode('webcam');
   document.getElementById('app-section').scrollIntoView({ behavior: 'smooth' });
 }
+
+// ── SECTION 5: POLISH & UX ─────────────────────────────────────────
+
+// ── STYLE LIST for in-modal navigation ────────────────────────────
+// Built from allCards when AR opens so user can swipe through all styles
+let arStyleList  = [];   // [{styleName, imageUrl}, …]
+let arStyleIndex = 0;    // current position in arStyleList
+
+function buildArStyleList(openedStyleName) {
+  // Pull from allCards (the flat array populated after analysis)
+  arStyleList = allCards.length > 0
+    ? allCards.map(c => ({ styleName: c.styleName || '', imageUrl: c.imageUrl || c.imageURL || null }))
+    : [{ styleName: openedStyleName, imageUrl: null }];
+  // Find starting index matching the style that was clicked
+  const idx = arStyleList.findIndex(s =>
+    s.styleName.toLowerCase().replace(/[-_\s]+/g,'') ===
+    openedStyleName.toLowerCase().replace(/[-_\s]+/g,'')
+  );
+  arStyleIndex = idx >= 0 ? idx : 0;
+  updateArStyleNavUI();
+}
+
+function updateArStyleNavUI() {
+  const total = arStyleList.length;
+  const el    = arStyleList[arStyleIndex];
+  const name  = el ? el.styleName : '—';
+
+  // Clean name
+  const clean = name.replace(/\.[a-zA-Z]{2,4}$/, '').replace(/[-_]/g,' ').replace(/\s+/g,' ').trim();
+  arCurrentStyle = clean;
+
+  document.getElementById('ar-style-display-name').textContent = clean;
+  document.getElementById('ar-nav-index').textContent  = arStyleIndex + 1;
+  document.getElementById('ar-nav-total').textContent  = total;
+  document.getElementById('ar-nav-prev').disabled      = arStyleIndex === 0;
+  document.getElementById('ar-nav-next').disabled      = arStyleIndex === total - 1;
+
+  // Style category label
+  const key = classifyHairStyle(clean);
+  const keyLabels = {
+    pixie:'Pixie / Crop', undercut:'Undercut / Fade', pompadour:'Pompadour / Quiff',
+    curtain:'Curtain Fringe', bob:'Bob / Lob', shag:'Shag / Wolf Cut',
+    bun:'Bun / Top Knot', long:'Long / Waves', sidepart:'Side Part',
+    afro:'Afro / Natural', curly:'Curly / Wavy', medium:'Medium Length'
+  };
+  const catEl = document.getElementById('ar-style-category');
+  if (catEl) catEl.textContent = keyLabels[key] || '';
+  const qualEl = document.getElementById('ar-quality');
+  if (qualEl) qualEl.textContent = keyLabels[key] || '';
+}
+
+function arNavigateStyle(dir) {
+  const next = arStyleIndex + dir;
+  if (next < 0 || next >= arStyleList.length) return;
+  arStyleIndex = next;
+  updateArStyleNavUI();
+  flashArStyleTransition();
+}
+
+function flashArStyleTransition() {
+  const pane  = document.getElementById('ar-camera-pane');
+  const flash = document.createElement('div');
+  flash.className = 'ar-style-flash';
+  pane.appendChild(flash);
+  flash.addEventListener('animationend', () => flash.remove());
+}
+
+// ── SWIPE GESTURE (mobile) ─────────────────────────────────────────
+let arSwipeStartX = 0;
+let arSwipeStartY = 0;
+
+function initArSwipeGestures() {
+  const pane = document.getElementById('ar-camera-pane');
+  pane.addEventListener('touchstart', (e) => {
+    arSwipeStartX = e.touches[0].clientX;
+    arSwipeStartY = e.touches[0].clientY;
+  }, { passive: true });
+  pane.addEventListener('touchend', (e) => {
+    const dx = e.changedTouches[0].clientX - arSwipeStartX;
+    const dy = e.changedTouches[0].clientY - arSwipeStartY;
+    // Only horizontal swipes with >40px travel and 2:1 h:v ratio
+    if (Math.abs(dx) > 40 && Math.abs(dx) > Math.abs(dy) * 1.8) {
+      arNavigateStyle(dx < 0 ? 1 : -1);  // swipe left = next, right = prev
+    }
+  }, { passive: true });
+}
+
+function showArSwipeHint() {
+  if (arStyleList.length <= 1) return;
+  // Only show on touch devices
+  if (!window.matchMedia('(hover: none)').matches) return;
+  const pane  = document.getElementById('ar-camera-pane');
+  const hint  = document.createElement('div');
+  hint.className = 'ar-swipe-hint';
+  hint.innerHTML = '← Swipe to switch styles →';
+  pane.appendChild(hint);
+  hint.addEventListener('animationend', () => hint.remove());
+}
+
+// ── JITTER DAMPING ─────────────────────────────────────────────────
+// Landmark smoothing buffer — averages last N landmark sets
+// to eliminate MediaPipe jitter without adding perceptible lag
+const JITTER_BUF_SIZE = 4;
+let arLandmarkBuffer  = [];   // circular buffer of landmark arrays
+
+function pushLandmarkBuffer(lm) {
+  arLandmarkBuffer.push(lm);
+  if (arLandmarkBuffer.length > JITTER_BUF_SIZE) arLandmarkBuffer.shift();
+}
+
+function getSmoothedLandmarks() {
+  if (arLandmarkBuffer.length === 0) return null;
+  if (arLandmarkBuffer.length === 1) return arLandmarkBuffer[0];
+  const n    = arLandmarkBuffer.length;
+  const pts  = arLandmarkBuffer[0].length;
+  const out  = [];
+  for (let i = 0; i < pts; i++) {
+    let sx = 0, sy = 0, sz = 0;
+    for (let b = 0; b < n; b++) {
+      sx += arLandmarkBuffer[b][i].x;
+      sy += arLandmarkBuffer[b][i].y;
+      sz += arLandmarkBuffer[b][i].z || 0;
+    }
+    out.push({ x: sx / n, y: sy / n, z: sz / n, visibility: arLandmarkBuffer[0][i].visibility });
+  }
+  return out;
+}
+
+// ── POSE INDICATOR UI ─────────────────────────────────────────────
+function updatePoseIndicatorUI() {
+  const dot   = document.getElementById('ar-pose-dot');
+  const yawEl = document.getElementById('ar-pose-yaw');
+  const pitEl = document.getElementById('ar-pose-pitch');
+  if (!dot) return;
+
+  // Map yaw/pitch (-π/3 → +π/3) to % position in the indicator box
+  const maxAngle = Math.PI * 0.31;
+  const xPct = 50 + (arPose.yaw   / maxAngle) * 44;
+  const yPct = 50 + (arPose.pitch / (Math.PI * 0.22)) * 38;
+  dot.style.left = `${Math.max(6, Math.min(94, xPct))}%`;
+  dot.style.top  = `${Math.max(6, Math.min(94, yPct))}%`;
+
+  // Text readouts
+  const yawDeg   = Math.round(arPose.yaw   * 180 / Math.PI);
+  const pitchDeg = Math.round(arPose.pitch * 180 / Math.PI);
+  if (yawEl)   yawEl.textContent   = `Yaw ${yawDeg > 0 ? '+' : ''}${yawDeg}°`;
+  if (pitEl)   pitEl.textContent   = `Pitch ${pitchDeg > 0 ? '+' : ''}${pitchDeg}°`;
+}
+
+// ── SNAPSHOT FLASH ─────────────────────────────────────────────────
+function triggerSnapFlash() {
+  const pane  = document.getElementById('ar-camera-pane');
+  const flash = document.createElement('div');
+  flash.className = 'ar-snap-flash';
+  pane.appendChild(flash);
+  flash.addEventListener('animationend', () => flash.remove());
+}
+
+// ── AR HAIR COLOURS (extended palette) ────────────────────────────
+const AR_HAIR_COLORS = [
+  { label: 'Jet Black',   hex: '#0d0a07' },
+  { label: 'Dark Brown',  hex: '#2c1a0e' },
+  { label: 'Natural',     hex: '#3b2314' },
+  { label: 'Auburn',      hex: '#7b3c1d' },
+  { label: 'Chestnut',    hex: '#5c2e0e' },
+  { label: 'Caramel',     hex: '#a0622a' },
+  { label: 'Honey',       hex: '#c4892e' },
+  { label: 'Blonde',      hex: '#d4a96a' },
+  { label: 'Platinum',    hex: '#e8dcc8' },
+  { label: 'Ash Grey',    hex: '#7a7068' },
+  { label: 'Silver',      hex: '#b0aaa2' },
+  { label: 'Rose Gold',   hex: '#c47b6a' },
+];
+
+let arOpen           = false;
+let arFaceMesh       = null;
+let arSegmentation   = null;        // SelfieSegmentation instance
+let arSegMask        = null;        // latest ImageBitmap mask from segmentation
+let arCamera         = null;
+let arCurrentStyle   = '';
+let arOpacity        = 0.82;
+let arColorHex       = '#3b2314';
+let arLandmarks      = null;
+let arFaceDetected   = false;
+let arAnimFrame      = null;
+let arNoFaceTimer    = null;
+
+function buildArSwatches() {
+  const wrap = document.getElementById('ar-swatches');
+  wrap.innerHTML = '';
+  AR_HAIR_COLORS.forEach((c, i) => {
+    const s = document.createElement('div');
+    s.className = 'ar-swatch' + (i === 0 ? ' active' : '');
+    s.style.background = c.hex;
+    s.title = c.label;
+    s.onclick = () => {
+      arColorHex = c.hex;
+      document.querySelectorAll('.ar-swatch').forEach(el => el.classList.remove('active'));
+      s.classList.add('active');
+    };
+    wrap.appendChild(s);
+  });
+}
+
+function openArModal(styleName, evt) {
+  if (evt) evt.stopPropagation();
+  const cleanName = styleName
+    .replace(/\.[a-zA-Z]{2,4}$/, '')
+    .replace(/[-_]/g, ' ')
+    .replace(/\s+/g, ' ').trim();
+  arCurrentStyle = cleanName;
+
+  document.getElementById('ar-modal-overlay').classList.add('open');
+  document.body.style.overflow = 'hidden';
+  arOpen = true;
+
+  // Build style list and set nav position
+  buildArStyleList(cleanName);
+
+  // ── Stop main analyser camera fully so the AR cam can get the device ──
+  if (cameraInstance) { cameraInstance.stop(); cameraInstance = null; }
+  // Null faceMeshInstance so startWebcam() recreates it with the correct
+  // onResults handler when AR closes — prevents stale callback after AR session.
+  if (faceMeshInstance) { faceMeshInstance = null; }
+
+  buildArSwatches();
+  startArCamera();
+
+  // Init swipe after camera pane is visible
+  requestAnimationFrame(() => {
+    initArSwipeGestures();
+    setTimeout(showArSwipeHint, 1200);
+  });
+}
+
+function closeArModal() {
+  document.getElementById('ar-modal-overlay').classList.remove('open');
+  document.body.style.overflow = '';
+  arOpen = false;
+  stopArCamera();
+
+  // ── Restart the main analyser camera ──────────────────────────────
+  // AR try-on can be opened from the results page (step 2/3) where
+  // currentMode may be 'webcam' but the camera is already stopped.
+  // Always restart as long as the user hasn't switched to upload mode
+  // and hasn't hit a hard camera-not-found failure.
+  if (currentMode === 'webcam' && !cameraFailed) {
+    startWebcam();
+  }
+}
+
+function handleArOverlayClick(e) {
+  if (e.target === document.getElementById('ar-modal-overlay')) closeArModal();
+}
+
+async function startArCamera() {
+  document.getElementById('ar-loading').style.display = 'flex';
+  document.getElementById('ar-video').style.display = 'none';
+  document.getElementById('ar-status-text').textContent = 'Initialising…';
+
+  const video       = document.getElementById('ar-video');
+  const canvas      = document.getElementById('ar-canvas');
+  const hairCvs     = document.getElementById('ar-hair-canvas');
+  const hairBackCvs = document.getElementById('ar-hair-back-canvas');
+  const segCvs      = document.getElementById('ar-seg-canvas');
+
+  // ── FaceMesh ──
+  if (!arFaceMesh) {
+    arFaceMesh = new FaceMesh({ locateFile: f => `https://cdn.jsdelivr.net/npm/@mediapipe/face_mesh/${f}` });
+    arFaceMesh.setOptions({ maxNumFaces: 1, refineLandmarks: true, minDetectionConfidence: 0.65, minTrackingConfidence: 0.6 });
+    arFaceMesh.onResults(onArFaceMeshResults);
+  }
+
+  // ── SelfieSegmentation ──
+  if (!arSegmentation) {
+    arSegmentation = new SelfieSegmentation({ locateFile: f => `https://cdn.jsdelivr.net/npm/@mediapipe/selfie_segmentation/${f}` });
+    arSegmentation.setOptions({ modelSelection: 1 }); // 1 = landscape model, more accurate
+    arSegmentation.onResults(onArSegResults);
+  }
+
+  try {
+    // Single camera feeds both FaceMesh and SelfieSegmentation
+    arCamera = new Camera(video, {
+      onFrame: async () => {
+        if (!arOpen) return;
+        // Run both models in parallel each frame
+        await Promise.all([
+          arFaceMesh     ? arFaceMesh.send({ image: video })     : Promise.resolve(),
+          arSegmentation ? arSegmentation.send({ image: video }) : Promise.resolve(),
+        ]);
+      },
+      width: 640, height: 720,
+    });
+    await arCamera.start();
+    document.getElementById('ar-loading').style.display = 'none';
+    video.style.display = 'block';
+    document.getElementById('ar-status-text').textContent = 'Camera live';
+    document.getElementById('ar-status-dot').classList.add('live');
+    startArRenderLoop(canvas, hairCvs, hairBackCvs, segCvs, video);
+  } catch (err) {
+    document.getElementById('ar-loading').innerHTML = `
+      <div style="text-align:center;padding:24px">
+        <p style="font-size:0.7rem;letter-spacing:0.12em;text-transform:uppercase;color:rgba(201,169,110,0.7)">Camera unavailable</p>
+        <p style="font-size:0.65rem;color:rgba(255,255,255,0.35);margin-top:8px">Please allow camera access</p>
+      </div>`;
+  }
+}
+
+function stopArCamera() {
+  if (arCamera) { arCamera.stop(); arCamera = null; }
+  if (arAnimFrame) { cancelAnimationFrame(arAnimFrame); arAnimFrame = null; }
+  arLandmarks      = null;
+  arFaceDetected   = false;
+  arSegMask        = null;
+  arLandmarkBuffer = [];
+  arRawPose = { yaw: 0, pitch: 0, roll: 0 };
+  arPose    = { yaw: 0, pitch: 0, roll: 0 };
+  const dot = document.getElementById('ar-status-dot');
+  if (dot) dot.classList.remove('live');
+}
+
+// ── SEGMENTATION RESULTS ──────────────────────────────────────────
+function onArSegResults(results) {
+  // results.segmentationMask is an HTMLCanvasElement with person=white, bg=black
+  arSegMask = results.segmentationMask;
+}
+
+function onArFaceMeshResults(results) {
+  if (results.multiFaceLandmarks && results.multiFaceLandmarks.length > 0) {
+    pushLandmarkBuffer(results.multiFaceLandmarks[0]);
+    arLandmarks    = getSmoothedLandmarks();
+    arFaceDetected = true;
+  } else {
+    arLandmarkBuffer = [];
+    arLandmarks      = null;
+    arFaceDetected   = false;
+  }
+  updateArStatusUI();
+}
+
+function updateArStatusUI() {
+  const dot  = document.getElementById('ar-status-dot');
+  const text = document.getElementById('ar-status-text');
+  const warn = document.getElementById('ar-no-face');
+  if (!dot) return;
+  if (arFaceDetected) {
+    dot.classList.add('live');
+    if (text) text.textContent = 'Face tracked';
+    warn.classList.remove('show');
+    clearTimeout(arNoFaceTimer);
+  } else {
+    dot.classList.remove('live');
+    if (text) text.textContent = 'No face detected';
+    clearTimeout(arNoFaceTimer);
+    arNoFaceTimer = setTimeout(() => warn.classList.add('show'), 1200);
+  }
+}
+
+// ── HEAD POSE STATE (Section 3) ────────────────────────────────────
+// Raw pose updated each MediaPipe frame
+let arRawPose = { yaw: 0, pitch: 0, roll: 0 };
+// Smoothed pose used for rendering (exponential moving average)
+let arPose    = { yaw: 0, pitch: 0, roll: 0 };
+// Smoothing factor — higher = snappier, lower = silkier
+const POSE_SMOOTH = 0.18;
+
+// ── HEAD POSE ESTIMATOR ────────────────────────────────────────────
+// Derives yaw (left/right turn), pitch (up/down nod), roll (head tilt)
+// purely from 2D face mesh landmarks — no 3D model needed.
+function estimateHeadPose(lm, W, H) {
+  const p = (i) => ({ x: lm[i].x * W, y: lm[i].y * H, z: lm[i].z });
+
+  // Key landmarks
+  const noseTip   = p(4);    // nose tip
+  const noseBase  = p(6);    // nose bridge
+  const chin      = p(152);  // chin
+  const fore      = p(10);   // forehead top
+  const lEar      = p(234);  // left cheekbone
+  const rEar      = p(454);  // right cheekbone
+  const lEye      = p(33);   // left eye inner
+  const rEye      = p(263);  // right eye inner
+  const lMouth    = p(61);   // left mouth corner
+  const rMouth    = p(291);  // right mouth corner
+
+  // ── ROLL — head tilt left/right ──
+  // Angle of the eye line relative to horizontal
+  const roll = Math.atan2(rEye.y - lEye.y, rEye.x - lEye.x);
+
+  // ── YAW — turning left/right ──
+  // Compare left vs right face half-widths.
+  // When turning right, left half gets wider, right half gets narrower.
+  const faceCX     = (lEar.x + rEar.x) / 2;
+  const noseOffX   = noseTip.x - faceCX;
+  const halfFaceW  = Math.abs(rEar.x - lEar.x) / 2;
+  // Normalised offset: -1 = fully left, 0 = centre, +1 = fully right
+  // Clamp to avoid extreme values at sharp angles
+  const yawNorm    = Math.max(-1, Math.min(1, noseOffX / (halfFaceW * 0.85)));
+  // Convert to radians — max ~55° turn
+  const yaw        = yawNorm * (Math.PI * 0.31);
+
+  // ── PITCH — nodding up/down ──
+  // Compare nose tip vertical position relative to eye-chin midpoint
+  const eyeMidY   = (lEye.y + rEye.y) / 2;
+  const faceMidY  = (eyeMidY + chin.y) / 2;
+  const noseOffY  = noseTip.y - faceMidY;
+  const halfFaceH = Math.abs(chin.y - eyeMidY) / 2;
+  const pitchNorm = Math.max(-1, Math.min(1, noseOffY / (halfFaceH * 1.1)));
+  // Positive = looking down, negative = looking up — max ~40°
+  const pitch     = pitchNorm * (Math.PI * 0.22);
+
+  return { yaw, pitch, roll };
+}
+
+// ── SMOOTHED POSE UPDATE ──────────────────────────────────────────
+function updateSmoothedPose(raw) {
+  arPose.yaw   += (raw.yaw   - arPose.yaw)   * POSE_SMOOTH;
+  arPose.pitch += (raw.pitch - arPose.pitch) * POSE_SMOOTH;
+  arPose.roll  += (raw.roll  - arPose.roll)  * POSE_SMOOTH;
+}
+
+// ── AR RENDER LOOP ─────────────────────────────────────────────────
+function startArRenderLoop(canvas, hairCvs, hairBackCvs, segCvs, video) {
+  function loop() {
+    if (!arOpen) return;
+    const pane = document.getElementById('ar-camera-pane');
+    const W = pane.offsetWidth, H = pane.offsetHeight;
+    // Only resize when dimensions change
+    if (canvas.width !== W || canvas.height !== H) {
+      canvas.width       = W; canvas.height       = H;
+      hairCvs.width      = W; hairCvs.height      = H;
+      hairBackCvs.width  = W; hairBackCvs.height  = H;
+      segCvs.width       = W; segCvs.height       = H;
+    }
+
+    const ctx      = canvas.getContext('2d');
+    const hCtx     = hairCvs.getContext('2d');
+    const hbCtx    = hairBackCvs.getContext('2d');
+    const segCtx   = segCvs.getContext('2d');
+
+    ctx.clearRect(0, 0, W, H);
+    hCtx.clearRect(0, 0, W, H);
+    hbCtx.clearRect(0, 0, W, H);
+    segCtx.clearRect(0, 0, W, H);
+
+    if (arLandmarks && arFaceDetected) {
+      // Update pose smoothing every render frame
+      const rawPose = estimateHeadPose(arLandmarks, W, H);
+      updateSmoothedPose(rawPose);
+      updatePoseIndicatorUI();
+
+      // 1. Draw guide ring on ar-canvas (guide layer)
+      drawArGuide(ctx, arLandmarks, W, H);
+
+      if (arSegMask) {
+        // ── SEGMENTATION COMPOSITING PIPELINE ──────────────────────
+        // Goal: hair-back → person → hair-front
+        // We achieve this with 4 canvas layers in z-order:
+        //   [video]  →  [seg-canvas(hair-back)]  →  [hair-back-canvas]  →  [ar-canvas(guide)]  →  [hair-canvas(hair-front)]
+        //
+        // Strategy:
+        //  a) Draw full hair onto a temp offscreen canvas
+        //  b) Use segmentation mask to cut hair into BACK (behind person) and FRONT (in front)
+        //  c) Paint hair-back onto seg-canvas UNDER the video person silhouette
+        //  d) Paint hair-front onto hair-canvas ON TOP of everything
+
+        // ── a) Draw full hair to offscreen canvas ──
+        const offFull = new OffscreenCanvas(W, H);
+        const offCtx  = offFull.getContext('2d');
+        drawArHair(offCtx, arLandmarks, W, H, arColorHex, arOpacity);
+
+        // ── b) Get segmentation mask at render resolution ──
+        // arSegMask is a canvas — draw it scaled to our size
+        const offMask = new OffscreenCanvas(W, H);
+        const maskCtx = offMask.getContext('2d');
+        maskCtx.drawImage(arSegMask, 0, 0, W, H);
+        const maskData = maskCtx.getImageData(0, 0, W, H);
+
+        // ── c) HAIR BACK — only where person is NOT present ──
+        // Pixels where mask = dark (background) get hair
+        const offBack = new OffscreenCanvas(W, H);
+        const backCtx = offBack.getContext('2d');
+        backCtx.drawImage(offFull, 0, 0);
+        backCtx.globalCompositeOperation = 'destination-in';
+        // Paint inverted mask — keep hair only in background areas
+        const invMask = new OffscreenCanvas(W, H);
+        const invCtx  = invMask.getContext('2d');
+        invCtx.drawImage(arSegMask, 0, 0, W, H);
+        // Invert: person becomes transparent, background becomes opaque
+        invCtx.globalCompositeOperation = 'difference';
+        invCtx.fillStyle = 'white';
+        invCtx.fillRect(0, 0, W, H);
+        backCtx.drawImage(invMask, 0, 0);
+        // Paint hair-back onto seg-canvas (lowest overlay layer)
+        segCtx.drawImage(offBack, 0, 0);
+
+        // ── d) HAIR FRONT — only crown/top area (above shoulder line) ──
+        // We want hair-front only for the top of the head
+        // so fringes and crown appear in front of the face
+        // Compute shoulder line from face landmarks
+        const a = getHairAnchors(arLandmarks, W, H);
+        const shoulderY = a.chin.y + a.faceH * 0.35; // estimated shoulder line
+
+        const offFront = new OffscreenCanvas(W, H);
+        const frontCtx = offFront.getContext('2d');
+        frontCtx.drawImage(offFull, 0, 0);
+        // Clip to above-shoulder zone using a gradient mask
+        // — this makes the crown/fringe appear in front of the face
+        // — but shoulder/neck area stays behind the person
+        const frontMaskOff = new OffscreenCanvas(W, H);
+        const fmCtx        = frontMaskOff.getContext('2d');
+        // Gradient: fully opaque at top, fades to transparent at shoulder line
+        const fmGrad = fmCtx.createLinearGradient(0, a.fore.y - a.faceH * 0.6, 0, shoulderY);
+        fmGrad.addColorStop(0,    'rgba(255,255,255,1)');
+        fmGrad.addColorStop(0.72, 'rgba(255,255,255,0.85)');
+        fmGrad.addColorStop(1,    'rgba(255,255,255,0)');
+        fmCtx.fillStyle = fmGrad;
+        fmCtx.fillRect(0, 0, W, H);
+        frontCtx.globalCompositeOperation = 'destination-in';
+        frontCtx.drawImage(frontMaskOff, 0, 0);
+        // Paint hair-front onto top hair-canvas (highest layer)
+        hCtx.drawImage(offFront, 0, 0);
+
+      } else {
+        // ── FALLBACK: no segmentation yet — draw hair normally ──
+        // This shows immediately while segmentation model loads
+        drawArHair(hCtx, arLandmarks, W, H, arColorHex, arOpacity);
+      }
+    }
+    arAnimFrame = requestAnimationFrame(loop);
+  }
+  loop();
+}
+
+// ── AR ALIGNMENT GUIDE (subtle) ────────────────────────────────────
+function drawArGuide(ctx, lm, W, H) {
+  const p = (i) => ({ x: lm[i].x * W, y: lm[i].y * H });
+  const fore = p(10), chin = p(152), le = p(234), re = p(454);
+  const cx = (fore.x + chin.x) / 2;
+  const cy = (fore.y + chin.y) / 2;
+  const ow = Math.hypot(re.x - le.x, re.y - le.y) * 0.55;
+  const oh = Math.hypot(chin.x - fore.x, chin.y - fore.y) * 0.56;
+
+  ctx.save();
+  ctx.beginPath();
+  ctx.ellipse(cx, cy, ow, oh, 0, 0, Math.PI * 2);
+  ctx.strokeStyle = 'rgba(201,169,110,0.25)';
+  ctx.lineWidth = 1; ctx.setLineDash([6, 5]);
+  ctx.stroke(); ctx.setLineDash([]);
+  ctx.restore();
+}
+
+// ── STYLE CLASSIFIER ──────────────────────────────────────────────
+// Maps any style name → one of our shape keys via keyword matching
+function classifyHairStyle(name) {
+  const n = name.toLowerCase();
+  if (/pixie|crop|buzz|caesar|tapered\s*crop|textured\s*crop|close\s*cut/.test(n))       return 'pixie';
+  if (/undercut|fade|skin\s*fade|high\s*fade|taper\s*fade/.test(n))                       return 'undercut';
+  if (/pompadour|pomp|quiff|swept\s*back|rockabilly/.test(n))                             return 'pompadour';
+  if (/curtain|centre\s*part|center\s*part|middle\s*part|two[\s-]block/.test(n))          return 'curtain';
+  if (/bob|blunt|lob|chin[\s-]length|jaw[\s-]length/.test(n))                            return 'bob';
+  if (/shag|wolf|layered|layers|fringe\s*layer|wispy/.test(n))                            return 'shag';
+  if (/bun|updo|top\s*knot|chignon|up[\s-]style/.test(n))                                return 'bun';
+  if (/long|beach|wave|flowing|mermaid|straight\s*long/.test(n))                          return 'long';
+  if (/side\s*part|side[\s-]swept|combover|comb[\s-]over/.test(n))                       return 'sidepart';
+  if (/afro|coil|coily|natural|kinky|4[abc]/.test(n))                                    return 'afro';
+  if (/curl|curly|ringlet|wavy\s*curl|perm/.test(n))                                     return 'curly';
+  return 'medium'; // universal fallback
+}
+
+// ── SHARED HAIR DRAWING UTILS ──────────────────────────────────────
+function getHairAnchors(lm, W, H) {
+  const p    = (i) => ({ x: lm[i].x * W, y: lm[i].y * H });
+  const fore  = p(10), chin = p(152);
+  const lEar  = p(234), rEar = p(454);
+  const lTemp = p(162), rTemp = p(389);
+  const lJaw  = p(172), rJaw  = p(397);
+  const lBrow = p(70),  rBrow = p(300);
+  const faceH = Math.hypot(chin.x - fore.x, chin.y - fore.y);
+  const faceW = Math.hypot(rEar.x - lEar.x, rEar.y - lEar.y);
+  const cx    = (lTemp.x + rTemp.x) / 2;
+  const tilt  = arPose.roll;   // use smoothed roll instead of raw atan2
+  // Expose smoothed pose angles for shape drawers to use
+  const yaw   = arPose.yaw;
+  const pitch = arPose.pitch;
+  return { fore, chin, lEar, rEar, lTemp, rTemp, lJaw, rJaw, lBrow, rBrow, faceH, faceW, cx, tilt, yaw, pitch };
+}
+
+function makeHairGradient(ctx, color, x, topY, botY) {
+  const rgb = hexToRgb(color);
+  const grad = ctx.createLinearGradient(x, topY, x, botY);
+  grad.addColorStop(0,   `rgb(${Math.min(255,rgb.r+45)},${Math.min(255,rgb.g+35)},${Math.min(255,rgb.b+25)})`);
+  grad.addColorStop(0.35,`rgb(${rgb.r},${rgb.g},${rgb.b})`);
+  grad.addColorStop(1,   `rgb(${Math.max(0,rgb.r-30)},${Math.max(0,rgb.g-25)},${Math.max(0,rgb.b-18)})`);
+  return grad;
+}
+
+function addSheen(ctx, x, topY, w, h) {
+  const g = ctx.createLinearGradient(x, topY, x + w * 0.4, topY + h * 0.35);
+  g.addColorStop(0,   'rgba(255,255,255,0.13)');
+  g.addColorStop(0.5, 'rgba(255,255,255,0.04)');
+  g.addColorStop(1,   'rgba(255,255,255,0)');
+  ctx.beginPath();
+  ctx.moveTo(x + w * 0.05, topY + h * 0.02);
+  ctx.bezierCurveTo(x + w * 0.05, topY + h * 0.02, x + w * 0.38, topY + h * 0.06, x + w * 0.32, topY + h * 0.3);
+  ctx.bezierCurveTo(x + w * 0.12, topY + h * 0.26, x, topY + h * 0.13, x + w * 0.05, topY + h * 0.02);
+  ctx.fillStyle = g; ctx.fill();
+}
+
+// ── AR HAIR OVERLAY — dispatcher with pose transforms ─────────────
+function drawArHair(ctx, lm, W, H, color, opacity) {
+  const styleKey = classifyHairStyle(arCurrentStyle);
+  const a        = getHairAnchors(lm, W, H);
+  const { fore, cx, tilt, yaw, pitch } = a;
+
+  ctx.save();
+  ctx.globalAlpha = opacity;
+
+  // ── 1. ROLL — rotate around forehead centre ──
+  ctx.translate(fore.x, fore.y);
+  ctx.rotate(tilt);
+  ctx.translate(-fore.x, -fore.y);
+
+  // ── 2. YAW — horizontal squeeze simulates head turning ──
+  // When yaw > 0 (turning right), hair shifts right and narrows on left
+  // scaleX compresses hair width as face turns (max ~35% narrower at full turn)
+  const yawAbs    = Math.abs(yaw);
+  const scaleX    = 1 - yawAbs * 0.38;
+  const shiftX    = yaw * a.faceW * 0.55;  // hair follows face centre
+  ctx.translate(cx + shiftX, fore.y);
+  ctx.scale(scaleX, 1);
+  ctx.translate(-(cx + shiftX), -fore.y);
+
+  // ── 3. PITCH — vertical shift + slight scale for nodding ──
+  // Looking up: hair rises slightly, crown becomes more visible
+  // Looking down: hair lowers, crown less visible
+  const pitchShiftY = pitch * a.faceH * 0.28;
+  const pitchScaleY = 1 - pitch * 0.12;  // slight vertical compression when looking down
+  ctx.translate(fore.x, fore.y + pitchShiftY);
+  ctx.scale(1, pitchScaleY);
+  ctx.translate(-fore.x, -(fore.y + pitchShiftY));
+
+  // ── 4. SIDE DARKENING — far side dims when turning ──
+  // Simulates the unlit side of the head
+  const sideDarken = yawAbs * 0.55;  // 0 = no darken, 1 = fully dark
+  // We'll apply this as a ctx.filter after drawing (shadow on turned side)
+
+  switch (styleKey) {
+    case 'pixie':    drawPixie(ctx, a, color);    break;
+    case 'undercut': drawUndercut(ctx, a, color); break;
+    case 'pompadour':drawPompadour(ctx, a, color);break;
+    case 'curtain':  drawCurtain(ctx, a, color);  break;
+    case 'bob':      drawBob(ctx, a, color);      break;
+    case 'shag':     drawShag(ctx, a, color);     break;
+    case 'bun':      drawBun(ctx, a, color);      break;
+    case 'long':     drawLong(ctx, a, color);     break;
+    case 'sidepart': drawSidePart(ctx, a, color); break;
+    case 'afro':     drawAfro(ctx, a, color);     break;
+    case 'curly':    drawCurly(ctx, a, color);    break;
+    default:         drawMedium(ctx, a, color);   break;
+  }
+
+  // ── 5. TURNED-SIDE SHADOW OVERLAY ──
+  // Draws a transparent dark gradient on the far side of the hair
+  // so the turned-away side looks naturally shadowed
+  if (yawAbs > 0.04) {
+    ctx.save();
+    ctx.globalAlpha = sideDarken * 0.42;
+    // Shadow falls on the side the face is turning away from
+    const shadowX = yaw > 0
+      ? cx - a.faceW * 0.62   // turning right → shadow on left
+      : cx + a.faceW * 0.62;  // turning left  → shadow on right
+    const shadowGrad = ctx.createRadialGradient(
+      shadowX, fore.y, 0,
+      shadowX, fore.y, a.faceW * 0.9
+    );
+    shadowGrad.addColorStop(0,   'rgba(0,0,0,0.75)');
+    shadowGrad.addColorStop(0.5, 'rgba(0,0,0,0.25)');
+    shadowGrad.addColorStop(1,   'rgba(0,0,0,0)');
+    ctx.fillStyle = shadowGrad;
+    ctx.fillRect(0, 0, W, H);
+    ctx.restore();
+  }
+
+  ctx.restore();
+}
+
+// ── PIXIE / TEXTURED CROP ─────────────────────────────────────────
+// Very short, hugs the head, modest crown height
+function drawPixie(ctx, a, color) {
+  const { fore, lEar, rEar, lTemp, rTemp, lJaw, rJaw, faceH, faceW, cx } = a;
+  const topY  = fore.y - faceH * 0.28;
+  const rootL = fore.x - faceW * 0.56;
+  const rootR = fore.x + faceW * 0.56;
+  const grad  = makeHairGradient(ctx, color, cx, topY, fore.y + faceH * 0.08);
+  ctx.beginPath();
+  ctx.moveTo(rootL, fore.y + faceH * 0.04);
+  ctx.bezierCurveTo(rootL - faceW*0.04, fore.y - faceH*0.12, fore.x - faceW*0.28, topY + faceH*0.05, fore.x - faceW*0.18, topY);
+  ctx.bezierCurveTo(fore.x - faceW*0.06, topY - faceH*0.04, fore.x + faceW*0.06, topY - faceH*0.04, fore.x + faceW*0.18, topY);
+  ctx.bezierCurveTo(fore.x + faceW*0.28, topY + faceH*0.05, rootR + faceW*0.04, fore.y - faceH*0.12, rootR, fore.y + faceH*0.04);
+  // Tight sides — just to ear level
+  ctx.bezierCurveTo(rootR + faceW*0.06, fore.y + faceH*0.10, rTemp.x + faceW*0.04, rTemp.y + faceH*0.06, rEar.x, rEar.y - faceH*0.05);
+  ctx.bezierCurveTo(rJaw.x + faceW*0.02, rJaw.y - faceH*0.08, lJaw.x - faceW*0.02, lJaw.y - faceH*0.08, lEar.x, lEar.y - faceH*0.05);
+  ctx.bezierCurveTo(lTemp.x - faceW*0.04, lTemp.y + faceH*0.06, rootL - faceW*0.06, fore.y + faceH*0.10, rootL, fore.y + faceH*0.04);
+  ctx.closePath();
+  ctx.fillStyle = grad; ctx.fill();
+  addSheen(ctx, fore.x - faceW*0.14, topY, faceW*0.3, faceH*0.22);
+}
+
+// ── UNDERCUT / FADE ───────────────────────────────────────────────
+// Tight shaved sides, volume only on top centre
+function drawUndercut(ctx, a, color) {
+  const { fore, lEar, rEar, lTemp, rTemp, lJaw, rJaw, faceH, faceW, cx } = a;
+  const topY  = fore.y - faceH * 0.52;
+  const crownW = faceW * 0.55;
+  const grad   = makeHairGradient(ctx, color, cx, topY, fore.y);
+  // Top volume block only
+  ctx.beginPath();
+  ctx.moveTo(fore.x - crownW*0.5, fore.y);
+  ctx.bezierCurveTo(fore.x - crownW*0.5 - faceW*0.03, fore.y - faceH*0.22, fore.x - crownW*0.42, topY + faceH*0.08, fore.x - crownW*0.35, topY);
+  ctx.bezierCurveTo(fore.x - crownW*0.1, topY - faceH*0.06, fore.x + crownW*0.1, topY - faceH*0.06, fore.x + crownW*0.35, topY);
+  ctx.bezierCurveTo(fore.x + crownW*0.42, topY + faceH*0.08, fore.x + crownW*0.5 + faceW*0.03, fore.y - faceH*0.22, fore.x + crownW*0.5, fore.y);
+  ctx.closePath();
+  ctx.fillStyle = grad; ctx.fill();
+  addSheen(ctx, fore.x - crownW*0.3, topY, crownW*0.65, faceH*0.45);
+
+  // Very thin side strips to show connection (stubble suggestion)
+  const rgb = hexToRgb(color);
+  const stubble = `rgba(${rgb.r},${rgb.g},${rgb.b},0.18)`;
+  ctx.beginPath();
+  ctx.moveTo(fore.x - crownW*0.5, fore.y);
+  ctx.bezierCurveTo(lTemp.x - faceW*0.06, lTemp.y + faceH*0.05, lEar.x - faceW*0.04, lEar.y, lJaw.x, lJaw.y);
+  ctx.bezierCurveTo(lJaw.x + faceW*0.06, lJaw.y + faceH*0.04, fore.x - crownW*0.5 - faceW*0.02, fore.y + faceH*0.06, fore.x - crownW*0.5, fore.y);
+  ctx.fillStyle = stubble; ctx.fill();
+  ctx.beginPath();
+  ctx.moveTo(fore.x + crownW*0.5, fore.y);
+  ctx.bezierCurveTo(rTemp.x + faceW*0.06, rTemp.y + faceH*0.05, rEar.x + faceW*0.04, rEar.y, rJaw.x, rJaw.y);
+  ctx.bezierCurveTo(rJaw.x - faceW*0.06, rJaw.y + faceH*0.04, fore.x + crownW*0.5 + faceW*0.02, fore.y + faceH*0.06, fore.x + crownW*0.5, fore.y);
+  ctx.fillStyle = stubble; ctx.fill();
+}
+
+// ── POMPADOUR / QUIFF ─────────────────────────────────────────────
+// Tall swept-back crown, swept up at front, moderate sides
+function drawPompadour(ctx, a, color) {
+  const { fore, lEar, rEar, lTemp, rTemp, lJaw, rJaw, faceH, faceW, cx } = a;
+  const topY   = fore.y - faceH * 0.82;
+  const peakX  = fore.x + faceW * 0.08; // slightly off-centre swept back
+  const grad   = makeHairGradient(ctx, color, cx, topY, fore.y + faceH*0.2);
+  ctx.beginPath();
+  ctx.moveTo(fore.x - faceW*0.52, fore.y + faceH*0.02);
+  // Left side — moderate
+  ctx.bezierCurveTo(fore.x - faceW*0.55, fore.y - faceH*0.15, fore.x - faceW*0.42, topY + faceH*0.28, fore.x - faceW*0.25, topY + faceH*0.18);
+  // Sweep up to tall peak
+  ctx.bezierCurveTo(fore.x - faceW*0.1, topY + faceH*0.06, peakX - faceW*0.08, topY - faceH*0.06, peakX, topY);
+  // Down the swept-back right side
+  ctx.bezierCurveTo(peakX + faceW*0.12, topY + faceH*0.05, fore.x + faceW*0.42, topY + faceH*0.22, fore.x + faceW*0.52, fore.y + faceH*0.02);
+  // Right side drop
+  ctx.bezierCurveTo(fore.x + faceW*0.58, fore.y + faceH*0.18, rTemp.x + faceW*0.06, rTemp.y + faceH*0.22, rEar.x, rEar.y + faceH*0.1);
+  ctx.bezierCurveTo(rJaw.x, rJaw.y + faceH*0.04, lJaw.x, lJaw.y + faceH*0.04, lEar.x, lEar.y + faceH*0.1);
+  ctx.bezierCurveTo(lTemp.x - faceW*0.06, lTemp.y + faceH*0.22, fore.x - faceW*0.58, fore.y + faceH*0.18, fore.x - faceW*0.52, fore.y + faceH*0.02);
+  ctx.closePath();
+  ctx.fillStyle = grad; ctx.fill();
+  addSheen(ctx, fore.x - faceW*0.18, topY, faceW*0.38, faceH*0.65);
+}
+
+// ── CURTAIN FRINGE / CENTRE PART ─────────────────────────────────
+// Flat top with centre part, curtains falling each side of forehead
+function drawCurtain(ctx, a, color) {
+  const { fore, lEar, rEar, lTemp, rTemp, lJaw, rJaw, faceH, faceW, cx } = a;
+  const topY  = fore.y - faceH * 0.38;
+  const grad  = makeHairGradient(ctx, color, cx, topY, fore.y + faceH*0.28);
+  // Main cap
+  ctx.beginPath();
+  ctx.moveTo(fore.x - faceW*0.56, fore.y + faceH*0.02);
+  ctx.bezierCurveTo(fore.x - faceW*0.56, fore.y - faceH*0.18, fore.x - faceW*0.36, topY + faceH*0.04, fore.x - faceW*0.22, topY);
+  ctx.bezierCurveTo(fore.x - faceW*0.06, topY - faceH*0.02, fore.x + faceW*0.06, topY - faceH*0.02, fore.x + faceW*0.22, topY);
+  ctx.bezierCurveTo(fore.x + faceW*0.36, topY + faceH*0.04, fore.x + faceW*0.56, fore.y - faceH*0.18, fore.x + faceW*0.56, fore.y + faceH*0.02);
+  ctx.bezierCurveTo(fore.x + faceW*0.62, fore.y + faceH*0.18, rTemp.x + faceW*0.06, rTemp.y + faceH*0.28, rEar.x, rEar.y + faceH*0.14);
+  ctx.bezierCurveTo(rJaw.x, rJaw.y + faceH*0.04, lJaw.x, lJaw.y + faceH*0.04, lEar.x, lEar.y + faceH*0.14);
+  ctx.bezierCurveTo(lTemp.x - faceW*0.06, lTemp.y + faceH*0.28, fore.x - faceW*0.62, fore.y + faceH*0.18, fore.x - faceW*0.56, fore.y + faceH*0.02);
+  ctx.closePath();
+  ctx.fillStyle = grad; ctx.fill();
+  addSheen(ctx, fore.x - faceW*0.2, topY, faceW*0.42, faceH*0.32);
+
+  // Left curtain drop
+  const rgb = hexToRgb(color);
+  const curtainColor = `rgba(${Math.max(0,rgb.r-18)},${Math.max(0,rgb.g-14)},${Math.max(0,rgb.b-10)},0.88)`;
+  ctx.beginPath();
+  ctx.moveTo(fore.x - faceW*0.04, fore.y - faceH*0.02);
+  ctx.bezierCurveTo(fore.x - faceW*0.14, fore.y + faceH*0.08, fore.x - faceW*0.28, fore.y + faceH*0.2, fore.x - faceW*0.3, fore.y + faceH*0.3);
+  ctx.bezierCurveTo(fore.x - faceW*0.28, fore.y + faceH*0.32, fore.x - faceW*0.12, fore.y + faceH*0.22, fore.x - faceW*0.01, fore.y + faceH*0.04);
+  ctx.closePath();
+  ctx.fillStyle = curtainColor; ctx.fill();
+  // Right curtain drop
+  ctx.beginPath();
+  ctx.moveTo(fore.x + faceW*0.04, fore.y - faceH*0.02);
+  ctx.bezierCurveTo(fore.x + faceW*0.14, fore.y + faceH*0.08, fore.x + faceW*0.28, fore.y + faceH*0.2, fore.x + faceW*0.3, fore.y + faceH*0.3);
+  ctx.bezierCurveTo(fore.x + faceW*0.28, fore.y + faceH*0.32, fore.x + faceW*0.12, fore.y + faceH*0.22, fore.x + faceW*0.01, fore.y + faceH*0.04);
+  ctx.closePath();
+  ctx.fillStyle = curtainColor; ctx.fill();
+}
+
+// ── BOB / LOB ─────────────────────────────────────────────────────
+// Blunt jaw-length, minimal crown height, full and even
+function drawBob(ctx, a, color) {
+  const { fore, chin, lEar, rEar, lTemp, rTemp, lJaw, rJaw, faceH, faceW, cx } = a;
+  const topY   = fore.y - faceH * 0.3;
+  const hemY   = lJaw.y + faceH * 0.06; // blunt hem at jaw
+  const grad   = makeHairGradient(ctx, color, cx, topY, hemY);
+  ctx.beginPath();
+  ctx.moveTo(fore.x - faceW*0.58, fore.y + faceH*0.02);
+  ctx.bezierCurveTo(fore.x - faceW*0.58, fore.y - faceH*0.16, fore.x - faceW*0.38, topY + faceH*0.05, fore.x - faceW*0.22, topY);
+  ctx.bezierCurveTo(fore.x - faceW*0.06, topY - faceH*0.03, fore.x + faceW*0.06, topY - faceH*0.03, fore.x + faceW*0.22, topY);
+  ctx.bezierCurveTo(fore.x + faceW*0.38, topY + faceH*0.05, fore.x + faceW*0.58, fore.y - faceH*0.16, fore.x + faceW*0.58, fore.y + faceH*0.02);
+  // Straight(ish) sides down to jaw
+  ctx.bezierCurveTo(fore.x + faceW*0.64, fore.y + faceH*0.22, rTemp.x + faceW*0.12, rTemp.y + faceH*0.3, rJaw.x + faceW*0.14, hemY);
+  // Blunt hem line
+  ctx.lineTo(lJaw.x - faceW*0.14, hemY);
+  ctx.bezierCurveTo(lTemp.x - faceW*0.12, lTemp.y + faceH*0.3, fore.x - faceW*0.64, fore.y + faceH*0.22, fore.x - faceW*0.58, fore.y + faceH*0.02);
+  ctx.closePath();
+  ctx.fillStyle = grad; ctx.fill();
+  addSheen(ctx, fore.x - faceW*0.18, topY, faceW*0.38, faceH*0.28);
+}
+
+// ── SHAG / WOLF / LAYERED ─────────────────────────────────────────
+// Medium length with wispy layered ends, textured hem
+function drawShag(ctx, a, color) {
+  const { fore, lEar, rEar, lTemp, rTemp, lJaw, rJaw, faceH, faceW, cx } = a;
+  const topY  = fore.y - faceH * 0.44;
+  const hemY  = lJaw.y + faceH * 0.28;
+  const grad  = makeHairGradient(ctx, color, cx, topY, hemY);
+  // Main body
+  ctx.beginPath();
+  ctx.moveTo(fore.x - faceW*0.56, fore.y + faceH*0.02);
+  ctx.bezierCurveTo(fore.x - faceW*0.58, fore.y - faceH*0.2, fore.x - faceW*0.4, topY + faceH*0.1, fore.x - faceW*0.24, topY);
+  ctx.bezierCurveTo(fore.x - faceW*0.08, topY - faceH*0.04, fore.x + faceW*0.08, topY - faceH*0.04, fore.x + faceW*0.24, topY);
+  ctx.bezierCurveTo(fore.x + faceW*0.4, topY + faceH*0.1, fore.x + faceW*0.58, fore.y - faceH*0.2, fore.x + faceW*0.56, fore.y + faceH*0.02);
+  ctx.bezierCurveTo(fore.x + faceW*0.64, fore.y + faceH*0.22, rTemp.x + faceW*0.1, rTemp.y + faceH*0.36, rJaw.x + faceW*0.12, hemY - faceH*0.05);
+  // Wispy layered hem — right side
+  ctx.bezierCurveTo(rJaw.x + faceW*0.08, hemY, rJaw.x + faceW*0.02, hemY + faceH*0.04, cx + faceW*0.08, hemY + faceH*0.02);
+  ctx.bezierCurveTo(cx + faceW*0.02, hemY + faceH*0.05, cx - faceW*0.02, hemY + faceH*0.05, cx - faceW*0.08, hemY + faceH*0.02);
+  // Wispy hem — left side
+  ctx.bezierCurveTo(lJaw.x - faceW*0.02, hemY + faceH*0.04, lJaw.x - faceW*0.08, hemY, lJaw.x - faceW*0.12, hemY - faceH*0.05);
+  ctx.bezierCurveTo(lTemp.x - faceW*0.1, lTemp.y + faceH*0.36, fore.x - faceW*0.64, fore.y + faceH*0.22, fore.x - faceW*0.56, fore.y + faceH*0.02);
+  ctx.closePath();
+  ctx.fillStyle = grad; ctx.fill();
+  addSheen(ctx, fore.x - faceW*0.2, topY, faceW*0.42, faceH*0.38);
+  // Fringe wisps across forehead
+  const rgb = hexToRgb(color);
+  ctx.save(); ctx.globalAlpha *= 0.75;
+  for (let i = -2; i <= 2; i++) {
+    const fx = fore.x + i * faceW * 0.09;
+    ctx.beginPath();
+    ctx.moveTo(fx, fore.y - faceH*0.01);
+    ctx.bezierCurveTo(fx + faceW*0.02, fore.y + faceH*0.08, fx - faceW*0.01, fore.y + faceH*0.15, fx + faceW*0.01, fore.y + faceH*0.18);
+    ctx.strokeStyle = `rgb(${Math.max(0,rgb.r-20)},${Math.max(0,rgb.g-16)},${Math.max(0,rgb.b-12)})`;
+    ctx.lineWidth = faceW * 0.025; ctx.lineCap = 'round'; ctx.stroke();
+  }
+  ctx.restore();
+}
+
+// ── BUN / TOP KNOT ───────────────────────────────────────────────
+// Tight cap with a circular bun on top
+function drawBun(ctx, a, color) {
+  const { fore, lEar, rEar, lTemp, rTemp, lJaw, rJaw, faceH, faceW, cx } = a;
+  const capTopY = fore.y - faceH * 0.22;
+  const bunCY   = fore.y - faceH * 0.52;
+  const bunR    = faceW  * 0.18;
+  const grad    = makeHairGradient(ctx, color, cx, capTopY, fore.y + faceH*0.08);
+  // Tight scalp cap
+  ctx.beginPath();
+  ctx.moveTo(fore.x - faceW*0.52, fore.y + faceH*0.02);
+  ctx.bezierCurveTo(fore.x - faceW*0.52, fore.y - faceH*0.14, fore.x - faceW*0.34, capTopY + faceH*0.04, fore.x - faceW*0.2, capTopY);
+  ctx.bezierCurveTo(fore.x - faceW*0.05, capTopY - faceH*0.02, fore.x + faceW*0.05, capTopY - faceH*0.02, fore.x + faceW*0.2, capTopY);
+  ctx.bezierCurveTo(fore.x + faceW*0.34, capTopY + faceH*0.04, fore.x + faceW*0.52, fore.y - faceH*0.14, fore.x + faceW*0.52, fore.y + faceH*0.02);
+  ctx.bezierCurveTo(fore.x + faceW*0.55, fore.y + faceH*0.12, rTemp.x + faceW*0.04, rTemp.y + faceH*0.1, rEar.x, rEar.y - faceH*0.04);
+  ctx.bezierCurveTo(rJaw.x, rJaw.y - faceH*0.08, lJaw.x, lJaw.y - faceH*0.08, lEar.x, lEar.y - faceH*0.04);
+  ctx.bezierCurveTo(lTemp.x - faceW*0.04, lTemp.y + faceH*0.1, fore.x - faceW*0.55, fore.y + faceH*0.12, fore.x - faceW*0.52, fore.y + faceH*0.02);
+  ctx.closePath();
+  ctx.fillStyle = grad; ctx.fill();
+  // Bun circle
+  const bunGrad = ctx.createRadialGradient(cx - bunR*0.2, bunCY - bunR*0.2, bunR*0.1, cx, bunCY, bunR);
+  const rgb = hexToRgb(color);
+  bunGrad.addColorStop(0, `rgb(${Math.min(255,rgb.r+50)},${Math.min(255,rgb.g+40)},${Math.min(255,rgb.b+28)})`);
+  bunGrad.addColorStop(0.6, `rgb(${rgb.r},${rgb.g},${rgb.b})`);
+  bunGrad.addColorStop(1, `rgb(${Math.max(0,rgb.r-35)},${Math.max(0,rgb.g-28)},${Math.max(0,rgb.b-20)})`);
+  ctx.beginPath();
+  ctx.arc(cx, bunCY, bunR, 0, Math.PI*2);
+  ctx.fillStyle = bunGrad; ctx.fill();
+  // Bun wrap line
+  ctx.beginPath();
+  ctx.arc(cx, bunCY, bunR*0.65, Math.PI*0.2, Math.PI*1.1);
+  ctx.strokeStyle = `rgba(${Math.max(0,rgb.r-40)},${Math.max(0,rgb.g-32)},${Math.max(0,rgb.b-22)},0.5)`;
+  ctx.lineWidth = faceW*0.018; ctx.stroke();
+}
+
+// ── LONG / BEACH WAVES ───────────────────────────────────────────
+// Long flowing hair past shoulders with gentle wave at ends
+function drawLong(ctx, a, color) {
+  const { fore, chin, lEar, rEar, lTemp, rTemp, lJaw, rJaw, faceH, faceW, cx } = a;
+  const topY  = fore.y - faceH * 0.38;
+  const hemY  = chin.y + faceH * 0.72;
+  const grad  = makeHairGradient(ctx, color, cx, topY, hemY);
+  ctx.beginPath();
+  ctx.moveTo(fore.x - faceW*0.56, fore.y + faceH*0.02);
+  ctx.bezierCurveTo(fore.x - faceW*0.58, fore.y - faceH*0.18, fore.x - faceW*0.4, topY + faceH*0.08, fore.x - faceW*0.24, topY);
+  ctx.bezierCurveTo(fore.x - faceW*0.08, topY - faceH*0.03, fore.x + faceW*0.08, topY - faceH*0.03, fore.x + faceW*0.24, topY);
+  ctx.bezierCurveTo(fore.x + faceW*0.4, topY + faceH*0.08, fore.x + faceW*0.58, fore.y - faceH*0.18, fore.x + faceW*0.56, fore.y + faceH*0.02);
+  // Right side flows long with gentle wave
+  ctx.bezierCurveTo(fore.x + faceW*0.65, fore.y + faceH*0.25, rTemp.x + faceW*0.14, rTemp.y + faceH*0.5, rJaw.x + faceW*0.18, chin.y + faceH*0.25);
+  ctx.bezierCurveTo(rJaw.x + faceW*0.2, chin.y + faceH*0.5, cx + faceW*0.38, hemY - faceH*0.18, cx + faceW*0.28, hemY);
+  // Wavy hem
+  ctx.bezierCurveTo(cx + faceW*0.14, hemY + faceH*0.05, cx + faceW*0.04, hemY - faceH*0.04, cx, hemY + faceH*0.02);
+  ctx.bezierCurveTo(cx - faceW*0.04, hemY + faceH*0.06, cx - faceW*0.14, hemY - faceH*0.02, cx - faceW*0.28, hemY);
+  // Left side mirror
+  ctx.bezierCurveTo(cx - faceW*0.38, hemY - faceH*0.18, lJaw.x - faceW*0.2, chin.y + faceH*0.5, lJaw.x - faceW*0.18, chin.y + faceH*0.25);
+  ctx.bezierCurveTo(lTemp.x - faceW*0.14, lTemp.y + faceH*0.5, fore.x - faceW*0.65, fore.y + faceH*0.25, fore.x - faceW*0.56, fore.y + faceH*0.02);
+  ctx.closePath();
+  ctx.fillStyle = grad; ctx.fill();
+  addSheen(ctx, fore.x - faceW*0.2, topY, faceW*0.42, faceH*0.55);
+}
+
+// ── SIDE PART / COMB OVER ────────────────────────────────────────
+// Classic gentleman's side part — swept left, higher on right
+function drawSidePart(ctx, a, color) {
+  const { fore, lEar, rEar, lTemp, rTemp, lJaw, rJaw, faceH, faceW, cx } = a;
+  const topY    = fore.y - faceH * 0.58;
+  const partX   = fore.x - faceW * 0.12; // part line slightly left of centre
+  const grad    = makeHairGradient(ctx, color, cx, topY, fore.y + faceH*0.2);
+  ctx.beginPath();
+  ctx.moveTo(fore.x - faceW*0.54, fore.y + faceH*0.02);
+  // Left side — lower, swept
+  ctx.bezierCurveTo(fore.x - faceW*0.56, fore.y - faceH*0.14, fore.x - faceW*0.44, topY + faceH*0.3, fore.x - faceW*0.3, topY + faceH*0.22);
+  // Dip at part
+  ctx.bezierCurveTo(fore.x - faceW*0.16, topY + faceH*0.14, partX - faceW*0.04, topY + faceH*0.1, partX, topY + faceH*0.08);
+  // Right side — tall peak
+  ctx.bezierCurveTo(partX + faceW*0.06, topY + faceH*0.02, fore.x + faceW*0.18, topY - faceH*0.04, fore.x + faceW*0.28, topY);
+  ctx.bezierCurveTo(fore.x + faceW*0.42, topY + faceH*0.06, fore.x + faceW*0.54, fore.y - faceH*0.16, fore.x + faceW*0.54, fore.y + faceH*0.02);
+  // Sides drop to ears
+  ctx.bezierCurveTo(fore.x + faceW*0.6, fore.y + faceH*0.18, rTemp.x + faceW*0.07, rTemp.y + faceH*0.25, rEar.x, rEar.y + faceH*0.08);
+  ctx.bezierCurveTo(rJaw.x, rJaw.y + faceH*0.04, lJaw.x, lJaw.y + faceH*0.04, lEar.x, lEar.y + faceH*0.08);
+  ctx.bezierCurveTo(lTemp.x - faceW*0.07, lTemp.y + faceH*0.25, fore.x - faceW*0.6, fore.y + faceH*0.18, fore.x - faceW*0.54, fore.y + faceH*0.02);
+  ctx.closePath();
+  ctx.fillStyle = grad; ctx.fill();
+  addSheen(ctx, partX, topY + faceH*0.06, faceW*0.38, faceH*0.5);
+  // Part line
+  ctx.beginPath();
+  ctx.moveTo(partX, topY + faceH*0.08);
+  ctx.lineTo(partX - faceW*0.02, fore.y + faceH*0.02);
+  ctx.strokeStyle = 'rgba(0,0,0,0.18)'; ctx.lineWidth = faceW*0.012; ctx.stroke();
+}
+
+// ── AFRO / NATURAL COILS ─────────────────────────────────────────
+// Large rounded globe with coily texture
+function drawAfro(ctx, a, color) {
+  const { fore, lEar, rEar, lJaw, rJaw, faceH, faceW, cx } = a;
+  const rx    = faceW * 0.72;
+  const ry    = faceH * 0.78;
+  const cy    = fore.y - faceH * 0.24;
+  const rgb   = hexToRgb(color);
+  // Base globe
+  const grad  = ctx.createRadialGradient(cx - rx*0.2, cy - ry*0.25, ry*0.08, cx, cy, ry);
+  grad.addColorStop(0, `rgb(${Math.min(255,rgb.r+55)},${Math.min(255,rgb.g+42)},${Math.min(255,rgb.b+30)})`);
+  grad.addColorStop(0.55,`rgb(${rgb.r},${rgb.g},${rgb.b})`);
+  grad.addColorStop(1, `rgb(${Math.max(0,rgb.r-35)},${Math.max(0,rgb.g-28)},${Math.max(0,rgb.b-20)})`);
+  ctx.beginPath();
+  ctx.ellipse(cx, cy, rx, ry, 0, 0, Math.PI*2);
+  ctx.fillStyle = grad; ctx.fill();
+  // Coily texture dots
+  ctx.save(); ctx.globalAlpha *= 0.22;
+  const dotColor = `rgb(${Math.max(0,rgb.r-55)},${Math.max(0,rgb.g-44)},${Math.max(0,rgb.b-30)})`;
+  for (let i = 0; i < 38; i++) {
+    const angle = (i / 38) * Math.PI * 2;
+    const dr    = (i % 3 + 1) * rx * 0.22;
+    const dx    = cx + Math.cos(angle) * dr;
+    const dy    = cy + Math.sin(angle) * dr * (ry/rx);
+    ctx.beginPath();
+    ctx.arc(dx, dy, faceW * 0.032, 0, Math.PI*2);
+    ctx.fillStyle = dotColor; ctx.fill();
+  }
+  ctx.restore();
+}
+
+// ── CURLY / WAVY ─────────────────────────────────────────────────
+// Medium curly with bouncy ringlet ends
+function drawCurly(ctx, a, color) {
+  const { fore, chin, lEar, rEar, lTemp, rTemp, lJaw, rJaw, faceH, faceW, cx } = a;
+  const topY  = fore.y - faceH * 0.5;
+  const hemY  = lJaw.y + faceH * 0.32;
+  const grad  = makeHairGradient(ctx, color, cx, topY, hemY);
+  const rgb   = hexToRgb(color);
+  // Body
+  ctx.beginPath();
+  ctx.moveTo(fore.x - faceW*0.58, fore.y + faceH*0.02);
+  ctx.bezierCurveTo(fore.x - faceW*0.6, fore.y - faceH*0.22, fore.x - faceW*0.42, topY + faceH*0.12, fore.x - faceW*0.26, topY);
+  ctx.bezierCurveTo(fore.x - faceW*0.08, topY - faceH*0.06, fore.x + faceW*0.08, topY - faceH*0.06, fore.x + faceW*0.26, topY);
+  ctx.bezierCurveTo(fore.x + faceW*0.42, topY + faceH*0.12, fore.x + faceW*0.6, fore.y - faceH*0.22, fore.x + faceW*0.58, fore.y + faceH*0.02);
+  ctx.bezierCurveTo(fore.x + faceW*0.66, fore.y + faceH*0.24, rTemp.x + faceW*0.12, rTemp.y + faceH*0.38, rJaw.x + faceW*0.14, hemY);
+  // Ringlet hem right→left
+  const ringSteps = 7;
+  for (let i = ringSteps; i >= 0; i--) {
+    const t  = i / ringSteps;
+    const hx = lJaw.x + (rJaw.x - lJaw.x) * t;
+    const hy = hemY + Math.sin(t * Math.PI * 3.5) * faceH * 0.06;
+    if (i === ringSteps) ctx.lineTo(hx + faceW*0.14, hy);
+    else ctx.lineTo(hx, hy);
+  }
+  ctx.bezierCurveTo(lTemp.x - faceW*0.12, lTemp.y + faceH*0.38, fore.x - faceW*0.66, fore.y + faceH*0.24, fore.x - faceW*0.58, fore.y + faceH*0.02);
+  ctx.closePath();
+  ctx.fillStyle = grad; ctx.fill();
+  addSheen(ctx, fore.x - faceW*0.2, topY, faceW*0.44, faceH*0.44);
+}
+
+// ── MEDIUM (universal fallback) ───────────────────────────────────
+function drawMedium(ctx, a, color) {
+  const { fore, lEar, rEar, lTemp, rTemp, lJaw, rJaw, faceH, faceW, cx } = a;
+  const topY      = fore.y - faceH * 0.52;
+  const sideDropY = lJaw.y + faceH * 0.14;
+  const grad      = makeHairGradient(ctx, color, cx, topY, sideDropY);
+  ctx.beginPath();
+  ctx.moveTo(fore.x - faceW*0.56, fore.y + faceH*0.02);
+  ctx.bezierCurveTo(fore.x - faceW*0.58, fore.y - faceH*0.2, fore.x - faceW*0.4, topY + faceH*0.1, fore.x - faceW*0.24, topY);
+  ctx.bezierCurveTo(fore.x - faceW*0.08, topY - faceH*0.04, fore.x + faceW*0.08, topY - faceH*0.04, fore.x + faceW*0.24, topY);
+  ctx.bezierCurveTo(fore.x + faceW*0.4, topY + faceH*0.1, fore.x + faceW*0.58, fore.y - faceH*0.2, fore.x + faceW*0.56, fore.y + faceH*0.02);
+  ctx.bezierCurveTo(fore.x + faceW*0.63, fore.y + faceH*0.2, rTemp.x + faceW*0.1, rTemp.y + faceH*0.32, rJaw.x + faceW*0.12, sideDropY);
+  ctx.bezierCurveTo(rJaw.x, sideDropY + faceH*0.03, lJaw.x, sideDropY + faceH*0.03, lJaw.x - faceW*0.12, sideDropY);
+  ctx.bezierCurveTo(lTemp.x - faceW*0.1, lTemp.y + faceH*0.32, fore.x - faceW*0.63, fore.y + faceH*0.2, fore.x - faceW*0.56, fore.y + faceH*0.02);
+  ctx.closePath();
+  ctx.fillStyle = grad; ctx.fill();
+  addSheen(ctx, fore.x - faceW*0.2, topY, faceW*0.42, faceH*0.45);
+}
+
+function hexToRgb(hex) {
+  const r = parseInt(hex.slice(1,3),16);
+  const g = parseInt(hex.slice(3,5),16);
+  const b = parseInt(hex.slice(5,7),16);
+  return { r, g, b };
+}
+
+// ── AR SNAPSHOT ────────────────────────────────────────────────────
+function captureArSnapshot() {
+  const video       = document.getElementById('ar-video');
+  const segCvs      = document.getElementById('ar-seg-canvas');
+  const hairBackCvs = document.getElementById('ar-hair-back-canvas');
+  const guideCvs    = document.getElementById('ar-canvas');
+  const hairCvs     = document.getElementById('ar-hair-canvas');
+
+  const snap    = document.createElement('canvas');
+  snap.width    = video.videoWidth  || hairCvs.width;
+  snap.height   = video.videoHeight || hairCvs.height;
+  const sCtx = snap.getContext('2d');
+
+  // 1. Mirrored video (base layer)
+  sCtx.save();
+  sCtx.translate(snap.width, 0);
+  sCtx.scale(-1, 1);
+  sCtx.drawImage(video, 0, 0, snap.width, snap.height);
+  sCtx.restore();
+
+  // 2. Hair back layer (behind person)
+  sCtx.drawImage(segCvs,      0, 0, snap.width, snap.height);
+  sCtx.drawImage(hairBackCvs, 0, 0, snap.width, snap.height);
+
+  // 3. Hair front layer (in front of person / crown)
+  sCtx.drawImage(hairCvs, 0, 0, snap.width, snap.height);
+
+  // 4. Élume watermark
+  sCtx.save();
+  sCtx.font = `${snap.width * 0.028}px 'Cormorant Garamond', serif`;
+  sCtx.fillStyle = 'rgba(201,169,110,0.7)';
+  sCtx.textAlign = 'right';
+  sCtx.fillText('ÉLUME', snap.width - snap.width * 0.03, snap.height - snap.height * 0.025);
+  sCtx.restore();
+
+  // Flash feedback
+  triggerSnapFlash();
+
+  // Download
+  const a = document.createElement('a');
+  a.download = `elume-${arCurrentStyle.replace(/\s+/g,'-').toLowerCase()}.jpg`;
+  a.href = snap.toDataURL('image/jpeg', 0.92);
+  a.click();
+}
+
+// Close AR on Escape key
+document.addEventListener('keydown', e => { if (e.key === 'Escape' && arOpen) closeArModal(); });
 
 // ── INIT ───────────────────────────────────────────────────────────
 window.addEventListener('load', () => { updateAnalyzeBtn(); });
