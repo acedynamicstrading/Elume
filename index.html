@@ -517,12 +517,329 @@
     .ar-capture-btn { flex-shrink: 0; padding: 10px 14px; white-space: nowrap; width: auto; }
     .ar-capture-btn .btn-text { display: none; }
   }
+
+  /* ── AR MODE BADGE ── */
+  .ar-mode-badge {
+    position: absolute; top: 14px; left: 14px; z-index: 10;
+    padding: 4px 10px; font-size: 0.55rem; letter-spacing: 0.18em;
+    text-transform: uppercase; border-radius: 2px;
+    border: 1px solid rgba(201,169,110,0.35);
+    background: rgba(26,20,16,0.75); color: rgba(201,169,110,0.8);
+    backdrop-filter: blur(6px); pointer-events: none;
+  }
+  .ar-mode-badge.real-photo { border-color: rgba(68,204,136,0.5); color: rgba(68,204,136,0.9); }
+  .ar-mode-badge.replicate  { border-color: rgba(120,160,255,0.5); color: rgba(120,160,255,0.9); }
+
+  /* ── REAL PHOTO PROGRESS ── */
+  .ar-photo-loading {
+    position: absolute; top: 50%; left: 50%; transform: translate(-50%,-50%);
+    display: flex; flex-direction: column; align-items: center; gap: 10px;
+    background: rgba(13,11,8,0.85); padding: 20px 28px; z-index: 20;
+    pointer-events: none;
+  }
+  .ar-photo-loading-ring {
+    width: 28px; height: 28px; border-radius: 50%;
+    border: 1.5px solid rgba(201,169,110,0.2);
+    border-top-color: var(--gold);
+    animation: spin 0.8s linear infinite;
+  }
+  .ar-photo-loading p { font-size: 0.6rem; letter-spacing: 0.18em; text-transform: uppercase; color: rgba(201,169,110,0.7); }
+
+  /* ── ADMIN PANEL ── */
+  .admin-toggle-btn {
+    position: fixed; bottom: 20px; right: 20px; z-index: 500;
+    width: 44px; height: 44px; border-radius: 50%;
+    background: var(--ink); border: 1px solid var(--border);
+    color: var(--gold); font-size: 1.1rem; cursor: pointer;
+    display: flex; align-items: center; justify-content: center;
+    box-shadow: var(--shadow); transition: var(--transition);
+  }
+  .admin-toggle-btn:hover { background: var(--gold); color: var(--ink); }
+
+  .admin-overlay {
+    position: fixed; inset: 0; z-index: 900;
+    background: rgba(26,20,16,0.6); backdrop-filter: blur(4px);
+    opacity: 0; pointer-events: none; transition: opacity 0.3s;
+  }
+  .admin-overlay.open { opacity: 1; pointer-events: auto; }
+
+  .admin-panel {
+    position: fixed; right: 0; top: 0; bottom: 0; z-index: 950;
+    width: 340px; max-width: 100vw;
+    background: var(--ink); border-left: 1px solid rgba(201,169,110,0.15);
+    display: flex; flex-direction: column;
+    transform: translateX(100%); transition: transform 0.35s cubic-bezier(0.4,0,0.2,1);
+    overflow-y: auto;
+  }
+  .admin-panel.open { transform: translateX(0); }
+
+  .admin-header {
+    padding: 28px 24px 20px;
+    border-bottom: 1px solid rgba(201,169,110,0.12);
+    display: flex; align-items: center; justify-content: space-between;
+  }
+  .admin-title { font-family: 'Cormorant Garamond', serif; font-size: 1.3rem; font-weight: 300; color: var(--cream); }
+  .admin-subtitle { font-size: 0.6rem; letter-spacing: 0.2em; text-transform: uppercase; color: rgba(201,169,110,0.6); margin-top: 3px; }
+  .admin-close { background: none; border: none; color: rgba(255,255,255,0.4); font-size: 1.2rem; cursor: pointer; }
+  .admin-close:hover { color: var(--cream); }
+
+  .admin-section { padding: 20px 24px; border-bottom: 1px solid rgba(201,169,110,0.08); }
+  .admin-section-label {
+    font-size: 0.58rem; letter-spacing: 0.25em; text-transform: uppercase;
+    color: rgba(201,169,110,0.55); margin-bottom: 14px;
+    display: flex; align-items: center; gap: 8px;
+  }
+  .admin-section-label::after { content: ''; flex: 1; height: 1px; background: rgba(201,169,110,0.1); }
+
+  .admin-option {
+    display: flex; align-items: flex-start; gap: 12px;
+    padding: 12px 14px; margin-bottom: 6px; cursor: pointer;
+    border: 1px solid rgba(201,169,110,0.1); transition: all 0.2s;
+    position: relative;
+  }
+  .admin-option:hover { border-color: rgba(201,169,110,0.3); background: rgba(201,169,110,0.04); }
+  .admin-option.active { border-color: var(--gold); background: rgba(201,169,110,0.08); }
+  .admin-option-radio {
+    width: 16px; height: 16px; border-radius: 50%;
+    border: 1.5px solid rgba(201,169,110,0.4); flex-shrink: 0; margin-top: 2px;
+    display: flex; align-items: center; justify-content: center; transition: all 0.2s;
+  }
+  .admin-option.active .admin-option-radio { border-color: var(--gold); background: var(--gold); }
+  .admin-option.active .admin-option-radio::after { content: ''; width: 5px; height: 5px; border-radius: 50%; background: var(--ink); }
+  .admin-option-text {}
+  .admin-option-title { font-size: 0.75rem; color: var(--cream); margin-bottom: 3px; font-weight: 400; }
+  .admin-option-desc { font-size: 0.65rem; color: rgba(255,255,255,0.35); line-height: 1.5; }
+  .admin-option-badge {
+    position: absolute; top: 8px; right: 8px;
+    font-size: 0.5rem; letter-spacing: 0.12em; text-transform: uppercase;
+    padding: 2px 7px; border-radius: 2px;
+  }
+  .badge-free { background: rgba(68,204,136,0.15); color: rgba(68,204,136,0.8); border: 1px solid rgba(68,204,136,0.2); }
+  .badge-best { background: rgba(201,169,110,0.15); color: var(--gold); border: 1px solid rgba(201,169,110,0.25); }
+  .badge-live { background: rgba(120,160,255,0.15); color: rgba(120,160,255,0.8); border: 1px solid rgba(120,160,255,0.2); }
+
+  .admin-status-row {
+    display: flex; align-items: center; gap: 8px;
+    padding: 10px 14px; margin-top: 6px;
+    background: rgba(201,169,110,0.05); border: 1px solid rgba(201,169,110,0.1);
+  }
+  .admin-status-dot { width: 6px; height: 6px; border-radius: 50%; background: #44cc88; flex-shrink: 0; }
+  .admin-status-dot.warn { background: #f0a030; }
+  .admin-status-dot.err  { background: #ff4444; }
+  .admin-status-text { font-size: 0.65rem; color: rgba(255,255,255,0.45); }
+
+  .admin-apply-btn {
+    margin: 20px 24px;
+    padding: 12px; width: calc(100% - 48px);
+    background: var(--gold); color: var(--ink);
+    border: none; cursor: pointer; font-family: 'Jost', sans-serif;
+    font-size: 0.7rem; font-weight: 500; letter-spacing: 0.18em; text-transform: uppercase;
+    transition: var(--transition);
+  }
+  .admin-apply-btn:hover { background: var(--cream); }
+
+  .admin-info-box {
+    margin: 0 24px 20px;
+    padding: 12px 14px;
+    background: rgba(201,169,110,0.06); border: 1px solid rgba(201,169,110,0.12);
+    font-size: 0.65rem; color: rgba(255,255,255,0.4); line-height: 1.6;
+  }
+
+  /* ── AR ENGINE SWITCHER (in modal) ── */
+  .ar-engine-switcher { display: flex; flex-direction: column; gap: 6px; }
+  .ar-engine-pills { display: flex; flex-wrap: wrap; gap: 5px; }
+  .ar-engine-pill {
+    padding: 5px 10px;
+    background: rgba(255,255,255,0.04);
+    border: 1px solid rgba(201,169,110,0.18);
+    color: rgba(255,255,255,0.5);
+    font-family: 'Jost', sans-serif;
+    font-size: 0.58rem; font-weight: 400;
+    letter-spacing: 0.1em; text-transform: uppercase;
+    cursor: pointer; transition: all 0.18s;
+    border-radius: 2px;
+  }
+  .ar-engine-pill:hover { border-color: rgba(201,169,110,0.45); color: rgba(255,255,255,0.8); }
+  .ar-engine-pill.active {
+    background: rgba(201,169,110,0.15);
+    border-color: var(--gold);
+    color: var(--gold);
+  }
+  .ar-engine-pill.failed {
+    border-color: rgba(255,80,80,0.3);
+    color: rgba(255,100,100,0.5);
+    text-decoration: line-through;
+    cursor: not-allowed;
+  }
+  @media (max-width: 700px) {
+    .ar-engine-switcher { flex-direction: row; align-items: center; gap: 8px; flex-shrink: 0; }
+    .ar-engine-pills { flex-wrap: nowrap; gap: 4px; }
+    #ar-engine-label { display: none; }
+  }
+  .login-modal-overlay {
+    position: fixed; inset: 0; z-index: 2000;
+    background: rgba(26,20,16,0.96); backdrop-filter: blur(12px);
+    display: flex; align-items: center; justify-content: center;
+    opacity: 0; pointer-events: none;
+    transition: opacity 0.4s cubic-bezier(0.4,0,0.2,1);
+  }
+  .login-modal-overlay.open { opacity: 1; pointer-events: auto; }
+  .login-modal {
+    width: 100%; max-width: 400px; margin: 24px;
+    background: var(--ink);
+    border: 1px solid rgba(201,169,110,0.2);
+    box-shadow: 0 40px 120px rgba(0,0,0,0.7);
+    animation: slideUp 0.4s cubic-bezier(0.4,0,0.2,1) forwards;
+  }
+  @keyframes slideUp { from { opacity:0; transform: translateY(24px); } to { opacity:1; transform: translateY(0); } }
+  .login-header {
+    padding: 36px 36px 24px;
+    border-bottom: 1px solid rgba(201,169,110,0.1);
+    text-align: center;
+  }
+  .login-logo { font-family: 'Cormorant Garamond', serif; font-size: 2rem; font-weight: 300; letter-spacing: 0.25em; color: var(--cream); }
+  .login-logo span { color: var(--gold); }
+  .login-tagline { font-size: 0.6rem; letter-spacing: 0.25em; text-transform: uppercase; color: rgba(201,169,110,0.6); margin-top: 6px; }
+  .login-body { padding: 32px 36px; }
+  .login-field { margin-bottom: 20px; }
+  .login-field label { display: block; font-size: 0.6rem; letter-spacing: 0.2em; text-transform: uppercase; color: rgba(201,169,110,0.7); margin-bottom: 8px; }
+  .login-field input {
+    width: 100%; padding: 12px 16px;
+    background: rgba(255,255,255,0.04); border: 1px solid rgba(201,169,110,0.2);
+    color: var(--cream); font-family: 'Jost', sans-serif; font-size: 0.85rem;
+    outline: none; transition: border-color 0.2s;
+  }
+  .login-field input:focus { border-color: var(--gold); }
+  .login-field input::placeholder { color: rgba(255,255,255,0.2); }
+  .login-error { font-size: 0.7rem; color: #ff6666; margin-top: -10px; margin-bottom: 16px; display: none; padding: 8px 12px; background: rgba(255,100,100,0.08); border: 1px solid rgba(255,100,100,0.2); }
+  .login-error.show { display: block; }
+  .login-submit {
+    width: 100%; padding: 14px;
+    background: var(--gold); color: var(--ink);
+    border: none; cursor: pointer; font-family: 'Jost', sans-serif;
+    font-size: 0.75rem; font-weight: 500; letter-spacing: 0.2em; text-transform: uppercase;
+    transition: var(--transition); display: flex; align-items: center; justify-content: center; gap: 8px;
+  }
+  .login-submit:hover { background: var(--cream); }
+  .login-submit.loading { opacity: 0.7; pointer-events: none; }
+  .login-footer { padding: 16px 36px 28px; text-align: center; }
+  .login-footer p { font-size: 0.65rem; color: rgba(255,255,255,0.2); letter-spacing: 0.1em; }
+
+  /* ── HEADER USER PILL ── */
+  .header-user {
+    display: flex; align-items: center; gap: 12px;
+  }
+  .header-user-name {
+    font-size: 0.65rem; letter-spacing: 0.12em; text-transform: uppercase;
+    color: var(--ink-light); display: none;
+  }
+  .header-user-name.visible { display: block; }
+  .header-logout-btn {
+    padding: 6px 14px;
+    background: transparent; border: 1px solid var(--border);
+    color: var(--ink-light); font-family: 'Jost', sans-serif;
+    font-size: 0.6rem; letter-spacing: 0.15em; text-transform: uppercase;
+    cursor: pointer; transition: var(--transition); display: none;
+  }
+  .header-logout-btn.visible { display: block; }
+  .header-logout-btn:hover { border-color: var(--ink); color: var(--ink); }
+
+  /* ── USER MANAGEMENT PANEL ── */
+  .usermgmt-modal-overlay {
+    position: fixed; inset: 0; z-index: 1800;
+    background: rgba(26,20,16,0.95); backdrop-filter: blur(10px);
+    display: flex; align-items: center; justify-content: center;
+    opacity: 0; pointer-events: none;
+    transition: opacity 0.35s cubic-bezier(0.4,0,0.2,1);
+  }
+  .usermgmt-modal-overlay.open { opacity: 1; pointer-events: auto; }
+  .usermgmt-modal {
+    width: 100%; max-width: 680px; margin: 24px;
+    background: var(--ink); border: 1px solid rgba(201,169,110,0.2);
+    box-shadow: 0 40px 120px rgba(0,0,0,0.7);
+    max-height: 90vh; display: flex; flex-direction: column;
+  }
+  .usermgmt-header {
+    padding: 28px 32px 20px;
+    border-bottom: 1px solid rgba(201,169,110,0.12);
+    display: flex; align-items: center; justify-content: space-between;
+    flex-shrink: 0;
+  }
+  .usermgmt-title { font-family: 'Cormorant Garamond', serif; font-size: 1.4rem; font-weight: 300; color: var(--cream); }
+  .usermgmt-subtitle { font-size: 0.6rem; letter-spacing: 0.2em; text-transform: uppercase; color: rgba(201,169,110,0.5); margin-top: 2px; }
+  .usermgmt-close { background: none; border: none; color: rgba(255,255,255,0.4); font-size: 1.2rem; cursor: pointer; }
+  .usermgmt-close:hover { color: var(--cream); }
+  .usermgmt-body { padding: 24px 32px; overflow-y: auto; flex: 1; }
+  .usermgmt-add-form {
+    background: rgba(201,169,110,0.05); border: 1px solid rgba(201,169,110,0.12);
+    padding: 20px 22px; margin-bottom: 24px;
+  }
+  .usermgmt-form-label { font-size: 0.58rem; letter-spacing: 0.22em; text-transform: uppercase; color: rgba(201,169,110,0.6); margin-bottom: 14px; display: flex; align-items: center; gap: 8px; }
+  .usermgmt-form-label::after { content: ''; flex: 1; height: 1px; background: rgba(201,169,110,0.1); }
+  .usermgmt-form-row { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-bottom: 12px; }
+  .usermgmt-input {
+    width: 100%; padding: 10px 14px;
+    background: rgba(255,255,255,0.04); border: 1px solid rgba(201,169,110,0.15);
+    color: var(--cream); font-family: 'Jost', sans-serif; font-size: 0.8rem;
+    outline: none; transition: border-color 0.2s;
+  }
+  .usermgmt-input:focus { border-color: var(--gold); }
+  .usermgmt-input::placeholder { color: rgba(255,255,255,0.2); }
+  .usermgmt-role-select {
+    width: 100%; padding: 10px 14px;
+    background: rgba(255,255,255,0.04); border: 1px solid rgba(201,169,110,0.15);
+    color: var(--cream); font-family: 'Jost', sans-serif; font-size: 0.8rem;
+    outline: none; cursor: pointer;
+  }
+  .usermgmt-role-select option { background: #1a1410; }
+  .usermgmt-add-btn {
+    padding: 10px 24px; background: var(--gold); color: var(--ink);
+    border: none; cursor: pointer; font-family: 'Jost', sans-serif;
+    font-size: 0.68rem; font-weight: 500; letter-spacing: 0.15em; text-transform: uppercase;
+    transition: var(--transition);
+  }
+  .usermgmt-add-btn:hover { background: var(--cream); }
+  .usermgmt-form-error { font-size: 0.68rem; color: #ff6666; margin-top: 8px; display: none; }
+  .usermgmt-form-error.show { display: block; }
+  .users-list-label { font-size: 0.58rem; letter-spacing: 0.22em; text-transform: uppercase; color: rgba(201,169,110,0.6); margin-bottom: 12px; display: flex; align-items: center; gap: 8px; }
+  .users-list-label::after { content: ''; flex: 1; height: 1px; background: rgba(201,169,110,0.1); }
+  .users-table { width: 100%; border-collapse: collapse; }
+  .users-table th { font-size: 0.55rem; letter-spacing: 0.2em; text-transform: uppercase; color: rgba(201,169,110,0.5); padding: 8px 12px; text-align: left; border-bottom: 1px solid rgba(201,169,110,0.1); }
+  .users-table td { font-size: 0.75rem; color: rgba(255,255,255,0.7); padding: 12px 12px; border-bottom: 1px solid rgba(255,255,255,0.04); vertical-align: middle; }
+  .users-table tr:hover td { background: rgba(201,169,110,0.03); }
+  .user-role-badge { font-size: 0.5rem; letter-spacing: 0.12em; text-transform: uppercase; padding: 2px 8px; border-radius: 2px; }
+  .role-admin { background: rgba(201,169,110,0.15); color: var(--gold); border: 1px solid rgba(201,169,110,0.25); }
+  .role-user  { background: rgba(120,160,255,0.12); color: rgba(120,160,255,0.8); border: 1px solid rgba(120,160,255,0.2); }
+  .user-delete-btn {
+    padding: 4px 10px; background: transparent;
+    border: 1px solid rgba(255,80,80,0.25); color: rgba(255,100,100,0.7);
+    font-size: 0.55rem; letter-spacing: 0.1em; text-transform: uppercase;
+    cursor: pointer; transition: all 0.2s;
+  }
+  .user-delete-btn:hover { background: rgba(255,80,80,0.1); border-color: rgba(255,80,80,0.5); color: #ff6666; }
+  .user-delete-btn:disabled { opacity: 0.3; cursor: not-allowed; }
+
+  /* ── ADMIN MANAGE USERS BUTTON ── */
+  .admin-users-btn {
+    margin: 0 24px 8px;
+    padding: 12px; width: calc(100% - 48px);
+    background: transparent; color: var(--gold);
+    border: 1px solid rgba(201,169,110,0.3); cursor: pointer; font-family: 'Jost', sans-serif;
+    font-size: 0.7rem; font-weight: 400; letter-spacing: 0.18em; text-transform: uppercase;
+    transition: var(--transition);
+  }
+  .admin-users-btn:hover { background: rgba(201,169,110,0.08); }
 </style>
 </head>
 <body>
+<div id="page-content" style="display:none;">
 <header class="site-header">
   <a href="#" class="logo">ÉL<span>U</span>ME</a>
   <span class="header-tag">AI Salon Consultation</span>
+  <div class="header-user">
+    <span class="header-user-name" id="header-user-name"></span>
+    <button class="header-logout-btn" id="header-logout-btn" onclick="logoutUser()">Sign Out</button>
+  </div>
 </header>
 <section class="hero">
   <p class="hero-eyebrow">Personalised to your face shape</p>
@@ -678,6 +995,13 @@
       <canvas id="ar-hair-back-canvas"></canvas>
       <canvas id="ar-canvas"></canvas>
       <canvas id="ar-hair-canvas"></canvas>
+      <!-- Real photo loading indicator -->
+      <div class="ar-photo-loading" id="ar-photo-loading" style="display:none">
+        <div class="ar-photo-loading-ring"></div>
+        <p>Extracting hair…</p>
+      </div>
+      <!-- AR engine mode badge -->
+      <div class="ar-mode-badge real-photo" id="ar-mode-badge">Real Photo</div>
       <div class="ar-bracket tl"></div>
       <div class="ar-bracket tr"></div>
       <div class="ar-bracket bl"></div>
@@ -751,6 +1075,21 @@
 
       <div class="ar-divider"></div>
 
+      <!-- AI Engine Switcher -->
+      <div class="ar-engine-switcher">
+        <div class="ar-control-label">AI Engine <span id="ar-engine-status-dot" style="display:inline-block;width:6px;height:6px;border-radius:50%;background:#44cc88;margin-left:6px;vertical-align:middle;"></span></div>
+        <div class="ar-engine-pills" id="ar-engine-pills">
+          <button class="ar-engine-pill" data-engine="realphoto" onclick="arSwitchEngine('realphoto')" title="Real Photo">Photo</button>
+          <button class="ar-engine-pill" data-engine="canvas" onclick="arSwitchEngine('canvas')" title="Canvas 2D">Canvas</button>
+          <button class="ar-engine-pill" data-engine="replicate" onclick="arSwitchEngine('replicate')" title="Replicate AI">Replicate</button>
+          <button class="ar-engine-pill" data-engine="fal" onclick="arSwitchEngine('fal')" title="fal.ai">fal.ai</button>
+          <button class="ar-engine-pill" data-engine="youcam" onclick="arSwitchEngine('youcam')" title="YouCam AI">YouCam</button>
+        </div>
+        <div id="ar-engine-label" style="font-size:0.6rem;color:rgba(201,169,110,0.6);margin-top:6px;letter-spacing:0.05em;min-height:1.2em;"></div>
+      </div>
+
+      <div class="ar-divider"></div>
+
       <!-- Snapshot -->
       <button class="ar-capture-btn" onclick="captureArSnapshot()">
         <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5">
@@ -768,6 +1107,218 @@
 <footer>
   <span>© ÉLUME Salon Technology — Powered by MediaPipe &amp; AI</span>
 </footer>
+</div><!-- /#page-content -->
+
+<!-- ── LOGIN MODAL ── -->
+<div class="login-modal-overlay" id="login-modal-overlay">
+  <div class="login-modal">
+    <div class="login-header">
+      <div class="login-logo">ÉL<span>U</span>ME</div>
+      <div class="login-tagline">Salon Management System</div>
+    </div>
+    <div class="login-body">
+      <div class="login-field">
+        <label for="login-username">Username</label>
+        <input type="text" id="login-username" placeholder="Enter username" autocomplete="username" onkeydown="if(event.key==='Enter')attemptLogin()">
+      </div>
+      <div class="login-field">
+        <label for="login-password">Password</label>
+        <input type="password" id="login-password" placeholder="Enter password" autocomplete="current-password" onkeydown="if(event.key==='Enter')attemptLogin()">
+      </div>
+      <div class="login-error" id="login-error">Incorrect username or password. Please try again.</div>
+      <button class="login-submit" id="login-submit-btn" onclick="attemptLogin()">
+        <span id="login-btn-text">Sign In</span>
+        <span class="spinner" id="login-spinner"></span>
+      </button>
+    </div>
+    <div class="login-footer">
+      <p>ÉLUME · Secure Access Portal</p>
+    </div>
+  </div>
+</div>
+
+<!-- ── USER MANAGEMENT MODAL ── -->
+<div class="usermgmt-modal-overlay" id="usermgmt-modal-overlay">
+  <div class="usermgmt-modal">
+    <div class="usermgmt-header">
+      <div>
+        <div class="usermgmt-title">User Management</div>
+        <div class="usermgmt-subtitle">Add, view &amp; remove accounts</div>
+      </div>
+      <button class="usermgmt-close" onclick="closeUserMgmt()">✕</button>
+    </div>
+    <div class="usermgmt-body">
+      <!-- Add User Form -->
+      <div class="usermgmt-add-form">
+        <div class="usermgmt-form-label">Add New User</div>
+        <div class="usermgmt-form-row">
+          <input class="usermgmt-input" id="new-user-username" placeholder="Username" type="text">
+          <input class="usermgmt-input" id="new-user-password" placeholder="Password" type="password">
+        </div>
+        <div style="display:flex; gap:12px; align-items:center;">
+          <select class="usermgmt-role-select" id="new-user-role" style="flex:1;">
+            <option value="user">User</option>
+            <option value="admin">Admin</option>
+          </select>
+          <button class="usermgmt-add-btn" onclick="addUser()">Add User</button>
+        </div>
+        <div class="usermgmt-form-error" id="usermgmt-error"></div>
+      </div>
+      <!-- Users List -->
+      <div class="users-list-label">All Accounts</div>
+      <table class="users-table">
+        <thead>
+          <tr>
+            <th>Username</th>
+            <th>Role</th>
+            <th>Created</th>
+            <th></th>
+          </tr>
+        </thead>
+        <tbody id="users-table-body">
+        </tbody>
+      </table>
+    </div>
+  </div>
+</div>
+
+<!-- ── ADMIN TOGGLE BUTTON ── -->
+<button class="admin-toggle-btn" id="admin-toggle-btn" onclick="requireAdminThenOpen()" title="Admin Settings" style="display:none;">⚙</button>
+
+<!-- ── ADMIN OVERLAY ── -->
+<div class="admin-overlay" id="admin-overlay" onclick="closeAdmin()"></div>
+
+<!-- ── ADMIN PANEL ── -->
+<div class="admin-panel" id="admin-panel">
+  <div class="admin-header">
+    <div>
+      <div class="admin-title">Admin Settings</div>
+      <div class="admin-subtitle">AR Engine &amp; Data Source</div>
+    </div>
+    <button class="admin-close" onclick="closeAdmin()">✕</button>
+  </div>
+
+  <!-- AR ENGINE -->
+  <div class="admin-section">
+    <div class="admin-section-label">AR Hair Engine</div>
+
+    <div class="admin-option active" id="admin-opt-realphoto" onclick="setArEngine('realphoto')">
+      <div class="admin-option-radio"></div>
+      <div class="admin-option-text">
+        <div class="admin-option-title">Real Photo Compositing</div>
+        <div class="admin-option-desc">Extracts hair from your celebrity database photos using TF.js segmentation. Warps real hair onto user's head via MediaPipe landmarks.</div>
+      </div>
+      <span class="admin-option-badge badge-best">Recommended</span>
+    </div>
+
+    <div class="admin-option" id="admin-opt-canvas" onclick="setArEngine('canvas')">
+      <div class="admin-option-radio"></div>
+      <div class="admin-option-text">
+        <div class="admin-option-title">Canvas 2D Shapes</div>
+        <div class="admin-option-desc">Procedural hair drawn with bezier curves matched to face landmarks. Fast, no photo loading, works offline.</div>
+      </div>
+      <span class="admin-option-badge badge-free">Fallback</span>
+    </div>
+
+    <div class="admin-option" id="admin-opt-replicate" onclick="setArEngine('replicate')">
+      <div class="admin-option-radio"></div>
+      <div class="admin-option-text">
+        <div class="admin-option-title">Replicate AI Transfer</div>
+        <div class="admin-option-desc">Photorealistic static result via your Replicate API. Not real-time — processes a single captured frame. Requires REPLICATE_KEY in Cloudflare Worker.</div>
+      </div>
+      <span class="admin-option-badge badge-live">Static</span>
+    </div>
+
+    <div class="admin-option" id="admin-opt-youcam" onclick="setArEngine('youcam')">
+      <div class="admin-option-radio"></div>
+      <div class="admin-option-text">
+        <div class="admin-option-title">YouCam AI Hairstyle</div>
+        <div class="admin-option-desc">Photorealistic hairstyle transfer via Perfect Corp's YouCam API. Captures one frame, uploads to YouCam, uses your Drive style photo as reference. Best quality — requires YOUCAM_KEY in Worker.</div>
+      </div>
+      <span class="admin-option-badge badge-best">Best</span>
+    </div>
+
+    <div class="admin-option" id="admin-opt-fal" onclick="setArEngine('fal')">
+      <div class="admin-option-radio"></div>
+      <div class="admin-option-text">
+        <div class="admin-option-title">fal.ai Hair Transfer</div>
+        <div class="admin-option-desc">Fast AI hairstyle transfer via fal.ai. Processes one captured frame using fal's hair transfer model. Requires FAL_KEY in Cloudflare Worker.</div>
+      </div>
+      <span class="admin-option-badge badge-live">Fast AI</span>
+    </div>
+
+    <div class="admin-status-row" id="admin-engine-status">
+      <div class="admin-status-dot" id="admin-engine-dot"></div>
+      <span class="admin-status-text" id="admin-engine-text">Real Photo Compositing active</span>
+    </div>
+  </div>
+
+  <!-- HAIR DATABASE SOURCE -->
+  <div class="admin-section">
+    <div class="admin-section-label">Hair Style Database</div>
+
+    <div class="admin-option active" id="admin-db-gas" onclick="setDbSource('gas')">
+      <div class="admin-option-radio"></div>
+      <div class="admin-option-text">
+        <div class="admin-option-title">Your Google Drive DB</div>
+        <div class="admin-option-desc">Celebrity hairstyle photos from thehairstyler.com via your Google Apps Script + Drive. Scored by face shape.</div>
+      </div>
+      <span class="admin-option-badge badge-best">Primary</span>
+    </div>
+
+    <div class="admin-option" id="admin-db-tfjs" onclick="setDbSource('tfjs')">
+      <div class="admin-option-radio"></div>
+      <div class="admin-option-text">
+        <div class="admin-option-title">TF.js BodyPix Styles</div>
+        <div class="admin-option-desc">Uses TensorFlow BodyPix body-part segmentation to isolate hair region from any reference photo URL you paste in.</div>
+      </div>
+      <span class="admin-option-badge badge-free">Free</span>
+    </div>
+
+    <div class="admin-status-row" id="admin-db-status">
+      <div class="admin-status-dot" id="admin-db-dot"></div>
+      <span class="admin-status-text" id="admin-db-text">Loading style count…</span>
+    </div>
+  </div>
+
+  <!-- SEGMENTATION MODEL -->
+  <div class="admin-section">
+    <div class="admin-section-label">Segmentation Model</div>
+
+    <div class="admin-option active" id="admin-seg-mediapipe" onclick="setSegModel('mediapipe')">
+      <div class="admin-option-radio"></div>
+      <div class="admin-option-text">
+        <div class="admin-option-title">MediaPipe Selfie Segmentation</div>
+        <div class="admin-option-desc">Already loaded for face detection. Person mask — fast, real-time.</div>
+      </div>
+      <span class="admin-option-badge badge-free">Active</span>
+    </div>
+
+    <div class="admin-option" id="admin-seg-bodypix" onclick="setSegModel('bodypix')">
+      <div class="admin-option-radio"></div>
+      <div class="admin-option-text">
+        <div class="admin-option-title">TF.js BodyPix (Head Parts)</div>
+        <div class="admin-option-desc">Segments 24 body parts including hair/head specifically. More precise hair region but ~2× slower.</div>
+      </div>
+      <span class="admin-option-badge badge-free">Free</span>
+    </div>
+
+    <div class="admin-status-row">
+      <div class="admin-status-dot" id="admin-seg-dot"></div>
+      <span class="admin-status-text" id="admin-seg-text">MediaPipe active</span>
+    </div>
+  </div>
+
+  <div class="admin-info-box">
+    <strong style="color:rgba(201,169,110,0.7)">Worker URL:</strong><br>
+    elmo-hairstyler-worker.acedynamicstrading.workers.dev<br><br>
+    <strong style="color:rgba(201,169,110,0.7)">GAS URL:</strong><br>
+    Connected · getRecommendations9 + getStyles
+  </div>
+
+  <button class="admin-users-btn" onclick="openUserMgmt()">⊕ Manage Users</button>
+  <button class="admin-apply-btn" onclick="applyAdminSettings()">Apply Settings</button>
+</div>
 
 <script src="https://cdn.jsdelivr.net/npm/@mediapipe/camera_utils/camera_utils.js" crossorigin="anonymous"></script>
 <script src="https://cdn.jsdelivr.net/npm/@mediapipe/face_mesh/face_mesh.js" crossorigin="anonymous"></script>
@@ -775,6 +1326,234 @@
 
 <script>
 const WORKER_URL = "https://elmo-hairstyler-worker.acedynamicstrading.workers.dev";
+
+// ══════════════════════════════════════════════════════════════════
+// AUTH SYSTEM
+// ══════════════════════════════════════════════════════════════════
+
+// User database stored in localStorage
+const AUTH_KEY = 'elume_users';
+const SESSION_KEY = 'elume_session';
+
+function getUsers() {
+  const raw = localStorage.getItem(AUTH_KEY);
+  if (!raw) return [];
+  try { return JSON.parse(raw); } catch { return []; }
+}
+
+function saveUsers(users) {
+  localStorage.setItem(AUTH_KEY, JSON.stringify(users));
+}
+
+function initUsers() {
+  const users = getUsers();
+  // Seed admin account if not exists
+  const hasAdmin = users.some(u => u.username === 'Admin');
+  if (!hasAdmin) {
+    users.push({ username: 'Admin', password: 'Admin12234', role: 'admin', created: new Date().toLocaleDateString() });
+    saveUsers(users);
+  }
+}
+
+function getSession() {
+  const raw = sessionStorage.getItem(SESSION_KEY);
+  if (!raw) return null;
+  try { return JSON.parse(raw); } catch { return null; }
+}
+
+function setSession(user) {
+  sessionStorage.setItem(SESSION_KEY, JSON.stringify({ username: user.username, role: user.role }));
+}
+
+function clearSession() {
+  sessionStorage.removeItem(SESSION_KEY);
+}
+
+function isLoggedIn() { return !!getSession(); }
+function isAdmin() { const s = getSession(); return s && s.role === 'admin'; }
+
+// ── SHOW LOGIN ────────────────────────────────────────────────────
+function showLogin() {
+  document.getElementById('login-modal-overlay').classList.add('open');
+}
+
+function hideLogin() {
+  document.getElementById('login-modal-overlay').classList.remove('open');
+}
+
+// ── ATTEMPT LOGIN ─────────────────────────────────────────────────
+function attemptLogin() {
+  const username = document.getElementById('login-username').value.trim();
+  const password = document.getElementById('login-password').value;
+  const errorEl = document.getElementById('login-error');
+  const btnText = document.getElementById('login-btn-text');
+  const spinner = document.getElementById('login-spinner');
+  const btn = document.getElementById('login-submit-btn');
+
+  errorEl.classList.remove('show');
+  btn.classList.add('loading');
+  btnText.textContent = 'Signing in…';
+  spinner.style.display = 'block';
+
+  // Simulate slight delay for UX
+  setTimeout(() => {
+    const users = getUsers();
+    const match = users.find(u => u.username === username && u.password === password);
+
+    btn.classList.remove('loading');
+    btnText.textContent = 'Sign In';
+    spinner.style.display = 'none';
+
+    if (match) {
+      setSession(match);
+      hideLogin();
+      onLoginSuccess(match);
+    } else {
+      errorEl.classList.add('show');
+      document.getElementById('login-password').value = '';
+      document.getElementById('login-password').focus();
+    }
+  }, 600);
+}
+
+// ── AFTER SUCCESSFUL LOGIN ────────────────────────────────────────
+function onLoginSuccess(user) {
+  // Reveal page content
+  document.getElementById('page-content').style.display = '';
+
+  // Show header user info
+  const nameEl = document.getElementById('header-user-name');
+  const logoutEl = document.getElementById('header-logout-btn');
+  nameEl.textContent = user.username + (user.role === 'admin' ? ' · Admin' : '');
+  nameEl.classList.add('visible');
+  logoutEl.classList.add('visible');
+
+  // Show admin gear if admin
+  const gearBtn = document.getElementById('admin-toggle-btn');
+  if (user.role === 'admin') {
+    gearBtn.style.display = 'flex';
+  } else {
+    gearBtn.style.display = 'none';
+  }
+}
+
+// ── LOGOUT ────────────────────────────────────────────────────────
+function logoutUser() {
+  clearSession();
+  // Hide page content immediately
+  document.getElementById('page-content').style.display = 'none';
+  document.getElementById('header-user-name').classList.remove('visible');
+  document.getElementById('header-logout-btn').classList.remove('visible');
+  document.getElementById('admin-toggle-btn').style.display = 'none';
+  closeAdmin();
+  // Clear login fields
+  document.getElementById('login-username').value = '';
+  document.getElementById('login-password').value = '';
+  document.getElementById('login-error').classList.remove('show');
+  showLogin();
+}
+
+// ── REQUIRE ADMIN THEN OPEN ───────────────────────────────────────
+function requireAdminThenOpen() {
+  if (isAdmin()) {
+    toggleAdmin();
+  }
+}
+
+// ── USER MANAGEMENT ───────────────────────────────────────────────
+function openUserMgmt() {
+  closeAdmin();
+  renderUsersTable();
+  document.getElementById('usermgmt-modal-overlay').classList.add('open');
+}
+
+function closeUserMgmt() {
+  document.getElementById('usermgmt-modal-overlay').classList.remove('open');
+  document.getElementById('usermgmt-error').textContent = '';
+  document.getElementById('usermgmt-error').classList.remove('show');
+  document.getElementById('new-user-username').value = '';
+  document.getElementById('new-user-password').value = '';
+  document.getElementById('new-user-role').value = 'user';
+}
+
+function renderUsersTable() {
+  const users = getUsers();
+  const tbody = document.getElementById('users-table-body');
+  const currentUser = getSession();
+
+  tbody.innerHTML = users.map((u, i) => {
+    const isCurrentUser = u.username === currentUser?.username;
+    const isSuperAdmin = u.username === 'Admin' && u.role === 'admin';
+    return `<tr>
+      <td style="font-weight:${isCurrentUser?'500':'400'};color:${isCurrentUser?'var(--cream)':'rgba(255,255,255,0.7)'}">
+        ${u.username}${isCurrentUser ? ' <span style="font-size:0.55rem;color:var(--gold);letter-spacing:0.1em;">(you)</span>' : ''}
+      </td>
+      <td><span class="user-role-badge ${u.role === 'admin' ? 'role-admin' : 'role-user'}">${u.role}</span></td>
+      <td style="color:rgba(255,255,255,0.35);font-size:0.7rem;">${u.created || '—'}</td>
+      <td>
+        <button class="user-delete-btn" ${isSuperAdmin || isCurrentUser ? 'disabled title="Cannot remove this account"' : `onclick="deleteUser(${i})"`}>
+          ${isSuperAdmin || isCurrentUser ? 'Protected' : 'Remove'}
+        </button>
+      </td>
+    </tr>`;
+  }).join('');
+}
+
+function addUser() {
+  const username = document.getElementById('new-user-username').value.trim();
+  const password = document.getElementById('new-user-password').value;
+  const role = document.getElementById('new-user-role').value;
+  const errorEl = document.getElementById('usermgmt-error');
+
+  errorEl.classList.remove('show');
+
+  if (!username || !password) {
+    errorEl.textContent = 'Username and password are required.';
+    errorEl.classList.add('show');
+    return;
+  }
+  if (password.length < 6) {
+    errorEl.textContent = 'Password must be at least 6 characters.';
+    errorEl.classList.add('show');
+    return;
+  }
+
+  const users = getUsers();
+  if (users.some(u => u.username.toLowerCase() === username.toLowerCase())) {
+    errorEl.textContent = 'Username already exists.';
+    errorEl.classList.add('show');
+    return;
+  }
+
+  users.push({ username, password, role, created: new Date().toLocaleDateString() });
+  saveUsers(users);
+  document.getElementById('new-user-username').value = '';
+  document.getElementById('new-user-password').value = '';
+  document.getElementById('new-user-role').value = 'user';
+  renderUsersTable();
+}
+
+function deleteUser(index) {
+  const users = getUsers();
+  const user = users[index];
+  if (!user) return;
+  if (!confirm(`Remove user "${user.username}"? This cannot be undone.`)) return;
+  users.splice(index, 1);
+  saveUsers(users);
+  renderUsersTable();
+}
+
+// ── BOOT ─────────────────────────────────────────────────────────
+(function bootAuth() {
+  initUsers();
+  const session = getSession();
+  if (session) {
+    onLoginSuccess(session);
+  } else {
+    showLogin();
+  }
+})();
+
 
 // ── STATE ──────────────────────────────────────────────────────────
 let currentMode        = 'webcam';
@@ -1837,6 +2616,7 @@ function openArModal(styleName, evt, classHint) {
   document.getElementById('ar-modal-overlay').classList.add('open');
   document.body.style.overflow = 'hidden';
   arOpen = true;
+  syncEnginePills(arEngine);
 
   // Build style list and set nav position
   buildArStyleList(cleanName);
@@ -2724,7 +3504,7 @@ function captureArSnapshot() {
 document.addEventListener('keydown', e => { if (e.key === 'Escape' && arOpen) closeArModal(); });
 
 // ── INIT ───────────────────────────────────────────────────────────
-window.addEventListener('load', () => { updateAnalyzeBtn(); });
+window.addEventListener('load', () => { updateAnalyzeBtn(); adminInit(); });
 const observer = new IntersectionObserver((entries) => {
   entries.forEach(e => {
     if (e.isIntersecting && currentMode === 'webcam' && !cameraInstance && !cameraFailed) {
@@ -2734,6 +3514,897 @@ const observer = new IntersectionObserver((entries) => {
   });
 }, { threshold: 0.3 });
 observer.observe(document.getElementById('app-section'));
+
+// ══════════════════════════════════════════════════════════════════
+// REAL PHOTO HAIR AR ENGINE
+// ══════════════════════════════════════════════════════════════════
+// Admin-controlled settings
+let arEngine   = 'realphoto'; // 'realphoto' | 'canvas' | 'replicate'
+let dbSource   = 'gas';       // 'gas' | 'tfjs'
+let segModel   = 'mediapipe'; // 'mediapipe' | 'bodypix'
+
+// TF.js BodyPix instance (lazy-loaded when selected)
+let bodyPixNet = null;
+
+// Real photo hair cache: styleKey → { hairCanvas, hairMask }
+// Extracted once per style, reused every frame
+const hairPhotoCache = new Map();
+let   hairPhotoLoading = false;
+
+// ── LOAD TF.JS + BODYPIX (lazy) ───────────────────────────────────
+async function loadBodyPix() {
+  if (bodyPixNet) return bodyPixNet;
+  if (!window.tf) {
+    await loadScriptOnce('https://cdn.jsdelivr.net/npm/@tensorflow/tfjs@4.10.0/dist/tf.min.js');
+  }
+  if (!window.bodyPix) {
+    await loadScriptOnce('https://cdn.jsdelivr.net/npm/@tensorflow-models/body-pix@2.2.0/dist/body-pix.min.js');
+  }
+  bodyPixNet = await window.bodyPix.load({ architecture: 'MobileNetV1', outputStride: 16, multiplier: 0.75, quantBytes: 2 });
+  return bodyPixNet;
+}
+
+function loadScriptOnce(src) {
+  return new Promise((res, rej) => {
+    if (document.querySelector(`script[src="${src}"]`)) { res(); return; }
+    const s = document.createElement('script');
+    s.src = src; s.onload = res; s.onerror = rej;
+    document.head.appendChild(s);
+  });
+}
+
+// ── EXTRACT HAIR FROM CELEBRITY PHOTO ─────────────────────────────
+// Given a style object with imageUrl (from Google Drive via GAS),
+// loads the image, runs segmentation on it, and returns an OffscreenCanvas
+// containing only the extracted hair pixels (transparent background).
+async function extractHairFromPhoto(style) {
+  const cacheKey = style.imageUrl || style.styleName;
+  if (hairPhotoCache.has(cacheKey)) return hairPhotoCache.get(cacheKey);
+
+  const imgUrl = style.imageUrl || style.imageURL;
+  if (!imgUrl) return null;
+
+  // Show loading indicator
+  const loadingEl = document.getElementById('ar-photo-loading');
+  if (loadingEl) loadingEl.style.display = 'flex';
+  hairPhotoLoading = true;
+
+  try {
+    // 1. Load the celebrity photo
+    const img = await loadImageCORS(imgUrl);
+    if (!img) throw new Error('Image load failed');
+
+    // 2. Draw to offscreen canvas for processing
+    const srcW = img.naturalWidth  || img.width;
+    const srcH = img.naturalHeight || img.height;
+    const srcCvs = new OffscreenCanvas(srcW, srcH);
+    const srcCtx = srcCvs.getContext('2d');
+    srcCtx.drawImage(img, 0, 0, srcW, srcH);
+
+    let hairCanvas;
+
+    if (segModel === 'bodypix' && bodyPixNet) {
+      // ── BodyPix path: segment head/hair body parts specifically ──
+      // Body part indices: 0=leftFace, 1=rightFace, hair parts ≈ top of head
+      // We use the full segmentation and keep only the top 35% of the person mask
+      // as a proxy for the hair region (BodyPix doesn't have a dedicated "hair" class)
+      const imgEl = document.createElement('img');
+      imgEl.src = imgUrl;
+      await new Promise(r => { imgEl.onload = r; imgEl.onerror = r; });
+
+      const segmentation = await bodyPixNet.segmentPersonParts(imgEl, {
+        flipHorizontal: false, internalResolution: 'medium',
+        segmentationThreshold: 0.7, maxDetections: 1
+      });
+
+      hairCanvas = extractHairFromBodyPixSeg(segmentation, srcW, srcH, img);
+
+    } else {
+      // ── MediaPipe SelfieSegmentation path ──
+      // We run segmentation on the celebrity photo via an <img> element,
+      // then keep only the top portion (hair region) of the person mask
+      hairCanvas = await extractHairFromSelfieSegmentation(img, srcW, srcH);
+    }
+
+    if (hairCanvas) {
+      hairPhotoCache.set(cacheKey, hairCanvas);
+    }
+    return hairCanvas;
+
+  } catch (err) {
+    console.warn('Hair extraction failed:', err.message);
+    return null;
+  } finally {
+    hairPhotoLoading = false;
+    if (loadingEl) loadingEl.style.display = 'none';
+  }
+}
+
+// ── LOAD IMAGE WITH CORS FALLBACK ─────────────────────────────────
+function loadImageCORS(url) {
+  return new Promise((res) => {
+    const img = new Image();
+    img.crossOrigin = 'anonymous';
+    img.onload  = () => res(img);
+    img.onerror = () => {
+      // Try without crossOrigin
+      const img2 = new Image();
+      img2.onload  = () => res(img2);
+      img2.onerror = () => res(null);
+      img2.src = url;
+    };
+    img.src = url;
+  });
+}
+
+// ── EXTRACT HAIR VIA SELFIE SEGMENTATION ──────────────────────────
+// Runs the existing arSegmentation model on a static image
+// then masks to the upper head region (hair)
+async function extractHairFromSelfieSegmentation(img, srcW, srcH) {
+  return new Promise((resolve) => {
+    if (!arSegmentation) { resolve(null); return; }
+
+    // One-shot segmentation of the static celebrity image
+    // Use a temp canvas to feed the image
+    const tmpCvs = document.createElement('canvas');
+    tmpCvs.width = srcW; tmpCvs.height = srcH;
+    const tmpCtx = tmpCvs.getContext('2d');
+    tmpCtx.drawImage(img, 0, 0, srcW, srcH);
+
+    // Create a one-time results handler
+    const origHandler = arSegmentation.onResults.bind(arSegmentation);
+    arSegmentation.onResults((results) => {
+      // Restore original handler
+      arSegmentation.onResults(onArSegResults);
+
+      try {
+        const mask = results.segmentationMask;
+        if (!mask) { resolve(null); return; }
+
+        // Draw mask at source size
+        const maskCvs = new OffscreenCanvas(srcW, srcH);
+        const maskCtx = maskCvs.getContext('2d');
+        maskCtx.drawImage(mask, 0, 0, srcW, srcH);
+        const maskData = maskCtx.getImageData(0, 0, srcW, srcH);
+
+        // Find the person bounding box (white = person)
+        let minY = srcH, maxY = 0;
+        for (let i = 0; i < maskData.data.length; i += 4) {
+          if (maskData.data[i] > 128) {
+            const y = Math.floor(i / 4 / srcW);
+            if (y < minY) minY = y;
+            if (y > maxY) maxY = y;
+          }
+        }
+        const personH = maxY - minY;
+        // Hair region = top 45% of the person's height
+        const hairBoundaryY = minY + personH * 0.45;
+
+        // Build hair-only canvas: person pixels above hair boundary
+        const out    = new OffscreenCanvas(srcW, srcH);
+        const outCtx = out.getContext('2d');
+        outCtx.drawImage(img, 0, 0, srcW, srcH);
+        outCtx.globalCompositeOperation = 'destination-in';
+
+        // Create hair mask (keep only top of person, fade at boundary)
+        const hairMaskCvs = new OffscreenCanvas(srcW, srcH);
+        const hmCtx       = hairMaskCvs.getContext('2d');
+        hmCtx.drawImage(mask, 0, 0, srcW, srcH);
+        // Apply gradient to fade at hair boundary
+        const fadeGrad = hmCtx.createLinearGradient(0, hairBoundaryY - personH * 0.12, 0, hairBoundaryY + personH * 0.06);
+        fadeGrad.addColorStop(0, 'rgba(0,0,0,0)');
+        fadeGrad.addColorStop(1, 'rgba(0,0,0,1)');
+        hmCtx.globalCompositeOperation = 'destination-out';
+        hmCtx.fillStyle = fadeGrad;
+        hmCtx.fillRect(0, hairBoundaryY - personH * 0.12, srcW, personH * 0.25);
+        // Erase everything below hair boundary
+        hmCtx.globalCompositeOperation = 'destination-out';
+        hmCtx.fillStyle = 'black';
+        hmCtx.fillRect(0, hairBoundaryY + personH * 0.06, srcW, srcH);
+
+        outCtx.drawImage(hairMaskCvs, 0, 0);
+        resolve(out);
+      } catch (e) {
+        console.warn('Segmentation processing error:', e);
+        resolve(null);
+      }
+    });
+
+    // Send the static image through
+    try {
+      arSegmentation.send({ image: tmpCvs });
+    } catch {
+      arSegmentation.onResults(onArSegResults);
+      resolve(null);
+    }
+  });
+}
+
+// ── EXTRACT HAIR VIA BODYPIX ──────────────────────────────────────
+function extractHairFromBodyPixSeg(segmentation, srcW, srcH, img) {
+  // BodyPix part IDs: 0=leftFace, 1=rightFace. Hair = unlabelled top area.
+  // Use leftFace+rightFace as face reference, take everything above as hair.
+  const partData = segmentation.data;
+  const maskW    = segmentation.width;
+  const maskH    = segmentation.height;
+
+  // Find face centroid Y
+  let faceYSum = 0, faceCount = 0;
+  for (let i = 0; i < partData.length; i++) {
+    if (partData[i] === 0 || partData[i] === 1) {
+      faceYSum += Math.floor(i / maskW);
+      faceCount++;
+    }
+  }
+  const faceMidY = faceCount > 0 ? faceYSum / faceCount : maskH * 0.55;
+  const hairBoundY = faceMidY * 0.75; // hair ends above face midpoint
+
+  const out    = new OffscreenCanvas(srcW, srcH);
+  const outCtx = out.getContext('2d');
+  outCtx.drawImage(img, 0, 0, srcW, srcH);
+  outCtx.globalCompositeOperation = 'destination-in';
+
+  const hmCvs = new OffscreenCanvas(srcW, srcH);
+  const hmCtx = hmCvs.getContext('2d');
+  const grad  = hmCtx.createLinearGradient(0, hairBoundY * (srcH / maskH) - 20, 0, hairBoundY * (srcH / maskH) + 20);
+  grad.addColorStop(0, 'white');
+  grad.addColorStop(1, 'transparent');
+  hmCtx.fillStyle = grad;
+  hmCtx.fillRect(0, 0, srcW, hairBoundY * (srcH / maskH) + 20);
+
+  outCtx.drawImage(hmCvs, 0, 0);
+  return out;
+}
+
+// ── COMPOSITE REAL HAIR ONTO USER'S HEAD ──────────────────────────
+// Called each frame when arEngine === 'realphoto' and hairCanvas is ready.
+// Warps the extracted celebrity hair to fit the user's head using
+// MediaPipe forehead/ear/temple landmarks for anchor points.
+function compositeRealHair(hCtx, hairCanvas, lm, W, H, opacity) {
+  if (!hairCanvas) return;
+
+  const p    = (i) => ({ x: lm[i].x * W, y: lm[i].y * H });
+  const fore  = p(10);
+  const lEar  = p(234), rEar = p(454);
+  const lTemp = p(162), rTemp = p(389);
+
+  // User's head metrics
+  const userW    = Math.hypot(rEar.x - lEar.x, rEar.y - lEar.y);
+  const userForeY = fore.y;
+  const userCX   = (fore.x + (lEar.x + rEar.x) / 2) / 2;
+
+  // Celebrity photo hair is in a ~srcW × srcH space.
+  // We want to scale it so its width matches the user's face width,
+  // and position so the crown (top of hair) aligns with the forehead.
+  const srcW = hairCanvas.width;
+  const srcH = hairCanvas.height;
+
+  // Scale factor: user face width / celebrity face width (assumed ~55% of photo width)
+  const celebFaceW = srcW * 0.55;
+  const scale      = userW / celebFaceW;
+
+  // Draw position: centred on user face, hair top ~40% above forehead
+  const drawW = srcW * scale;
+  const drawH = srcH * scale;
+  const drawX = userCX - drawW / 2;
+  // Shift up so hair crown sits above the forehead
+  const drawY = userForeY - drawH * 0.48;
+
+  // Apply head roll correction
+  const a        = getHairAnchors(lm, W, H);
+  const { tilt, yaw, pitch } = a;
+
+  hCtx.save();
+  hCtx.globalAlpha = opacity;
+
+  // Roll
+  hCtx.translate(fore.x, fore.y);
+  hCtx.rotate(tilt);
+  hCtx.translate(-fore.x, -fore.y);
+
+  // Yaw — compress horizontally when head turns
+  const scaleX = 1 - Math.abs(yaw) * 0.35;
+  const shiftX = yaw * userW * 0.5;
+  hCtx.translate(userCX + shiftX, fore.y);
+  hCtx.scale(scaleX, 1);
+  hCtx.translate(-(userCX + shiftX), -fore.y);
+
+  // Pitch
+  const pitchShiftY = pitch * a.faceH * 0.25;
+  hCtx.translate(fore.x, fore.y + pitchShiftY);
+  hCtx.scale(1, 1 - pitch * 0.1);
+  hCtx.translate(-fore.x, -(fore.y + pitchShiftY));
+
+  // Draw extracted hair
+  hCtx.drawImage(hairCanvas, drawX, drawY, drawW, drawH);
+
+  // Subtle colour tint to match selected arColorHex
+  // Blend mode: multiply tint over the hair
+  if (arColorHex !== 'original') {
+    hCtx.globalCompositeOperation = 'multiply';
+    hCtx.globalAlpha = opacity * 0.55;
+    hCtx.fillStyle = arColorHex;
+    // Clip to rough hair region
+    hCtx.fillRect(drawX, drawY, drawW, drawH * 0.7);
+    hCtx.globalCompositeOperation = 'source-over';
+  }
+
+  hCtx.restore();
+}
+
+// ── REPLICATE ONE-SHOT ─────────────────────────────────────────────
+// Captures current video frame + selected style image, sends to Replicate
+async function triggerReplicateTransfer() {
+  const style = arStyleList[arStyleIndex];
+  if (!style?.imageUrl) {
+    alert('No style image available for this style.');
+    return;
+  }
+
+  // Capture current video frame as base64
+  const video   = document.getElementById('ar-video');
+  const snapCvs = document.createElement('canvas');
+  snapCvs.width = video.videoWidth || 640;
+  snapCvs.height= video.videoHeight|| 720;
+  const sCtx = snapCvs.getContext('2d');
+  sCtx.translate(snapCvs.width, 0);
+  sCtx.scale(-1, 1);
+  sCtx.drawImage(video, 0, 0);
+  const faceDataUrl = snapCvs.toDataURL('image/jpeg', 0.9);
+
+  // Show spinner on capture button
+  const btn = document.querySelector('.ar-capture-btn');
+  if (btn) { btn.style.opacity = '0.5'; btn.style.pointerEvents = 'none'; }
+
+  try {
+    const res = await fetch(WORKER_URL, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        action:     'startHairTransfer',
+        faceImage:  faceDataUrl,
+        shapeImage: style.imageUrl,
+      })
+    });
+    const data = await res.json();
+    if (!data.success) throw new Error(data.error || 'Transfer failed');
+
+    // Poll for result
+    const predId = data.predictionId;
+    let   output = null;
+    for (let i = 0; i < 40; i++) {
+      await new Promise(r => setTimeout(r, 3000));
+      const poll = await fetch(`${WORKER_URL}?action=pollPrediction&id=${predId}`).then(r => r.json());
+      if (poll.status === 'succeeded') { output = poll.output; break; }
+      if (poll.status === 'failed')   { throw new Error('Replicate processing failed'); }
+    }
+    if (!output) throw new Error('Replicate timed out');
+
+    // Download result
+    const a   = document.createElement('a');
+    a.href    = Array.isArray(output) ? output[0] : output;
+    a.download= `elume-${arCurrentStyle.replace(/\s+/g,'-').toLowerCase()}-replicate.jpg`;
+    a.target  = '_blank';
+    a.click();
+    triggerSnapFlash();
+
+  } catch (err) {
+    alert('Replicate transfer: ' + err.message);
+  } finally {
+    if (btn) { btn.style.opacity = ''; btn.style.pointerEvents = ''; }
+  }
+}
+// ── YOUCAM AI HAIRSTYLE TRANSFER ─────────────────────────────────
+// Flow:
+//   1. Capture webcam frame as JPEG blob
+//   2. Worker: POST youcamGetUploadUrl  → { uploadUrl, fileId }
+//   3. PUT blob directly to S3 uploadUrl
+//   4. Worker: POST youcamRunTask       → { taskId }
+//      (uses fileId for src, Drive style URL for ref_file_url)
+//   5. Worker: GET  youcamPollTask?id=  → { status, resultUrl }
+//   6. Download result image
+async function triggerYouCamTransfer() {
+  const style = arStyleList[arStyleIndex];
+  const refUrl = style ? (style.imageUrl || style.imageURL || null) : null;
+  if (!refUrl) {
+    alert('No style image available for YouCam. Select a style with a Drive photo first.');
+    return;
+  }
+
+  const btn = document.querySelector('.ar-capture-btn');
+  if (btn) { btn.style.opacity = '0.5'; btn.style.pointerEvents = 'none'; }
+
+  const statusEl = document.getElementById('ar-status-text');
+  const setStatus = (msg) => { if (statusEl) statusEl.textContent = msg; };
+
+  try {
+    // ── Step 1: Capture video frame as JPEG data URL ──
+    const video   = document.getElementById('ar-video');
+    const snapCvs = document.createElement('canvas');
+    snapCvs.width  = Math.min(video.videoWidth  || 640, 1024);
+    snapCvs.height = Math.min(video.videoHeight || 720, 1024);
+    const sCtx = snapCvs.getContext('2d');
+    // Mirror to match what user sees
+    sCtx.translate(snapCvs.width, 0);
+    sCtx.scale(-1, 1);
+    sCtx.drawImage(video, 0, 0, snapCvs.width, snapCvs.height);
+    const faceDataUrl = snapCvs.toDataURL('image/jpeg', 0.92);
+
+    setStatus('Uploading selfie to YouCam…');
+
+    // ── Step 2: Get S3 upload URL from Worker ──
+    const uploadRes = await fetch(WORKER_URL, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        action:      'youcamGetUploadUrl',
+        fileName:    'elume-selfie.jpg',
+        fileSize:    Math.round(faceDataUrl.length * 0.75), // approx bytes from base64
+        contentType: 'image/jpeg',
+      })
+    }).then(r => r.json());
+
+    if (!uploadRes.success) throw new Error(uploadRes.error || 'Upload URL request failed');
+
+    const { uploadUrl, fileId } = uploadRes;
+
+    // ── Step 3: PUT JPEG directly to S3 ──
+    // Convert base64 data URL to Blob
+    const base64Data = faceDataUrl.split(',')[1];
+    const byteChars  = atob(base64Data);
+    const byteArr    = new Uint8Array(byteChars.length);
+    for (let i = 0; i < byteChars.length; i++) byteArr[i] = byteChars.charCodeAt(i);
+    const blob = new Blob([byteArr], { type: 'image/jpeg' });
+
+    const s3Res = await fetch(uploadUrl, {
+      method:  'PUT',
+      headers: { 'Content-Type': 'image/jpeg', 'Content-Length': String(blob.size) },
+      body:    blob,
+    });
+    if (!s3Res.ok) throw new Error(`S3 upload failed: ${s3Res.status}`);
+
+    setStatus('Running YouCam AI hairstyle…');
+
+    // ── Step 4: Run YouCam task via Worker ──
+    const taskRes = await fetch(WORKER_URL, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        action:     'youcamRunTask',
+        srcFileId:  fileId,
+        refFileUrl: refUrl,
+      })
+    }).then(r => r.json());
+
+    if (!taskRes.success) throw new Error(taskRes.error || 'Task creation failed');
+    const taskId = taskRes.taskId;
+
+    // ── Step 5: Poll for result ──
+    let resultUrl = null;
+    for (let i = 0; i < 40; i++) {
+      await new Promise(r => setTimeout(r, 3000));
+      setStatus(`Processing… (${(i + 1) * 3}s)`);
+      const poll = await fetch(`${WORKER_URL}?action=youcamPollTask&id=${taskId}`).then(r => r.json());
+      if (poll.status === 'success') { resultUrl = poll.resultUrl; break; }
+      if (poll.status === 'error')   throw new Error('YouCam processing failed: ' + (poll.error || ''));
+    }
+    if (!resultUrl) throw new Error('YouCam timed out after 2 minutes');
+
+    setStatus('Done! Downloading result…');
+
+    // ── Step 6: Download result ──
+    triggerSnapFlash();
+    const a   = document.createElement('a');
+    a.href    = resultUrl;
+    a.download= `elume-youcam-${arCurrentStyle.replace(/\s+/g,'-').toLowerCase()}.jpg`;
+    a.target  = '_blank';
+    a.click();
+
+    setStatus('YouCam result downloaded ✓');
+
+  } catch(err) {
+    alert('YouCam transfer failed: ' + err.message);
+    setStatus('YouCam error — try again');
+  } finally {
+    if (btn) { btn.style.opacity = ''; btn.style.pointerEvents = ''; }
+  }
+}
+
+// ── PATCH: override drawArHair to use real photo when active ──────
+// We intercept the composite call in startArRenderLoop for 'realphoto' mode.
+// For 'canvas' mode we fall through to the existing drawArHair function.
+// This is done by overriding the render function.
+const _origStartArRenderLoop = startArRenderLoop;
+startArRenderLoop = function(canvas, hairCvs, hairBackCvs, segCvs, video) {
+  if (arEngine !== 'realphoto') {
+    _origStartArRenderLoop(canvas, hairCvs, hairBackCvs, segCvs, video);
+    return;
+  }
+
+  function loop() {
+    if (!arOpen) return;
+    const pane = document.getElementById('ar-camera-pane');
+    const W = pane.offsetWidth, H = pane.offsetHeight;
+    if (canvas.width !== W || canvas.height !== H) {
+      canvas.width = W; canvas.height = H;
+      hairCvs.width = W; hairCvs.height = H;
+      hairBackCvs.width = W; hairBackCvs.height = H;
+      segCvs.width = W; segCvs.height = H;
+    }
+
+    const ctx   = canvas.getContext('2d');
+    const hCtx  = hairCvs.getContext('2d');
+    const hbCtx = hairBackCvs.getContext('2d');
+    const segCtx= segCvs.getContext('2d');
+
+    ctx.clearRect(0,0,W,H);
+    hCtx.clearRect(0,0,W,H);
+    hbCtx.clearRect(0,0,W,H);
+    segCtx.clearRect(0,0,W,H);
+
+    if (arLandmarks && arFaceDetected) {
+      const rawPose = estimateHeadPose(arLandmarks, W, H);
+      updateSmoothedPose(rawPose);
+      updatePoseIndicatorUI();
+      drawArGuide(ctx, arLandmarks, W, H);
+
+      // Get current style's hair photo
+      const style = arStyleList[arStyleIndex];
+      const cKey  = style ? (style.imageUrl || style.styleName) : null;
+      const cached= cKey ? hairPhotoCache.get(cKey) : null;
+
+      if (cached) {
+        // ── REAL PHOTO PATH ──
+        if (arSegMask) {
+          // Back layer: real hair behind person
+          const offFull = new OffscreenCanvas(W, H);
+          const offCtx  = offFull.getContext('2d');
+          compositeRealHair(offCtx, cached, arLandmarks, W, H, arOpacity);
+
+          const offMask = new OffscreenCanvas(W, H);
+          const maskCtx = offMask.getContext('2d');
+          maskCtx.drawImage(arSegMask, 0, 0, W, H);
+
+          const offBack = new OffscreenCanvas(W, H);
+          const backCtx = offBack.getContext('2d');
+          backCtx.drawImage(offFull, 0, 0);
+          backCtx.globalCompositeOperation = 'destination-in';
+          const invMask = new OffscreenCanvas(W, H);
+          const invCtx  = invMask.getContext('2d');
+          invCtx.drawImage(arSegMask, 0, 0, W, H);
+          invCtx.globalCompositeOperation = 'difference';
+          invCtx.fillStyle = 'white';
+          invCtx.fillRect(0, 0, W, H);
+          backCtx.drawImage(invMask, 0, 0);
+          segCtx.drawImage(offBack, 0, 0);
+
+          // Front layer: crown hair in front of face
+          const a = getHairAnchors(arLandmarks, W, H);
+          const shoulderY = a.chin.y + a.faceH * 0.35;
+          const offFront  = new OffscreenCanvas(W, H);
+          const frontCtx  = offFront.getContext('2d');
+          compositeRealHair(frontCtx, cached, arLandmarks, W, H, arOpacity);
+          const fm    = new OffscreenCanvas(W, H);
+          const fmCtx = fm.getContext('2d');
+          const fmGrad= fmCtx.createLinearGradient(0, a.fore.y - a.faceH*0.6, 0, shoulderY);
+          fmGrad.addColorStop(0, 'rgba(255,255,255,1)');
+          fmGrad.addColorStop(0.72, 'rgba(255,255,255,0.85)');
+          fmGrad.addColorStop(1, 'rgba(255,255,255,0)');
+          fmCtx.fillStyle = fmGrad;
+          fmCtx.fillRect(0, 0, W, H);
+          frontCtx.globalCompositeOperation = 'destination-in';
+          frontCtx.drawImage(fm, 0, 0);
+          hCtx.drawImage(offFront, 0, 0);
+        } else {
+          compositeRealHair(hCtx, cached, arLandmarks, W, H, arOpacity);
+        }
+      } else {
+        // ── FALLBACK: canvas 2D shapes while photo loads ──
+        drawArHair(hCtx, arLandmarks, W, H, arColorHex, arOpacity);
+        // Trigger async hair extraction (once)
+        if (style?.imageUrl && !hairPhotoLoading) {
+          extractHairFromPhoto(style);
+        }
+      }
+    }
+    arAnimFrame = requestAnimationFrame(loop);
+  }
+  loop();
+};
+
+// Clear cache when switching styles so new photo is fetched
+const _origArNavigateStyle = arNavigateStyle;
+arNavigateStyle = function(dir) {
+  _origArNavigateStyle(dir);
+  // Preload the new style's hair photo
+  setTimeout(() => {
+    if (arEngine === 'realphoto') {
+      const style = arStyleList[arStyleIndex];
+      if (style?.imageUrl && !hairPhotoCache.has(style.imageUrl || style.styleName)) {
+        extractHairFromPhoto(style);
+      }
+    }
+  }, 100);
+};
+
+// Override capture to use Replicate or YouCam when in those modes
+const _origCaptureArSnapshot = captureArSnapshot;
+captureArSnapshot = function() {
+  if (arEngine === 'replicate') {
+    triggerReplicateTransfer().catch(err => {
+      markEngineFailed('replicate');
+    });
+  } else if (arEngine === 'youcam') {
+    triggerYouCamTransfer().catch(err => {
+      markEngineFailed('youcam');
+    });
+  } else if (arEngine === 'fal') {
+    triggerFalTransfer();
+  } else {
+    _origCaptureArSnapshot();
+  }
+};
+
+// ── UPDATE AR MODE BADGE ──────────────────────────────────────────
+function updateArModeBadge() {
+  const badge = document.getElementById('ar-mode-badge');
+  if (!badge) return;
+  badge.className = 'ar-mode-badge';
+  if (arEngine === 'realphoto') {
+    badge.classList.add('real-photo');
+    badge.textContent = 'Real Photo';
+  } else if (arEngine === 'replicate') {
+    badge.classList.add('replicate');
+    badge.textContent = 'Replicate AI';
+  } else if (arEngine === 'youcam') {
+    badge.classList.add('replicate');
+    badge.textContent = 'YouCam AI';
+  } else if (arEngine === 'fal') {
+    badge.classList.add('replicate');
+    badge.textContent = 'fal.ai';
+  } else {
+    badge.textContent = 'Canvas 2D';
+  }
+}
+
+// ══════════════════════════════════════════════════════════════════
+// ADMIN PANEL
+// ══════════════════════════════════════════════════════════════════
+function toggleAdmin() {
+  const panel   = document.getElementById('admin-panel');
+  const overlay = document.getElementById('admin-overlay');
+  const isOpen  = panel.classList.contains('open');
+  panel.classList.toggle('open', !isOpen);
+  overlay.classList.toggle('open', !isOpen);
+}
+
+function closeAdmin() {
+  document.getElementById('admin-panel').classList.remove('open');
+  document.getElementById('admin-overlay').classList.remove('open');
+}
+
+function setArEngine(engine) {
+  arEngine = engine;
+  ['realphoto','canvas','replicate','youcam','fal'].forEach(e => {
+    document.getElementById(`admin-opt-${e}`)?.classList.toggle('active', e === engine);
+  });
+  const dot  = document.getElementById('admin-engine-dot');
+  const text = document.getElementById('admin-engine-text');
+  const labels = {
+    realphoto: 'Real Photo Compositing active',
+    canvas:    'Canvas 2D Shapes active',
+    replicate: 'Replicate AI — static capture only',
+    youcam:    'YouCam AI — photorealistic static capture',
+    fal:       'fal.ai — fast AI hair transfer'
+  };
+  if (text) text.textContent = labels[engine] || engine;
+  if (dot) dot.className = 'admin-status-dot' + (engine === 'replicate' || engine === 'fal' ? ' warn' : '');
+  updateArModeBadge();
+  syncEnginePills(engine);
+}
+
+// ── IN-MODAL ENGINE SWITCHER ──────────────────────────────────────
+const _engineFailures = new Set();
+
+function syncEnginePills(engine) {
+  const pills = document.querySelectorAll('.ar-engine-pill');
+  const labelEl = document.getElementById('ar-engine-label');
+  const dotEl   = document.getElementById('ar-engine-status-dot');
+  const engineLabels = {
+    realphoto: 'Real Photo Compositing',
+    canvas:    'Canvas 2D (offline)',
+    replicate: 'Replicate AI · static',
+    youcam:    'YouCam AI · static',
+    fal:       'fal.ai · fast AI'
+  };
+  pills.forEach(p => {
+    const e = p.dataset.engine;
+    p.classList.toggle('active', e === engine);
+    p.classList.toggle('failed', _engineFailures.has(e));
+  });
+  if (labelEl) labelEl.textContent = engineLabels[engine] || engine;
+  if (dotEl) dotEl.style.background = _engineFailures.has(engine) ? '#ff4444' : '#44cc88';
+
+  // Update capture button label
+  const captureBtn = document.querySelector('.ar-capture-btn .btn-text');
+  if (captureBtn) {
+    captureBtn.textContent = (['replicate','youcam','fal'].includes(engine)) ? 'Generate (AI)' : 'Save Snapshot';
+  }
+}
+
+function arSwitchEngine(engine) {
+  if (_engineFailures.has(engine)) {
+    // Allow retry — clear failure flag
+    _engineFailures.delete(engine);
+  }
+  setArEngine(engine);
+  // Also sync admin panel
+  ['realphoto','canvas','replicate','youcam','fal'].forEach(e => {
+    document.getElementById(`admin-opt-${e}`)?.classList.toggle('active', e === engine);
+  });
+}
+
+function markEngineFailed(engine) {
+  _engineFailures.add(engine);
+  syncEnginePills(arEngine);
+  // Show toast in the label
+  const labelEl = document.getElementById('ar-engine-label');
+  if (labelEl) {
+    labelEl.textContent = `${engine} failed — tap another engine to try`;
+    labelEl.style.color = 'rgba(255,100,100,0.8)';
+    setTimeout(() => {
+      labelEl.style.color = '';
+      syncEnginePills(arEngine);
+    }, 4000);
+  }
+}
+
+// ── FAL.AI HAIR TRANSFER ──────────────────────────────────────────
+async function triggerFalTransfer() {
+  const style = arStyleList[arStyleIndex];
+  if (!style?.imageUrl) {
+    alert('No style image available for fal.ai. Select a style with a photo first.');
+    return;
+  }
+
+  const video   = document.getElementById('ar-video');
+  const snapCvs = document.createElement('canvas');
+  snapCvs.width  = Math.min(video.videoWidth  || 640, 1024);
+  snapCvs.height = Math.min(video.videoHeight || 720, 1024);
+  const sCtx = snapCvs.getContext('2d');
+  sCtx.translate(snapCvs.width, 0);
+  sCtx.scale(-1, 1);
+  sCtx.drawImage(video, 0, 0, snapCvs.width, snapCvs.height);
+  const faceDataUrl = snapCvs.toDataURL('image/jpeg', 0.92);
+
+  const btn = document.querySelector('.ar-capture-btn');
+  const statusEl = document.getElementById('ar-status-text');
+  const setStatus = (msg) => { if (statusEl) statusEl.textContent = msg; };
+
+  if (btn) { btn.style.opacity = '0.5'; btn.style.pointerEvents = 'none'; }
+  setStatus('Uploading to fal.ai…');
+
+  try {
+    const res = await fetch(WORKER_URL, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        action:     'falHairTransfer',
+        faceImage:  faceDataUrl,
+        styleUrl:   style.imageUrl,
+        styleName:  style.name || 'style',
+      })
+    });
+    const data = await res.json();
+    if (!data.success) throw new Error(data.error || 'fal.ai transfer failed');
+
+    setStatus('Processing…');
+
+    // Poll if async, or use direct result
+    if (data.resultUrl) {
+      // Synchronous result
+      const a = document.createElement('a');
+      a.href = data.resultUrl;
+      a.download = `elume-${(style.name||'style').replace(/\s+/g,'-').toLowerCase()}-fal.jpg`;
+      a.target = '_blank';
+      a.click();
+      triggerSnapFlash();
+      setStatus('Done! Image downloaded.');
+    } else if (data.requestId) {
+      // Poll for async result
+      let resultUrl = null;
+      for (let i = 0; i < 40; i++) {
+        await new Promise(r => setTimeout(r, 2500));
+        setStatus(`Processing… (${i+1}/40)`);
+        const poll = await fetch(`${WORKER_URL}?action=falPoll&id=${encodeURIComponent(data.requestId)}`).then(r => r.json());
+        if (poll.status === 'completed' && poll.resultUrl) { resultUrl = poll.resultUrl; break; }
+        if (poll.status === 'failed') throw new Error('fal.ai processing failed');
+      }
+      if (!resultUrl) throw new Error('fal.ai timed out');
+      const a = document.createElement('a');
+      a.href = resultUrl;
+      a.download = `elume-${(style.name||'style').replace(/\s+/g,'-').toLowerCase()}-fal.jpg`;
+      a.target = '_blank';
+      a.click();
+      triggerSnapFlash();
+    }
+
+  } catch (err) {
+    markEngineFailed('fal');
+    setStatus('fal.ai failed — try another engine');
+    alert('fal.ai transfer failed: ' + err.message + '\n\nTry switching to Replicate or YouCam using the engine buttons.');
+  } finally {
+    if (btn) { btn.style.opacity = ''; btn.style.pointerEvents = ''; }
+    setTimeout(() => setStatus(''), 3000);
+  }
+}
+
+function setDbSource(source) {
+  dbSource = source;
+  ['gas','tfjs'].forEach(s => {
+    document.getElementById(`admin-db-${s}`)?.classList.toggle('active', s === source);
+  });
+}
+
+function setSegModel(model) {
+  segModel = model;
+  ['mediapipe','bodypix'].forEach(m => {
+    document.getElementById(`admin-seg-${m}`)?.classList.toggle('active', m === model);
+  });
+  const dot  = document.getElementById('admin-seg-dot');
+  const text = document.getElementById('admin-seg-text');
+  if (model === 'bodypix') {
+    if (text) text.textContent = 'Loading BodyPix… (first use is slow)';
+    if (dot)  dot.className = 'admin-status-dot warn';
+    loadBodyPix().then(() => {
+      if (text) text.textContent = 'BodyPix loaded ✓';
+      if (dot)  dot.className = 'admin-status-dot';
+    }).catch(() => {
+      if (text) text.textContent = 'BodyPix failed to load';
+      if (dot)  dot.className = 'admin-status-dot err';
+      segModel = 'mediapipe';
+      setSegModel('mediapipe');
+    });
+  } else {
+    if (text) text.textContent = 'MediaPipe active';
+    if (dot)  dot.className = 'admin-status-dot';
+  }
+  // Clear cache — segmentation model changed
+  hairPhotoCache.clear();
+}
+
+function applyAdminSettings() {
+  // Clear hair cache so next AR open re-extracts with current settings
+  hairPhotoCache.clear();
+  updateArModeBadge();
+  closeAdmin();
+
+  // Update capture button label
+  const captureBtn = document.querySelector('.ar-capture-btn .btn-text');
+  if (captureBtn) {
+    captureBtn.textContent = (['replicate','youcam','fal'].includes(arEngine)) ? 'Generate (AI)' : 'Save Snapshot';
+  }
+  syncEnginePills(arEngine);
+}
+
+async function adminInit() {
+  updateArModeBadge();
+  // Fetch style count from GAS to show in admin
+  try {
+    const url  = `${WORKER_URL}?action=getStyles`;
+    const data = await fetch(url).then(r => r.json());
+    const count= data?.count || (data?.styles?.length) || 0;
+    const dot  = document.getElementById('admin-db-dot');
+    const text = document.getElementById('admin-db-text');
+    if (text) text.textContent = `${count} styles in database · Drive connected`;
+    if (dot)  dot.className = count > 0 ? 'admin-status-dot' : 'admin-status-dot warn';
+  } catch {
+    const text = document.getElementById('admin-db-text');
+    if (text) text.textContent = 'Could not reach GAS endpoint';
+    const dot  = document.getElementById('admin-db-dot');
+    if (dot)   dot.className = 'admin-status-dot warn';
+  }
+}
 </script>
 </body>
 </html>
