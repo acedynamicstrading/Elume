@@ -259,11 +259,14 @@
     position: absolute; inset: 0; width: 100%; height: 100%;
     object-fit: cover; transform: scaleX(-1);
   }
-  /* All AR canvas layers share the same footprint */
-  #ar-seg-canvas, #ar-hair-back-canvas, #ar-canvas, #ar-hair-canvas {
-    position: absolute; inset: 0; width: 100%; height: 100%;
-    pointer-events: none;
-  }
+  /* All AR canvas layers share the same footprint.
+     z-index stacking matches the layer comments in HTML (seg < hair-back < guide < hair-front).
+     transform: scaleX(-1) mirrors canvases to match the mirrored ar-video feed so
+     hair lands on the correct side of the face. */
+  #ar-seg-canvas      { position: absolute; inset: 0; width: 100%; height: 100%; pointer-events: none; z-index: 1; transform: scaleX(-1); }
+  #ar-hair-back-canvas{ position: absolute; inset: 0; width: 100%; height: 100%; pointer-events: none; z-index: 2; transform: scaleX(-1); }
+  #ar-canvas          { position: absolute; inset: 0; width: 100%; height: 100%; pointer-events: none; z-index: 3; transform: scaleX(-1); }
+  #ar-hair-canvas     { position: absolute; inset: 0; width: 100%; height: 100%; pointer-events: none; z-index: 4; transform: scaleX(-1); }
 
   /* AR status bar */
   .ar-status-bar {
@@ -844,8 +847,9 @@ async function startWebcam(forceRetry) {
   if (!faceMeshInstance) {
     faceMeshInstance = new FaceMesh({ locateFile: (f) => `https://cdn.jsdelivr.net/npm/@mediapipe/face_mesh/${f}` });
     faceMeshInstance.setOptions({ maxNumFaces: 1, refineLandmarks: true, minDetectionConfidence: 0.7, minTrackingConfidence: 0.6 });
-    faceMeshInstance.onResults(onFaceMeshResults);
   }
+  // Always re-register onResults — AR session may have left a stale handler
+  faceMeshInstance.onResults(onFaceMeshResults);
   try {
     cameraInstance = new Camera(video, {
       onFrame: async () => { if (faceMeshInstance) await faceMeshInstance.send({ image: video }); },
@@ -1825,14 +1829,22 @@ function openArModal(styleName, evt) {
   // Build style list and set nav position
   buildArStyleList(cleanName);
 
-  // ── Stop main analyser camera fully so the AR cam can get the device ──
+  // Stop main analyser camera fully so the AR cam can acquire the device
   if (cameraInstance) { cameraInstance.stop(); cameraInstance = null; }
-  // Null faceMeshInstance so startWebcam() recreates it with the correct
-  // onResults handler when AR closes — prevents stale callback after AR session.
+  // Null faceMeshInstance so startWebcam() recreates it with correct onResults when AR closes
   if (faceMeshInstance) { faceMeshInstance = null; }
 
+  // Reset colour to default on each open
+  arColorHex = '#3b2314';
   buildArSwatches();
-  startArCamera();
+
+  // ── CRITICAL: wait for the CSS open transition (400ms) before starting the
+  // camera, otherwise pane.offsetWidth is still 0 and every canvas gets sized
+  // to 0×0 — nothing ever renders.
+  setTimeout(() => {
+    if (!arOpen) return; // user closed before timeout fired
+    startArCamera();
+  }, 420);
 
   // Init swipe after camera pane is visible
   requestAnimationFrame(() => {
@@ -1846,12 +1858,7 @@ function closeArModal() {
   document.body.style.overflow = '';
   arOpen = false;
   stopArCamera();
-
-  // ── Restart the main analyser camera ──────────────────────────────
-  // AR try-on can be opened from the results page (step 2/3) where
-  // currentMode may be 'webcam' but the camera is already stopped.
-  // Always restart as long as the user hasn't switched to upload mode
-  // and hasn't hit a hard camera-not-found failure.
+  // Restart the main analyser camera — works whether user is on step 1 or results page
   if (currentMode === 'webcam' && !cameraFailed) {
     startWebcam();
   }
