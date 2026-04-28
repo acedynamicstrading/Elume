@@ -1118,8 +1118,8 @@
     </div>
     <div class="login-body">
       <div class="login-field">
-        <label for="login-username">Username</label>
-        <input type="text" id="login-username" placeholder="Enter username" autocomplete="username" onkeydown="if(event.key==='Enter')attemptLogin()">
+        <label for="login-username">Email</label>
+        <input type="email" id="login-username" placeholder="your@salon.com" autocomplete="email" onkeydown="if(event.key==='Enter')attemptLogin()">
       </div>
       <div class="login-field">
         <label for="login-password">Password</label>
@@ -1328,51 +1328,36 @@
 const WORKER_URL = "https://elmo-hairstyler-worker.acedynamicstrading.workers.dev";
 
 // ══════════════════════════════════════════════════════════════════
-// AUTH SYSTEM
+// AUTH SYSTEM — KV-backed via Cloudflare Worker
 // ══════════════════════════════════════════════════════════════════
 
-// User database stored in localStorage
-const AUTH_KEY = 'elume_users';
-const SESSION_KEY = 'elume_session';
+const SESSION_TOKEN_KEY = 'elume_session_token';
 
-function getUsers() {
-  const raw = localStorage.getItem(AUTH_KEY);
-  if (!raw) return [];
-  try { return JSON.parse(raw); } catch { return []; }
+async function sha256hex(str) {
+  const buf = await crypto.subtle.digest('SHA-256', new TextEncoder().encode(str));
+  return [...new Uint8Array(buf)].map(b => b.toString(16).padStart(2,'0')).join('');
 }
 
-function saveUsers(users) {
-  localStorage.setItem(AUTH_KEY, JSON.stringify(users));
+function getStoredToken() {
+  return localStorage.getItem(SESSION_TOKEN_KEY) || null;
 }
 
-function initUsers() {
-  const users = getUsers();
-  // Seed admin account if not exists
-  const hasAdmin = users.some(u => u.username === 'Admin');
-  if (!hasAdmin) {
-    users.push({ username: 'Admin', password: 'Admin12234', role: 'admin', created: new Date().toLocaleDateString() });
-    saveUsers(users);
-  }
+function storeToken(token) {
+  localStorage.setItem(SESSION_TOKEN_KEY, token);
 }
 
-function getSession() {
-  const raw = sessionStorage.getItem(SESSION_KEY);
-  if (!raw) return null;
-  try { return JSON.parse(raw); } catch { return null; }
+function clearToken() {
+  localStorage.removeItem(SESSION_TOKEN_KEY);
 }
 
-function setSession(user) {
-  sessionStorage.setItem(SESSION_KEY, JSON.stringify({ username: user.username, role: user.role }));
-}
+// In-memory session cache
+let _currentSalon = null;
 
-function clearSession() {
-  sessionStorage.removeItem(SESSION_KEY);
-}
+function getSession() { return _currentSalon; }
+function isLoggedIn() { return !!_currentSalon; }
+function isAdmin()    { return _currentSalon?.role === 'admin'; }
 
-function isLoggedIn() { return !!getSession(); }
-function isAdmin() { const s = getSession(); return s && s.role === 'admin'; }
-
-// ── SHOW LOGIN ────────────────────────────────────────────────────
+// ── SHOW / HIDE LOGIN ─────────────────────────────────────────────
 function showLogin() {
   document.getElementById('login-modal-overlay').classList.add('open');
 }
@@ -1382,71 +1367,83 @@ function hideLogin() {
 }
 
 // ── ATTEMPT LOGIN ─────────────────────────────────────────────────
-function attemptLogin() {
-  const username = document.getElementById('login-username').value.trim();
+async function attemptLogin() {
+  const email    = document.getElementById('login-username').value.trim();
   const password = document.getElementById('login-password').value;
-  const errorEl = document.getElementById('login-error');
-  const btnText = document.getElementById('login-btn-text');
-  const spinner = document.getElementById('login-spinner');
-  const btn = document.getElementById('login-submit-btn');
+  const errorEl  = document.getElementById('login-error');
+  const btnText  = document.getElementById('login-btn-text');
+  const spinner  = document.getElementById('login-spinner');
+  const btn      = document.getElementById('login-submit-btn');
 
   errorEl.classList.remove('show');
   btn.classList.add('loading');
   btnText.textContent = 'Signing in…';
   spinner.style.display = 'block';
 
-  // Simulate slight delay for UX
-  setTimeout(() => {
-    const users = getUsers();
-    const match = users.find(u => u.username === username && u.password === password);
+  try {
+    const passwordHash = await sha256hex(password);
+    const res  = await fetch(WORKER_URL, {
+      method:  'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body:    JSON.stringify({ action: 'salonLogin', email, passwordHash }),
+    });
+    const data = await res.json();
 
-    btn.classList.remove('loading');
-    btnText.textContent = 'Sign In';
-    spinner.style.display = 'none';
-
-    if (match) {
-      setSession(match);
+    if (data.success) {
+      storeToken(data.token);
+      _currentSalon = data.salon;
       hideLogin();
-      onLoginSuccess(match);
+      onLoginSuccess(data.salon);
     } else {
+      errorEl.textContent = data.error || 'Incorrect email or password.';
       errorEl.classList.add('show');
       document.getElementById('login-password').value = '';
       document.getElementById('login-password').focus();
     }
-  }, 600);
-}
-
-// ── AFTER SUCCESSFUL LOGIN ────────────────────────────────────────
-function onLoginSuccess(user) {
-  // Reveal page content
-  document.getElementById('page-content').style.display = '';
-
-  // Show header user info
-  const nameEl = document.getElementById('header-user-name');
-  const logoutEl = document.getElementById('header-logout-btn');
-  nameEl.textContent = user.username + (user.role === 'admin' ? ' · Admin' : '');
-  nameEl.classList.add('visible');
-  logoutEl.classList.add('visible');
-
-  // Show admin gear if admin
-  const gearBtn = document.getElementById('admin-toggle-btn');
-  if (user.role === 'admin') {
-    gearBtn.style.display = 'flex';
-  } else {
-    gearBtn.style.display = 'none';
+  } catch (e) {
+    errorEl.textContent = 'Connection error — please try again.';
+    errorEl.classList.add('show');
+  } finally {
+    btn.classList.remove('loading');
+    btnText.textContent = 'Sign In';
+    spinner.style.display = 'none';
   }
 }
 
+// ── AFTER SUCCESSFUL LOGIN ────────────────────────────────────────
+function onLoginSuccess(salon) {
+  document.getElementById('page-content').style.display = '';
+
+  const nameEl   = document.getElementById('header-user-name');
+  const logoutEl = document.getElementById('header-logout-btn');
+  const displayName = (salon.salonName || salon.ownerName || salon.email || 'Salon')
+    + (salon.role === 'admin' ? ' · Admin' : '');
+  nameEl.textContent = displayName;
+  nameEl.classList.add('visible');
+  logoutEl.classList.add('visible');
+
+  const gearBtn = document.getElementById('admin-toggle-btn');
+  gearBtn.style.display = salon.role === 'admin' ? 'flex' : 'none';
+}
+
 // ── LOGOUT ────────────────────────────────────────────────────────
-function logoutUser() {
-  clearSession();
-  // Hide page content immediately
+async function logoutUser() {
+  const token = getStoredToken();
+  if (token) {
+    fetch(WORKER_URL, {
+      method:  'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body:    JSON.stringify({ action: 'salonLogout', token }),
+    }).catch(() => {});
+  }
+  clearToken();
+  _currentSalon = null;
+
   document.getElementById('page-content').style.display = 'none';
   document.getElementById('header-user-name').classList.remove('visible');
   document.getElementById('header-logout-btn').classList.remove('visible');
   document.getElementById('admin-toggle-btn').style.display = 'none';
   closeAdmin();
-  // Clear login fields
   document.getElementById('login-username').value = '';
   document.getElementById('login-password').value = '';
   document.getElementById('login-error').classList.remove('show');
@@ -1455,12 +1452,10 @@ function logoutUser() {
 
 // ── REQUIRE ADMIN THEN OPEN ───────────────────────────────────────
 function requireAdminThenOpen() {
-  if (isAdmin()) {
-    toggleAdmin();
-  }
+  if (isAdmin()) toggleAdmin();
 }
 
-// ── USER MANAGEMENT ───────────────────────────────────────────────
+// ── USER MANAGEMENT (admin only — lists KV salons) ────────────────
 function openUserMgmt() {
   closeAdmin();
   renderUsersTable();
@@ -1473,85 +1468,120 @@ function closeUserMgmt() {
   document.getElementById('usermgmt-error').classList.remove('show');
   document.getElementById('new-user-username').value = '';
   document.getElementById('new-user-password').value = '';
-  document.getElementById('new-user-role').value = 'user';
 }
 
-function renderUsersTable() {
-  const users = getUsers();
+async function renderUsersTable() {
   const tbody = document.getElementById('users-table-body');
-  const currentUser = getSession();
+  tbody.innerHTML = '<tr><td colspan="4" style="text-align:center;padding:20px;color:rgba(255,255,255,0.3);font-size:0.7rem;">Loading…</td></tr>';
 
-  tbody.innerHTML = users.map((u, i) => {
-    const isCurrentUser = u.username === currentUser?.username;
-    const isSuperAdmin = u.username === 'Admin' && u.role === 'admin';
-    return `<tr>
-      <td style="font-weight:${isCurrentUser?'500':'400'};color:${isCurrentUser?'var(--cream)':'rgba(255,255,255,0.7)'}">
-        ${u.username}${isCurrentUser ? ' <span style="font-size:0.55rem;color:var(--gold);letter-spacing:0.1em;">(you)</span>' : ''}
-      </td>
-      <td><span class="user-role-badge ${u.role === 'admin' ? 'role-admin' : 'role-user'}">${u.role}</span></td>
-      <td style="color:rgba(255,255,255,0.35);font-size:0.7rem;">${u.created || '—'}</td>
-      <td>
-        <button class="user-delete-btn" ${isSuperAdmin || isCurrentUser ? 'disabled title="Cannot remove this account"' : `onclick="deleteUser(${i})"`}>
-          ${isSuperAdmin || isCurrentUser ? 'Protected' : 'Remove'}
-        </button>
-      </td>
-    </tr>`;
-  }).join('');
+  // Admin key is not stored on main site — show a prompt once
+  const adminKey = sessionStorage.getItem('elume_admin_key') || prompt('Enter ADMIN_KEY to manage users:');
+  if (!adminKey) return;
+  sessionStorage.setItem('elume_admin_key', adminKey);
+
+  try {
+    const res  = await fetch(WORKER_URL, {
+      method:  'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body:    JSON.stringify({ action: 'adminListSalons', adminKey }),
+    });
+    const data = await res.json();
+    if (!data.success) { tbody.innerHTML = `<tr><td colspan="4" style="color:#ff6666;padding:16px">${data.error}</td></tr>`; return; }
+
+    const salons = data.salons || [];
+    tbody.innerHTML = salons.map(s => `
+      <tr>
+        <td style="color:var(--cream)">${s.salonName}<br><span style="font-size:0.65rem;color:rgba(255,255,255,0.35)">${s.email}</span></td>
+        <td><span class="user-role-badge ${s.role === 'admin' ? 'role-admin' : 'role-user'}">${s.role}</span></td>
+        <td style="color:rgba(255,255,255,0.35);font-size:0.7rem;">${s.status}</td>
+        <td>
+          ${s.role !== 'admin' ? `<button class="user-delete-btn" onclick="adminDeleteSalon('${s.email}','${s.salonName}')">Remove</button>` : '<span style="font-size:0.6rem;color:rgba(255,255,255,0.2)">Protected</span>'}
+        </td>
+      </tr>`).join('') || '<tr><td colspan="4" style="text-align:center;padding:20px;color:rgba(255,255,255,0.3)">No salons found</td></tr>';
+  } catch(e) {
+    tbody.innerHTML = `<tr><td colspan="4" style="color:#ff6666;padding:16px">Connection error</td></tr>`;
+  }
 }
 
-function addUser() {
-  const username = document.getElementById('new-user-username').value.trim();
-  const password = document.getElementById('new-user-password').value;
-  const role = document.getElementById('new-user-role').value;
-  const errorEl = document.getElementById('usermgmt-error');
-
+async function addUser() {
+  const salonName = document.getElementById('new-user-username').value.trim();
+  const password  = document.getElementById('new-user-password').value;
+  const errorEl   = document.getElementById('usermgmt-error');
   errorEl.classList.remove('show');
 
-  if (!username || !password) {
-    errorEl.textContent = 'Username and password are required.';
-    errorEl.classList.add('show');
-    return;
-  }
-  if (password.length < 6) {
-    errorEl.textContent = 'Password must be at least 6 characters.';
+  if (!salonName || !password) {
+    errorEl.textContent = 'Salon name and password are required.';
     errorEl.classList.add('show');
     return;
   }
 
-  const users = getUsers();
-  if (users.some(u => u.username.toLowerCase() === username.toLowerCase())) {
-    errorEl.textContent = 'Username already exists.';
-    errorEl.classList.add('show');
-    return;
-  }
+  const adminKey = sessionStorage.getItem('elume_admin_key') || prompt('Enter ADMIN_KEY:');
+  if (!adminKey) return;
+  sessionStorage.setItem('elume_admin_key', adminKey);
 
-  users.push({ username, password, role, created: new Date().toLocaleDateString() });
-  saveUsers(users);
-  document.getElementById('new-user-username').value = '';
-  document.getElementById('new-user-password').value = '';
-  document.getElementById('new-user-role').value = 'user';
-  renderUsersTable();
+  const email = salonName.toLowerCase().replace(/\s+/g,'.') + '@elume.salon';
+  const passwordHash = await sha256hex(password);
+
+  try {
+    const res  = await fetch(WORKER_URL, {
+      method:  'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body:    JSON.stringify({
+        action: 'adminCreateSalon', adminKey,
+        email, passwordHash,
+        salonName, ownerName: salonName,
+        approved: true,
+      }),
+    });
+    const data = await res.json();
+    if (data.success) {
+      document.getElementById('new-user-username').value = '';
+      document.getElementById('new-user-password').value = '';
+      renderUsersTable();
+    } else {
+      errorEl.textContent = data.error || 'Failed to create salon.';
+      errorEl.classList.add('show');
+    }
+  } catch(e) {
+    errorEl.textContent = 'Connection error.';
+    errorEl.classList.add('show');
+  }
 }
 
-function deleteUser(index) {
-  const users = getUsers();
-  const user = users[index];
-  if (!user) return;
-  if (!confirm(`Remove user "${user.username}"? This cannot be undone.`)) return;
-  users.splice(index, 1);
-  saveUsers(users);
-  renderUsersTable();
+async function adminDeleteSalon(email, name) {
+  if (!confirm(`Remove "${name}"? This cannot be undone.`)) return;
+  const adminKey = sessionStorage.getItem('elume_admin_key');
+  if (!adminKey) return;
+  const res  = await fetch(WORKER_URL, {
+    method:  'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body:    JSON.stringify({ action: 'adminDeleteSalon', adminKey, email }),
+  });
+  const data = await res.json();
+  if (data.success) renderUsersTable();
+  else alert(data.error || 'Delete failed.');
 }
 
 // ── BOOT ─────────────────────────────────────────────────────────
-(function bootAuth() {
-  initUsers();
-  const session = getSession();
-  if (session) {
-    onLoginSuccess(session);
-  } else {
-    showLogin();
+(async function bootAuth() {
+  const token = getStoredToken();
+  if (token) {
+    try {
+      const res  = await fetch(WORKER_URL, {
+        method:  'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body:    JSON.stringify({ action: 'salonMe', token }),
+      });
+      const data = await res.json();
+      if (data.success && data.salon) {
+        _currentSalon = data.salon;
+        onLoginSuccess(data.salon);
+        return;
+      }
+    } catch {}
+    clearToken();
   }
+  showLogin();
 })();
 
 
