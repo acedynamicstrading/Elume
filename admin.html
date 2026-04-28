@@ -445,7 +445,7 @@ td.name{color:var(--cream);font-weight:400;}
 const WORKER = 'https://elmo-hairstyler-worker.acedynamicstrading.workers.dev';
 
 let sessionToken = localStorage.getItem('elume_admin_token') || null;
-let adminKey     = localStorage.getItem('elume_admin_key')   || null;
+let adminKey     = sessionStorage.getItem('elume_admin_key')  || null;
 let allSalons    = [];
 let currentFilter = 'all';
 let limitTargetEmail    = null;
@@ -497,15 +497,13 @@ async function doLogin() {
     }
 
     sessionToken = data.token;
-    adminKey     = document.getElementById('login-pass').value; // keep raw for hashing later... 
-    // Actually store ADMIN_KEY separately — prompt for it
     localStorage.setItem('elume_admin_token', sessionToken);
 
     // We need the ADMIN_KEY secret for admin actions — ask for it
     const ak = prompt('Enter your ADMIN_KEY (from Cloudflare secrets):');
     if (!ak) { showErr(err, 'ADMIN_KEY required for admin actions.'); return; }
     adminKey = ak;
-    localStorage.setItem('elume_admin_key', ak);
+    sessionStorage.setItem('elume_admin_key', ak);
 
     document.getElementById('topbar-user').textContent = data.salon.ownerName + ' · ' + data.salon.salonName;
     showDashboard();
@@ -533,7 +531,7 @@ async function doLogout() {
     }).catch(()=>{});
   }
   localStorage.removeItem('elume_admin_token');
-  localStorage.removeItem('elume_admin_key');
+  sessionStorage.removeItem('elume_admin_key');
   sessionToken = null; adminKey = null;
   document.getElementById('dashboard').style.display = 'none';
   document.getElementById('login-page').style.display = 'flex';
@@ -550,7 +548,11 @@ function showDashboard() {
 // ── STATS ─────────────────────────────────────────────────────────
 async function loadStats() {
   try {
-    const res  = await fetch(`${WORKER}?action=adminStats&adminKey=${encodeURIComponent(adminKey)}`);
+    const res  = await fetch(WORKER, {
+      method:  'POST',
+      headers: {'Content-Type':'application/json'},
+      body:    JSON.stringify({ action:'adminStats', adminKey }),
+    });
     const data = await res.json();
     if (!data.success) return;
     document.getElementById('stat-total').textContent     = data.totalSalons;
@@ -787,7 +789,11 @@ window.addEventListener('load', async () => {
   if (sessionToken && adminKey) {
     // Verify session is still valid
     try {
-      const res  = await fetch(`${WORKER}?action=salonMe&token=${sessionToken}`);
+      const res  = await fetch(WORKER, {
+        method:  'POST',
+        headers: {'Content-Type':'application/json'},
+        body:    JSON.stringify({ action:'salonMe', token: sessionToken }),
+      });
       const data = await res.json();
       if (data.success && data.salon?.role === 'admin') {
         document.getElementById('topbar-user').textContent =
@@ -798,7 +804,7 @@ window.addEventListener('load', async () => {
     } catch {}
     // Session expired — clear and show login
     localStorage.removeItem('elume_admin_token');
-    localStorage.removeItem('elume_admin_key');
+    sessionStorage.removeItem('elume_admin_key');
     sessionToken = null; adminKey = null;
   }
   document.getElementById('login-page').style.display  = 'flex';
