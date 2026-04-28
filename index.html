@@ -2089,55 +2089,59 @@ function makePlaceholder(label) {
 // ── GENDER FILTER ─────────────────────────────────────────────────
 // Applied client-side as a safety net in case the worker returns mixed results.
 // Checks styleName and tags fields against known gendered keywords.
-const MALE_KEYWORDS   = /\b(taper|fade|undercut|pompadour|quiff|crop|comb.?over|side.?part|buzz|caesar|mohawk|skin.?fade|high.?fade|crew|clipper|barber|men|man|male|gentleman|masculine|slick.?back|hard.?part|temp.?fade|drop.?fade|mid.?fade|low.?fade|textured.?top|french.?crop|ivy.?league|regulation|curtains|two.?block)\b/i;
-const FEMALE_KEYWORDS = /\b(bob|lob|shag|wolf|bun|updo|chignon|fringe|bang|layers|layered|beach.?wave|mermaid|pixie|long|balayage|highlights|blowout|volume|curl|ringlet|braids?|ponytail|half.?up|women|woman|female|girl|feminine|goddess|fishtail|waterfall|swept)\b/i;
+// Male keywords: distinctly masculine cuts only
+const MALE_KEYWORDS = /\b(taper|fade|undercut|pompadour|quiff|comb.?over|buzz|caesar|mohawk|skin.?fade|high.?fade|crew.?cut|clipper|barber|men'?s|man'?s|\bman\b|\bmen\b|male|gentleman|masculine|slick.?back|hard.?part|temp.?fade|drop.?fade|mid.?fade|low.?fade|french.?crop|ivy.?league|regulation|two.?block|disconnected|shape.?up|line.?up)\b/i;
+// Female keywords: distinctly feminine cuts only — removed generic words like "long", "curl", "volume", "layers", "highlights"
+const FEMALE_KEYWORDS = /\b(bob|lob|shag|wolf.?cut|bun|updo|chignon|bang|beach.?wave|mermaid|pixie|balayage|blowout|ringlet|braids?|fishtail|waterfall|goddess|women'?s|woman'?s|\bwomen\b|\bwoman\b|female|feminine|half.?up.?half.?down|curtain.?fringe|butterfly.?cut|bow.?braid|space.?bun)\b/i;
 
 function filterStylesByGender(styles, gender) {
   if (!styles || styles.length === 0) return styles;
   const isMale = gender === 'M' || gender === 'male';
 
   return styles.filter(s => {
-    const haystack = `${s.styleName || ''} ${(s.tags || []).join(' ')} ${s.gender || ''} ${s.description || ''}`.toLowerCase();
-
+    // 1. Trust explicit gender field if present
     const hasGenderField = s.gender && s.gender.trim() !== '';
     if (hasGenderField) {
-      // Trust explicit gender field if present
       const g = s.gender.toLowerCase();
       if (g === 'unisex' || g === 'both' || g === 'all') return true;
-      if (isMale)  return g.includes('m') || g.includes('male') || g.includes('men');
-      return g.includes('f') || g.includes('female') || g.includes('wom');
+      if (isMale) return g.includes('male') || g.includes('men') || g === 'm';
+      return g.includes('female') || g.includes('wom') || g === 'f';
     }
 
-    // No gender field — infer from name/tags
+    // 2. Infer from name + tags + description
+    const haystack = `${s.styleName || ''} ${(s.tags || []).join(' ')} ${s.description || ''}`.toLowerCase();
     const hasMaleKW   = MALE_KEYWORDS.test(haystack);
     const hasFemaleKW = FEMALE_KEYWORDS.test(haystack);
 
-    if (hasMaleKW && hasFemaleKW) return true;  // ambiguous — keep it
-    if (!hasMaleKW && !hasFemaleKW) return true; // no keywords — keep it
-    if (isMale)  return hasMaleKW;
-    return hasFemaleKW;
+    // Strong signal: only one gender keyword matched → strict filter
+    if (hasMaleKW && !hasFemaleKW) return isMale;
+    if (hasFemaleKW && !hasMaleKW) return !isMale;
+
+    // Both or neither matched → default to selected gender's fallback pool
+    // (ambiguous styles stay in rather than crossing over)
+    return true;
   });
 }
 
 function generateFallbackRecs(faceShape, gender) {
   const isMale = gender === 'M' || gender === 'male';
   const maleMap = {
-    Oval:    ['Classic Taper','Textured Crop','Side Part','Curtain Fringe','Pompadour'],
-    Round:   ['Angular Fringe','High Fade','Pompadour','Undercut','Textured Quiff'],
-    Square:  ['Side Part','Textured Crop','Quiff','Low Fade','Caesar Cut'],
-    Heart:   ['Curtain Fringe','Textured Top','Side Swept','Undercut','Quiff'],
-    Diamond: ['Side Part','Textured Fringe','Undercut','Fade','Pompadour'],
-    Oblong:  ['Side Part','Crop','Fringe','Low Fade','Textured Top'],
-    Pear:    ['Volume Crown','Textured Top','Undercut','Fade','Quiff'],
+    Oval:    ['Classic Taper Fade','Textured Crop','Side Part','Curtain Fringe','Slick Back Pompadour'],
+    Round:   ['Angular Fringe','High Skin Fade','Pompadour','Undercut','Textured Quiff'],
+    Square:  ['Side Part Fade','Textured Crop','Quiff','Low Taper Fade','Caesar Cut'],
+    Heart:   ['Curtain Fringe','Textured Top Fade','Side Swept Undercut','Quiff','French Crop'],
+    Diamond: ['Side Part Taper','Textured Fringe','Disconnected Undercut','Mid Fade','Pompadour'],
+    Oblong:  ['Side Part','Crop with Fringe','Low Fade','Textured Top','Buzz Cut'],
+    Pear:    ['Volume Crown Fade','Textured Top','Undercut','Taper Fade','Quiff'],
   };
   const femaleMap = {
-    Oval:    ['Soft Waves','Long Layers','Bob','Curtain Fringe','Beach Waves'],
-    Round:   ['Long Layers','Side Swept Bang','Shag Cut','Wolf Cut','Voluminous Layers'],
-    Square:  ['Soft Waves','Side Part Layers','Shag Cut','Long Bob','Curtain Fringe'],
-    Heart:   ['Curtain Fringe','Shag Cut','Bob with Layers','Side Swept','Lob'],
-    Diamond: ['Side Swept Bang','Voluminous Layers','Blunt Bob','Long Waves','Lob'],
-    Oblong:  ['Natural Curls','Fringe Layers','Voluminous Layers','Bob','Beach Waves'],
-    Pear:    ['Volume Crown Layers','Shag Cut','Curtain Fringe','Wolf Cut','Lob'],
+    Oval:    ['Soft Beach Waves','Long Layers','Classic Bob','Curtain Bangs','Lob'],
+    Round:   ['Long Layers','Side-Swept Bangs','Shag Cut','Wolf Cut','Voluminous Lob'],
+    Square:  ['Soft Waves','Layered Side Part','Shag Cut','Long Bob','Curtain Bangs'],
+    Heart:   ['Curtain Bangs','Shag Cut','Bob with Layers','Side-Swept Lob','Pixie Cut'],
+    Diamond: ['Side-Swept Bangs','Voluminous Layers','Blunt Bob','Long Waves','Lob'],
+    Oblong:  ['Natural Curls','Fringe Layers','Voluminous Bob','Beach Waves','Space Buns'],
+    Pear:    ['Volume Crown Layers','Shag Cut','Curtain Bangs','Wolf Cut','Lob'],
   };
   const map  = isMale ? maleMap : femaleMap;
   const names = map[faceShape] || map['Oval'];
